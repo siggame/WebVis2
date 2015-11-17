@@ -1,0 +1,40 @@
+.webvis-main {
+    height: 100%;
+    padding: 10px;
+    padding-bottom: 20px;
+}
+
+.webvis-padding-size {
+    box-sizing: border-box;
+    height: 100%;
+    margin-right: 10px;
+}
+
+.webvis-container {
+    box-sizing: border-box;
+    padding: 0px;
+    padding-right: 10px;
+    height: 100%;
+}
+
+.webvis-heading {
+    display:inline;
+    width:100%;
+    font-size: 30px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 100;
+    line-height: 1.1;
+    color: inherit;
+}
+
+.webvis-playback-bar {
+    box-sizing: border-box;
+    width: 100%;
+    margin-left: 10px;
+    margin-bottom:10px;
+    position:absolute;
+    left: 0;
+    bottom:0;
+}
+
+.fill-height {}
