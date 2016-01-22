@@ -1,6 +1,6 @@
 <div class="container-fluid webvis-main">
     <div class="row-fluid" style="height:100%">
-        <div class="col-md-3 webvis-container">
+        <div class="col-md-3 hidden-sm hidden-xs webvis-container">
             <div class="col-md-12 text-center" style="display:inline; padding-top:10px;padding-bottom:10px;">
                 <h2 class="webvis-heading">
                     WebVis
@@ -23,12 +23,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-9 webvis-container">
-            <div class="well webvis-padding-size">
-                <canvas class="col-md-12 fill-height" style="padding:0px"></canvas>
-                <div class="webvis-playback-bar ">
-                    <div class="well fill-width" style="margin:0px;">
-                        <button class="btn btn-primary">blah</button>
+        <div class="col-md-9 col-sm-12 webvis-container">
+            <div class="well fill-height" style="padding:0px;">
+                <canvas class="col-md-12 fill-height img-responsive ret" style="padding:0px"></canvas>
+                <div class="webvis-playback-bar fill-width">
+                    <div class="well fill-width" style="margin:0px;padding:0px;">
+                        <div id="turn-slider"></div>
                     </div>
                 </div>
             </div>
