@@ -1,7 +1,7 @@
 WebVis = {};
 
-WebVis.onloadActionList = [];
-
-WebVis.loadHtml = function(name) {
-    WebVis.onloadActionList.push(name);
+WebVis.game = {
+    currentTurn: 0,
+    currentMove: 0,
+    dt: 0
 };

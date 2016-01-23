@@ -1,6 +1,4 @@
 (function() {
-    var subsLeft = WebVis.onloadActionList.length;
-
     var fillHeight = function() {
         $('.fill-height').each(function(index, elem){
             var $elem = $(elem);
@@ -33,7 +31,24 @@
 
     $(window).resize(fillWidth);
     $(window).resize(fillHeight);
+    fillWidth();
+    fillHeight();
 
+    //-------------------------------------------------
+    // attach the time slider to it's element
+    //-------------------------------------------------
+    $('#turn-slider').slider({
+        animate: true,
+        max: 10,
+        min: 0,
+        slide: function(event, ui) {
+            WebVis.game.currentTurn = ui.value;
+            console.log(WebVis.game.currentTurn);
+        }
+    });
+
+
+    /*
     for(var i = 0; i < WebVis.onloadActionList.length; i++) {
         var name = WebVis.onloadActionList[i];
         var xhr = new XMLHttpRequest();
@@ -58,5 +73,7 @@
         };
         xhr.send();
     }
+    */
+
 
 }).call(this);

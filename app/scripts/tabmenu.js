@@ -1,4 +1,4 @@
-(function() {  $(document).ready( function() {
+(function() {
 
     var tabmenu = $("#tab-bind-point");
     var tabList = $("#tabs");
@@ -60,5 +60,4 @@
     tabmenu.empty();
     tabmenu.append(pages["Alerts"])
 
-
-})}).call(this);
+}).call(this);
