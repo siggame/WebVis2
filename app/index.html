@@ -15,19 +15,19 @@
 
         <div class="container-fluid webvis-main">
             <div class="row-fluid" style="height:100%">
-                <div class="col-md-3 hidden-sm hidden-xs webvis-container">
-                    <div class="col-md-12 text-center" style="display:inline; padding-top:10px;padding-bottom:10px;">
+                <div class="col-lg-3 col-md-3 hidden-sm hidden-xs webvis-container">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" style="display:inline; padding-top:10px;padding-bottom:10px;">
                         <h2 class="webvis-heading">
                             WebVis
                             <small style="text-muted">0.0.0</small>
                         </h2>
                     </div>
-                    <div class="col-md-12" style="padding:0px;">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding:0px;">
                         <button class="btn btn-primary" style="width:100%;margin-bottom:10px">
                             Open
                         </button>
                     </div>
-                    <div id="tabmenu" class="col-md-12 well webvis-padding-size fill-height" style="margin-bottom:0px;">
+                    <div id="tabmenu" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 well webvis-padding-size fill-height" style="margin-bottom:0px;">
                         <div class="webvis-container">
                             <ul id="tabs" class="nav nav-tabs active" heading="Alerts">
                                 <li class="active"><a>Alerts</a></li>
@@ -40,10 +40,35 @@
                 </div>
                 <div class="col-md-9 col-sm-12 webvis-container">
                     <div class="well fill-height" style="padding:0px;">
-                        <canvas class="col-md-12 fill-height img-responsive ret" style="padding:0px"></canvas>
+                        <canvas class="col-lg-12 col-md-12 col-sm-12 col-xs-12 fill-height img-responsive ret" style="padding:0px"></canvas>
                         <div class="webvis-playback-bar fill-width">
-                            <div class="well fill-width" style="margin:0px;padding:10px;">
-                                <div id="turn-slider" class="fill-width"></div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 well" style="margin:0px;padding:10px;">
+                                <div>
+                                    <div id="turn-slider"></div>
+                                </div>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="display:inline; padding: 0px;">
+                                    <div class="btn-group" role="group" style="padding-top: 10px;">
+                                        <button id="back-button" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-step-backward"></span>
+                                        </button>
+                                        <button id="play-button" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-play"></span>
+                                        </button>
+                                        <button id="forward-button" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-step-forward"></span>
+                                        </button>
+                                        <button id="turn-toggle" type="button" class="btn btn-default">Turn</button>
+                                    </div>
+                                    <div style="padding-top:10px;display:inline-block;width:210px;float:right;">
+                                        <p style="display:inline-block;padding-right: 10px">blah</p>
+                                        <div style="width: 110px; display:inline-block;">
+                                            <div id="speed-slider"></div>
+                                        </div>
+                                        <button id="fullscreen-toggle" type="button" class="btn btn-default" style="margin-left:10px;">
+                                            <span class="glyphicon glyphicon-fullscreen"></span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -57,8 +82,10 @@
         <script src="bower_components/jquery-ui/jquery-ui.js"></script>
         <!-- endbower -->
 
+        <script src="/scripts/game.js"></script>
+        <script src="/scripts/plugin.js"></script>
         <script src="/scripts/main.js"></script>
         <script src="/scripts/tabmenu.js"></script>
-        <script src="/scripts/game.js"></script>
+
     </body>
 </html>

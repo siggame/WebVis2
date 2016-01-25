@@ -1,9 +1,9 @@
 (function() {
     var lastAnimTime = new Date();
-
-    WebVis.game.play = function() {
-        WebVis.game.playing = true;
-    };
+    var onPlay = function() {};
+    var onPause = function() {};
+    var onCurrentTurnChange = function() {}
+    var onMaxTurnChange = function() {}
 
     var updateTime = function() {
         var currentDate = new Date();
@@ -11,20 +11,77 @@
         var dtSeconds = (currentTime - lastAnimTime)/1000;
 
         if(WebVis.game.playing) {
+            var prevCurrentTurn = WebVis.game.currentTurn;
             WebVis.game.currentTurn += WebVis.game.speed * dtSeconds;
-            // TODO: handle end of log stop
+
+            // handle reaching/exceeding max turn
+            if(WebVis.game.currentTurn >= WebVis.game.maxTurn) {
+                WebVis.game.playing = false;
+                WebVis.game.currentTurn = WebVis.game.maxTurn;
+                onPause();
+            }
+
+            // handle turn change
+            if(parseInt(prevCurrentTurn) < parseInt(WebVis.game.currentTurn) ||
+               parseInt(prevCurrentTurn) > parseInt(WebVis.game.currentTurn)) {
+                onCurrentTurnChange();
+            }
+
         }
 
-        lastAnimateTime = currentTime;
+        lastAnimTime = currentTime;
         return dtSeconds
     };
 
-    WebVis.game.anim = function() {
-        window.requestAnimationFrame(WebVis.game.anim);
+    var anim = function() {
+        window.requestAnimationFrame(anim);
         var dt = updateTime();
 
         // TODO: handle rendering
+    }
+
+    WebVis.game = {
+        // publics
+        currentTurn: 0,
+        maxTurn: 10,
+        speed: 1,
+        playing: false,
+        turnMode: true,
+
+        // methods
+        play: function() {
+            lastAnimTime = new Date();
+            WebVis.game.playing = true;
+            onPlay();
+        },
+
+        pause: function() {
+            WebVis.game.playing = false;
+            onPause();
+        },
+
+        togglePlayMode: function() {
+            WebVis.game.playing
+        },
+
+        // events
+        onPlay: function(callback) {
+            onPlay = callback;
+        },
+
+        onPause: function(callback) {
+            onPause = callback;
+        },
+
+        onCurrentTurnChange: function(callback) {
+            onCurrentTurnChange = callback;
+        },
+
+        onMaxTurnChange: function(callback) {
+            onMaxTurnChange = callback;
+        }
     };
-    window.requestAnimationFrame(WebVis.game.anim);
+
+    window.requestAnimationFrame(anim);
 
 }).call(this);

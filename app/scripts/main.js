@@ -39,41 +39,136 @@
     //-------------------------------------------------
     $('#turn-slider').slider({
         animate: true,
-        max: 10,
         min: 0,
+        max: WebVis.game.maxTurn,
         slide: function(event, ui) {
             WebVis.game.currentTurn = ui.value;
-            console.log(WebVis.game.currentTurn);
         }
     });
 
+    //-------------------------------------------------
+    // attach the speed slider to it's element
+    //-------------------------------------------------
+    $('#speed-slider').slider({
+        animate: true,
+        max: 10,
+        min: 0,
+        slide: function(event, ui) {
+            WebVis.game.speed = ui.value;
+        }
+    })
 
-    /*
-    for(var i = 0; i < WebVis.onloadActionList.length; i++) {
-        var name = WebVis.onloadActionList[i];
-        var xhr = new XMLHttpRequest();
-        var file = $('#' + name).children(':first').text();
-        xhr.open('GET', file, true);
-        xhr.responseType = 'document';
-        xhr.onload = function(e) {
-            var doc = e.target.response;
-            $('#' + name).empty();
-            $('#' + name).append($(e.target.response.body.innerHTML));
-            $('#' + name).css("display", "block")
+    //-------------------------------------------------
+    // attach the step back button
+    //-------------------------------------------------
+    $('#back-button').click(function() {
+        if(WebVis.game.currentTurn > 1) {
+            WebVis.game.currentTurn = parseInt(WebVis.game.currentTurn - 1);
+        } else {
+            WebVis.game.currentTurn = 0;
+            WebVis.game.playing = false;
+        }
+        $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
+    });
 
-            subsLeft--;
-            if(subsLeft === 0) {
-                fillWidth();
-                fillHeight();
-                var $turnslider = $('#turn-slider');
-                $turnslider.slider();
-                $turnslider.slider('setLeft', 0);
-                $turnslider.slider('setRight', 10);
+    //-------------------------------------------------
+    // attach the play/pause button
+    //-------------------------------------------------
+    var evalPlaying = function() {
+        var $elem = $("#play-button");
+        console.log("blah");
+        if(!WebVis.game.playing) {
+            $elem.children("span")
+            .addClass("glyphicon-play")
+            .removeClass("glyphicon-pause");
+        } else {
+            $elem.children("span")
+            .addClass("glyphicon-pause")
+            .removeClass("glyphicon-play");
+        }
+    };
+
+    $('#play-button').click(function() {
+        var $elem = $(this);
+        if(!WebVis.game.playing) {
+            WebVis.game.play();
+        } else {
+            WebVis.game.pause();
+        }
+        $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
+    });
+
+    //-------------------------------------------------
+    // attach the step forward button
+    //-------------------------------------------------
+    $('#forward-button').click(function() {
+        if(WebVis.game.currentTurn < WebVis.game.maxTurn - 1) {
+            WebVis.game.currentTurn = parseInt(WebVis.game.currentTurn + 1);
+        } else {
+            WebVis.game.currentTurn = WebVis.game.maxTurn;
+            WebVis.game.playing = false;
+        }
+        $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
+    });
+
+    //--------------------------------------------------
+    // attach the turn by turn/ move by move mode
+    //--------------------------------------------------
+    var evalTurnToggle = function() {
+        var $elem = $('#turn-toggle');
+    };
+
+    $('#turn-toggle').click(function() {
+        evalTurnToggle();
+    });
+
+    // -------------------------------------------------
+    // Initialize game state callbacks
+    // -------------------------------------------------
+    WebVis.game.onPlay(function() {
+        evalPlaying();
+    });
+
+    WebVis.game.onPause(function() {
+        evalPlaying();
+    });
+
+    WebVis.game.onCurrentTurnChange(function() {
+        $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
+    });
+
+    WebVis.game.onMaxTurnChange(function() {
+        $("#turn-slider").slider('max', parseInt(WebVis.game.maxTurn));
+    });
+
+    //---------------------------------------------------
+    // parse the uri and check for load url
+    //---------------------------------------------------
+    var getUrlParams = function() {
+        var params = {};
+        var query = window.location.hash.split("?")[1];
+        if(query !== undefined) {
+            var pairs = query.split("&");
+            for(var i = 0; i < pairs.length; i++) {
+                var pair = pairs[i].split("=");
+                if(pair.length < 2) return;
+                if(params[pair[0]] !== undefined) {
+                    params[pair[0]] = pair[1];
+                } else if(typeof(params[pair[0]]) === 'string') {
+                    var arr = [params[pair[0]], pair[1]];
+                    params[pair[0]] = arr;
+                } else {
+                    params[pair[0]].push(pair[1]);
+                }
             }
-        };
-        xhr.send();
-    }
-    */
+        }
+        return params
+    };
 
+    var uri = getUrlParams();
+
+    if(uri.logUrl !== undefined) {
+        console.log(uri.logUrl);
+    }
 
 }).call(this);
