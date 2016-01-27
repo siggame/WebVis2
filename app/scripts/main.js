@@ -122,6 +122,29 @@
         evalTurnToggle();
     });
 
+    //--------------------------------------------------
+    // Attach the drag and drop event
+    //--------------------------------------------------
+    $('body').bind('dragover', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+    });
+
+    var initPluginFromLog = function(file) {
+        var gameObject = JSON.parse(file.data);
+        WebVis.plugins.changePlugin(gameObject.gameName, function() {
+            WebVis.plugins.currentPlugin.loadGame(gameObject);
+        });
+    };
+
+    $('body').bind('drop', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var files = event.originalEvent.dataTransfer.files;
+
+        WebVis.fileLoader.loadFile(files, initPluginFromLog);
+    });
+
     // -------------------------------------------------
     // Initialize game state callbacks
     // -------------------------------------------------
@@ -166,9 +189,8 @@
     };
 
     var uri = getUrlParams();
-
     if(uri.logUrl !== undefined) {
-        console.log(uri.logUrl);
+        WebVis.fileLoader.loadFromUrl(uri.logUrl, initPluginFromLog);
     }
 
 }).call(this);
