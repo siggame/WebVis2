@@ -132,8 +132,11 @@
 
     var initPluginFromLog = function(file) {
         var gameObject = JSON.parse(file.data);
-        WebVis.plugins.changePlugin(gameObject.gameName, function() {
-            WebVis.plugins.currentPlugin.loadGame(gameObject);
+        console.log("Loading plugin \""+gameObject.gameName+"\"");
+        WebVis.plugin.changePlugin(gameObject.gameName, function() {
+            var turns = WebVis.util.buildStatesFromJson(gameObject);
+            console.log(turns);
+            WebVis.plugin.loadGame(gameObject);
         });
     };
 
@@ -192,5 +195,21 @@
     if(uri.logUrl !== undefined) {
         WebVis.fileLoader.loadFromUrl(uri.logUrl, initPluginFromLog);
     }
+
+    //---------------------------------------------------------
+    //  Canvas setup and binding
+    //---------------------------------------------------------
+    (function() {
+        var $canvas = $('#canvas');
+        var canvas = $canvas.get(0);
+        WebVis.renderer.init(canvas, 20, 20);
+        $(window).resize(function() {
+            $('#canvas').get(0).width = $('#canvas').width();
+            $('#canvas').get(0).height = $('#canvas').height();
+        });
+
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+    })();
 
 }).call(this);

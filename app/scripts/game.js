@@ -37,8 +37,19 @@
         window.requestAnimationFrame(anim);
         var dt = updateTime();
 
-        // TODO: handle rendering
-    }
+        if(WebVis.renderer.context !== null) {
+            var context = WebVis.renderer.context;
+            context.begin();
+
+            var entities = WebVis.plugin.getEntities();
+            for(var i = 0; i < entities.length; i++) {
+                entities[i].animate(context, WebVis.game.currentTurn, dt);
+                entities[i].draw(context, WebVis.game.currentTurn, dt);
+            }
+
+            context.end();
+        }
+    };
 
     WebVis.game = {
         // publics

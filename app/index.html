@@ -40,7 +40,7 @@
                 </div>
                 <div class="col-md-9 col-sm-12 webvis-container">
                     <div class="well fill-height" style="padding:0px;">
-                        <canvas class="col-lg-12 col-md-12 col-sm-12 col-xs-12 fill-height img-responsive ret" style="padding:0px"></canvas>
+                        <canvas id="canvas" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 fill-height img-responsive ret" style="padding:0px"></canvas>
                         <div class="webvis-playback-bar fill-width">
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 well" style="margin:0px;padding:10px;">
                                 <div>
@@ -82,11 +82,18 @@
         <script src="bower_components/jquery-ui/jquery-ui.js"></script>
         <!-- endbower -->
 
+        <script src="/scripts/util.js"></script>
+        <script src="/scripts/renderer.js"></script>
         <script src="/scripts/fileLoader.js"></script>
+        <script src="/scripts/plugin.js"></script>
         <script src="/scripts/game.js"></script>
-        <script src="/scripts/plugins.js"></script>
         <script src="/scripts/main.js"></script>
         <script src="/scripts/tabmenu.js"></script>
+
+        <!-- build:remove:dist -->
+        <script src="/tests/testMain.js"></script>
+        <script src="/tests/renderer.js"></script>
+        <!-- /build -->
 
     </body>
 </html>

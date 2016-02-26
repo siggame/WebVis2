@@ -14,7 +14,7 @@
 
     var checkDroppedFiles = function(files) {
         if(files.length != 1) {
-            throw {message: "Multiple files dropped"};
+            throw "Multiple files dropped";
         }
 
         var file = files[0];
@@ -22,7 +22,7 @@
 
         var ext = verifyFileType(filename);
         if(ext === "") {
-            throw {message: "Bad file extension."};
+            throw "Bad file extension.";
         }
 
         return {

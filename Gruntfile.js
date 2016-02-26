@@ -1,6 +1,7 @@
 module.exports = function(grunt) {
     require('jit-grunt')(grunt);
     var serveStatic = require('serve-static');
+    grunt.loadNpmTasks('grunt-processhtml');
 
     grunt.initConfig({
         watch: {
@@ -56,6 +57,15 @@ module.exports = function(grunt) {
                 src: ['app/index.html']
             }
         },
+
+        processhtml: {
+
+            dist: {
+              files: {
+                'app/index.html': ['app/index.html']
+              }
+            }
+        },
     });
 
     grunt.registerTask('default', function(target) {
@@ -70,5 +80,9 @@ module.exports = function(grunt) {
         'wiredep',
         'connect',
         'watch'
+    ]);
+
+    grunt.registerTask('dist', [
+        'wiredep'
     ]);
 };
