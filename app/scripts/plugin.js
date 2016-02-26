@@ -1,4 +1,5 @@
-(function(){
+WebVis.ready(function(){
+    
     var plugins = {};
     var currentPlugin = null;
     var util = WebVis.util;
@@ -171,4 +172,4 @@
         getEntities: getEntities
     };
 
-})();
+});

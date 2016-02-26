@@ -1,4 +1,5 @@
-(function() {
+WebVis.ready(function() {
+    
     var Point = (function() {
         var constructor = function(x, y, z) {
             if(x !== undefined) {
@@ -823,4 +824,4 @@
         init : init
     };
 
-})();
+});

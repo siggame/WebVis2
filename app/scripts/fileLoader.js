@@ -1,4 +1,5 @@
-(function() {
+WebVis.ready(function() {
+
     var acceptedFileExtensions = ["gamelog", "glog", "json"];
 
     var verifyFileType = function(filename) {
@@ -159,4 +160,4 @@
         }
     };
 
-})();
+});

@@ -1,4 +1,5 @@
-(function() {
+WebVis.ready(function() {
+    
     var lastAnimTime = new Date();
     var onPlay = function() {};
     var onPause = function() {};
@@ -95,4 +96,4 @@
 
     window.requestAnimationFrame(anim);
 
-}).call(this);
+});

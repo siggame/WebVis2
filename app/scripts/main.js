@@ -1,4 +1,5 @@
-(function() {
+WebVis.ready(function() {
+    
     var fillHeight = function() {
         $('.fill-height').each(function(index, elem){
             var $elem = $(elem);
@@ -212,4 +213,4 @@
         canvas.height = canvas.clientHeight;
     })();
 
-}).call(this);
+});

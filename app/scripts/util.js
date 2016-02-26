@@ -1,4 +1,4 @@
-(function() {
+WebVis.ready(function() {
 
     var buildStatesFromJson = function(data) {
         var interpolateDeltas = function(prev, next) {
@@ -37,8 +37,19 @@
         return true;
     }
 
-    WebVis.util = {
-        buildStatesFromJson: buildStatesFromJson
+    var assert = function(booleanValue, callback) {
+        if(!booleanValue) {
+            if(callback !== undefined) {
+                callback();
+            }
+            throw "Regression Test Fail!";
+        }
     };
 
-})();
+    WebVis.util = {
+        buildStatesFromJson: buildStatesFromJson,
+        defined: defined,
+        assert: assert
+    };
+
+});
