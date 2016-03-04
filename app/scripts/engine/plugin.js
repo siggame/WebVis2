@@ -48,16 +48,20 @@ WebVis.ready(function(){
         };
 
         constructor.prototype.addChannel = function(init) {
-            if(!util.defined("init.name", init.name));
-            if(!util.defined("init.channel", init.channel));
-            if(this.channels[init.channel] !== undefined) {
-                console.error("a channel with the name" + init.channel + " already exists");
+            if(!util.defined("init.name", init.name)) return;
+            if(!util.defined("init.start", init.start)) return;
+            if(this.channels[init.name] !== undefined) {
+                console.error("a channel with the name" + init.name + " already exists");
                 return;
             }
 
             this.channels[init.name] = [];
             this.channels[init.name].push(new Animation(0, 0, init.start));
         }
+
+        constructor.prototype.getChannel = function(name) {
+            return this.channels[name];
+        };
 
         constructor.prototype.addAnim = function(init) {
             if(this.channels[init.channel] === undefined) {
@@ -101,7 +105,7 @@ WebVis.ready(function(){
             }
         };
 
-        constructor.prototype.draw = function(context) {
+        constructor.prototype.draw = function(currentTurn, context) {
             throw "Function not implemented";
         };
 
