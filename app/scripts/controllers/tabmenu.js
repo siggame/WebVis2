@@ -58,6 +58,8 @@ WebVis.ready(function() {
     }
 
     tabmenu.empty();
-    tabmenu.append(pages["Alerts"])
+    tabmenu.append(pages["Alerts"]);
+
+    WebVis.pages = pages;
 
 });

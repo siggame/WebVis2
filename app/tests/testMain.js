@@ -1,3 +1,0 @@
-WebVis.ready( function() {
-    
-});

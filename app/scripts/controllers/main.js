@@ -1,5 +1,5 @@
 WebVis.ready(function() {
-    
+
     var fillHeight = function() {
         $('.fill-height').each(function(index, elem){
             var $elem = $(elem);
@@ -135,9 +135,22 @@ WebVis.ready(function() {
         var gameObject = JSON.parse(file.data);
         console.log("Loading plugin \""+gameObject.gameName+"\"");
         WebVis.plugin.changePlugin(gameObject.gameName, function() {
-            var turns = WebVis.util.buildStatesFromJson(gameObject);
-            console.log(turns);
-            WebVis.plugin.loadGame(gameObject);
+            //WebVis.util.buildStatesFromJson(gameObject);
+            var flattenWorker = new Worker("/scripts/engine/flatten.js");
+            flattenWorker.addEventListener("message", function(obj) {
+                obj = obj.data;
+                switch(obj.message) {
+                    case "update":
+                        console.log(obj.data);
+                        break;
+                    case "finish":
+                        WebVis.setDebugData(obj.data);
+                        WebVis.plugin.loadGame(obj.data);
+                        break;
+                }
+            });
+
+            flattenWorker.postMessage(gameObject);
         });
     };
 
@@ -213,4 +226,6 @@ WebVis.ready(function() {
         canvas.height = canvas.clientHeight;
     })();
 
+    WebVis.fillWidth = fillWidth;
+    WebVis.fillHeight = fillHeight;
 });

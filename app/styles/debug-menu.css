@@ -1,0 +1,75 @@
+
+.debug-tree {
+    display: none;
+    list-style: none;
+    padding-left: 15px;
+}
+
+.debug-tree-elem {
+    list-style: none;
+    width: 600px;
+}
+
+.debug-tree-elem-container {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.debug-tree-elem-container table {
+    float:left;
+}
+
+.debug-tree-elem-name {
+    width: 20%;
+}
+
+.debug-tree-elem-value {
+    width: 80%;
+}
+
+.debug-tree-subtree {
+    display: none;
+    float: left;
+}
+
+/*
+.debug-tree ul {
+    list-style-type: none;
+    padding: 10px;
+    width: 100%
+}
+
+.debug-tree li {
+    width: 100%;
+    overflow: auto;
+}
+
+.debug-tree table {
+    padding-left:20px;
+    width: auto;
+    float: left;
+    overflow: hidden;
+    table-layout: fixed;
+}
+
+.debug-tree table td {
+    width: 50%;
+}
+
+.debug-tree table td div {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.debug-tree .subtree-icon {
+    width: 20px;
+    float: left;
+    padding-top: 2px;
+    overflow: hidden;
+}
+
+.tree-elem {
+    height: 30px;
+}
+*/

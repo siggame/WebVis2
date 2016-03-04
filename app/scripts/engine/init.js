@@ -1,10 +1,10 @@
 WebVis = {};
-WebVis.delegates = {};
 
 (function() {
 
     var readyEvents = [];
     var domReady = false;
+    var delegates = {};
 
     var Deferred = function() {
         this.callback = function(){};
@@ -36,28 +36,46 @@ WebVis.delegates = {};
         return deferred;
     }
 
-    var loadDelegate = function(filename) {
-        var xhttp = new XMLHttpRequest();
-    };
-
-    var loadIncludedHtml = function(id, filename) {
+    var gethtml = function(filename, callback) {
         var xhttp = new XMLHttpRequest();
         var deferred = new Deferred();
 
         xhttp.onreadystatechange = function() {
-                if (xhttp.readyState == 4 && xhttp.status == 200) {
-                    var elem = document.getElementById(id);
-                    elem.innerHTML = xhttp.responseText;
-                    deferred.done = true;
-                    deferred.callback();
-                }
+            if(xhttp.readyState === 4 & xhttp.status === 200) {
+                callback(xhttp.responseText);
+                deferred.done = true;
+                deferred.callback();
+            }
         };
 
         xhttp.open("GET", filename, true);
         xhttp.send();
-
         return deferred;
-    }
+    };
+
+    var loadDelegate = function(name, filename) {
+        return gethtml(filename, function(html) {
+            delegates[name] = html;
+        });
+    };
+
+    var loadIncludedHtml = function(id, filename) {
+        return gethtml(filename, function(html) {
+            var elem = document.getElementById(id);
+            elem.innerHTML = html;
+        });
+    };
+
+    when([
+        loadIncludedHtml("menu", "/views/menu.html"),
+        loadIncludedHtml("playback", "/views/playback.html"),
+        loadDelegate("tree-elem", "/views/tree-elem.html")
+    ], function() {
+        domReady  = true;
+        for(var callback of readyEvents) {
+            callback();
+        }
+    });
 
     var ready = function(func) {
         if(domReady) {
@@ -67,18 +85,9 @@ WebVis.delegates = {};
         }
     };
 
-    when([
-        loadIncludedHtml("menu", "/views/menu.html"),
-        loadIncludedHtml("playback", "/views/playback.html")
-    ], function() {
-        domReady  = true;
-        for(var callback of readyEvents) {
-            callback();
-        }
-    });
-
     WebVis = {
-        ready: ready
+        ready: ready,
+        delegates: delegates
     };
 
 })();

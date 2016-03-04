@@ -31,7 +31,11 @@ module.exports = function(grunt) {
                     hostname: "localhost",
                     livereload: 35729,
                     base: 'app',
-                    open: true,
+                    open: {
+                        target: 'http://localhost:9000',
+                        appName: 'chrome --allow-file-access-from-files',
+                        callback: function(){}
+                    },
                     middleware: function(connect) {
                         return [
                             serveStatic('app'),

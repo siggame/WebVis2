@@ -1,5 +1,5 @@
 WebVis.ready(function(){
-    
+
     var plugins = {};
     var currentPlugin = null;
     var util = WebVis.util;
@@ -127,6 +127,7 @@ WebVis.ready(function(){
         } else {
             var success = function() {
                 console.log("plugin successfully loaded.");
+                console.log(plugins);
                 currentPlugin = plugins[gameName];
                 callback();
             };
