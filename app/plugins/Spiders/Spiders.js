@@ -4,7 +4,7 @@
     var Spiders = function() {
         this.__proto__ = new WebVis.plugin.Base;
 
-        this.loadGame = function(date) {
+        this.loadGame = function(data) {
 
         };
     };
