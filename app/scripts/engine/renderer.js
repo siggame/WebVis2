@@ -1,5 +1,5 @@
 WebVis.ready(function() {
-    
+
     var Point = (function() {
         var constructor = function(x, y, z) {
             if(x !== undefined) {
@@ -111,6 +111,9 @@ WebVis.ready(function() {
 
         constructor.prototype.translate = function(tx, ty, tz) {
             var newmat = new Matrix4x4(this);
+            if(typeof tx === "undefined") tx = 0;
+            if(typeof ty === "undefined") ty = 0;
+            if(typeof tz === "undefined") tz = 0;
             newmat.set(0, 3, this.get(0,3) + tx);
             newmat.set(1, 3, this.get(1,3) + ty);
             newmat.set(2, 3, this.get(2,3) + tz);
@@ -251,17 +254,18 @@ WebVis.ready(function() {
         this.visible = true;
         this.texture = null;
         this.frame = 0;
-        this.pos = new Point(0, 0, 0);
-        this.anchor = new Point(0, 0, 0);
-        this.width = 0.0;
-        this.height = 0.0;
+        this.pos = new Point(0, 0, 0.0);
+        this.width = 1.0;
+        this.height = 1.0;
+        this.rotation = 0.0;
+        this.centerx = 0.5;
+        this.centery = 0.5;
         this.u1 = 0.0;
         this.v1 = 0.0;
-        this.u2 = 0.0;
-        this.v2 = 0.0;
-        this.tiling = false;
-        this.tileWidth = 0.0;
-        this.tileHeight = 0.0;
+        this.u2 = 1.0;
+        this.v2 = 1.0;
+        this.tileWidth = 1.0;
+        this.tileHeight = 1.0;
         this.tileOffsetX = 0.0;
         this.tileOffsetY = 0.0;
         this.color = new Color(1.0, 1.0, 1.0, 1.0);
@@ -269,12 +273,12 @@ WebVis.ready(function() {
 
     var Rect = function() {
         this.visible = true;
-        this.pos = new Point(0, 0, 0);
-        this.width = 0.0;
-        this.height = 0.0;
+        this.pos = new Point(0, 0, 1.0);
+        this.width = 1.0;
+        this.height = 1.0;
         this.rotation = 0.0;
-        this.offsetx = 0.0;
-        this.offsety = 0.0;
+        this.centerx = 0.5;
+        this.centery = 0.5;
         this.color = new Color(0, 0, 0, 1.0);
     };
 
@@ -397,7 +401,7 @@ WebVis.ready(function() {
             throw "Function not implemented.";
         };
 
-        constructor.prototype.drawTexture = function(tex) {
+        constructor.prototype.drawSprite = function(tex) {
             throw "Function not implemented.";
         };
 
@@ -433,7 +437,7 @@ WebVis.ready(function() {
 
             // hard coded orthograph
             this.projection = new Matrix4x4();
-            this.projection.ortho(0, worldWidth, 0, worldHeight)
+            this.projection.ortho(0, worldWidth, 0, worldHeight, this.FAR, this.NEAR);
 
 
             // set up the default camera
@@ -472,10 +476,7 @@ WebVis.ready(function() {
 
             // initialize the buffer holders
             this.rects = new this.Buffer(42);
-
-            // BTW, these are not the 2D texture buffers, it's the list of
-            // WebVis.renderer.Texture objects to be rendered next turn.
-            this.textures = new this.Buffer(30);
+            this.sprites = {};
 
             // TODO: line and text buffers
             this.lineBuffers = {};
@@ -593,32 +594,32 @@ WebVis.ready(function() {
             this.sheetData = {};
             var u = "/plugins/" + pluginName + "/resources.json";
 
-            var loadImage = function(url, onload) {
-                var load = function(deferred) {
-                    // create a basic document image to populate
-                    var image = new Image();
+            var loadImage = function(url, callback) {
+                var deferred = $.Deferred();
 
-                    var unbindEvents = function() {
-                        image.onload = null;
-                        image.onerror = null;
-                        image.onabort = null;
-                    };
-                    var loaded = function(image) {
-                        unbindEvents();
-                        callback(image);
-                        deferred.resolve(image);
-                    };
-                    var errored = function() {
-                        unbindEvents();
-                        deferred.reject(image);
-                    };
+                // create a basic document image to populate
+                var image = new Image();
 
-                    image.onload = loaded;
-                    image.onerror = errored;
-                    image.onabort = errored;
-                    image.src = url;
+                var unbindEvents = function() {
+                    image.onload = null;
+                    image.onerror = null;
+                    image.onabort = null;
                 };
-                return $.Deferred(load).promise();
+                var loaded = function() {
+                    unbindEvents();
+                    callback(image);
+                    deferred.resolve(image);
+                };
+                var errored = function() {
+                    unbindEvents();
+                    deferred.reject(image);
+                };
+
+                image.onload = loaded;
+                image.onerror = errored;
+                image.onabort = errored;
+                image.src = url;
+                return deferred.promise();
             };
 
             var getTextures = function(data) {
@@ -628,22 +629,21 @@ WebVis.ready(function() {
                 var deferreds = [];
 
                 // for each texture in the resource list
-                for(var i = 0; i < data.resources.length; i++) {
+                for(var resource of data.resources) {
                     // load the texture
                     var url = "/plugins/" + pluginName + "/images/" + resource.image;
-                    self.textures[i] = {
+                    self.textures[resource.id] = {
                         texture: null,
                         spriteSheet: null
                     };
-                    var dat = self.textures[i];
+                    var dat = self.textures[resource.id];
 
                     // callback to handle initializing the texture
                     var initTexture = function(data) {
                         return function(image) {
-                            var tex = data.texture;
-                            text = self.gl.createTexture();
-                            self.gl.bindTexture(self.gl.TEXTURE_2D, tex);
-                            self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.gl.RGBA, self.gl.UNSIGNED_BYTE, tex);
+                            data.texture = self.gl.createTexture();
+                            self.gl.bindTexture(self.gl.TEXTURE_2D, data.texture);
+                            self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.gl.RGBA, self.gl.RGBA, self.gl.UNSIGNED_BYTE, image);
                             self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_MAG_FILTER, self.gl.NEAREST);
                             self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_MIN_FILTER, self.gl.NEAREST);
                             self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_WRAP_S, self.gl.REPEAT);
@@ -655,7 +655,7 @@ WebVis.ready(function() {
                     // callback for initializing the sprite sheet
                     var initSpriteSheet = function(data) {
                         return function(sheet) {
-                            data.sriteSheet = sheet;
+                            data.spriteSheet = sheet;
                         };
                     };
 
@@ -675,20 +675,24 @@ WebVis.ready(function() {
                         }));
                     }
 
-                    // when everything is done, tell that all textures are loaded.
-                    $.when.apply($, deferreds)
-                    .then( function() {
-                        self.texturesLoaded = true;
-                        callback();
-                    });
+                    console.log("started loading texture");
                 }
+
+                // when everything is done, tell that all textures are loaded.
+                $.when.apply($, deferreds)
+                .then( function() {
+                    self.texturesLoaded = true;
+                    console.log("done");
+                    callback();
+                });
             };
 
             // start the load of the textures
             $.ajax({
                 dataType : "json",
                 url : u,
-                data : null
+                data : null,
+                success: getTextures
             });
         };
 
@@ -715,17 +719,44 @@ WebVis.ready(function() {
         };
 
         constructor.prototype.end = function() {
-            // draw rectangles in buffer
-            if(this.rects.num > 0) {
-                this.gl.useProgram(this.colorProg);
-                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.drawBuffer);
-                this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, new Float32Array(this.rects.buffer));
-                this.gl.vertexAttribPointer(this.colorProg.aVertPos, 3, this.gl.FLOAT, false, 28, 0);
+            var self = this;
+            var draw = function(prog, bo, setAttribs) {
+                self.gl.useProgram(prog);
+                self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
+                self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(bo.buffer));
+                var meh = new Matrix4x4();
+                self.gl.uniformMatrix4fv(prog.uPMatrix, false, meh.elements);
+                self.gl.uniformMatrix4fv(prog.uVMatrix, false, self.currentCamera.transform.elements);
 
-                this.gl.vertexAttribPointer(this.colorProg.aVertColor, 4, this.gl.FLOAT, false, 28, 12);
-                this.gl.uniformMatrix4fv(this.colorProg.uPMatrix, false, this.projection.elements);
-                this.gl.uniformMatrix4fv(this.colorProg.uVMatrix, false, this.currentCamera.transform.elements);
-                this.gl.drawArrays(this.gl.TRIANGLES, 0, this.rects.num * 6);
+                setAttribs();
+                self.gl.drawArrays(self.gl.TRIANGLES, 0, bo.num* 6);
+            };
+
+            // draw rectangles in buffer
+            if(self.rects.num > 0) {
+                draw(self.colorProg, self.rects, function() {
+                  self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
+                  self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
+                });
+                self.rects.num = 0;
+            }
+
+            // draw sprites in their buffers
+            if(!$.isEmptyObject(self.sprites)) {
+                for(var prop in self.sprites) {
+                    if(!self.sprites.hasOwnProperty(prop)) return;
+                    var spriteBuffer = self.sprites[prop];
+                    var texData = self.textures[prop];
+
+                    draw(self.textureProg, spriteBuffer, function() {
+                        self.gl.activeTexture(self.gl.TEXTURE0);
+                        self.gl.bindTexture(self.gl.TEXTURE_2D, texData.texture);
+                        self.gl.uniform1i(self.textureProg.samplerUniform, 0);
+                        self.gl.vertexAttribPointer(self.textureProg.aVertPos, 3, self.gl.FLOAT, false, 20, 0);
+                        self.gl.vertexAttribPointer(self.textureProg.aTexCoord, 2, self.gl.FLOAT, false, 20, 12);
+                    });
+                    spriteBuffer.num = 0;
+                }
             }
         };
 
@@ -788,8 +819,93 @@ WebVis.ready(function() {
             this.rects.num++;
         };
 
-        constructor.prototype.drawTexture = function(tex) {
-            // stub
+        constructor.prototype.drawSprite = function(sprite) {
+            if(this.textures[sprite.texture] === undefined) {
+                console.warn("specified texture does not exist.");
+                return;
+            }
+
+            if(this.sprites[sprite.texture] === undefined) {
+                this.sprites[sprite.texture] = new this.Buffer(30);
+            }
+
+            var bufferObject = this.sprites[sprite.texture];
+            var buffer = bufferObject.buffer;
+            var offset = bufferObject.num * bufferObject.stride;
+
+            var addPoint = function(point) {
+                buffer[offset] = point.x;
+                buffer[offset + 1] = point.y;
+                buffer[offset + 2] = point.z;
+
+                offset += 3;
+            };
+
+            var addTexCoords = function(u, v) {
+                buffer[offset] = u;
+                buffer[offset + 1] = v;
+
+                offset += 2;
+            };
+
+            var wmatrix = new Matrix4x4();
+            wmatrix.scale(sprite.width, sprite.height, 1);
+            wmatrix.translate(-sprite.centerx * sprite.width, -sprite.centery * sprite.height);
+            wmatrix.rotate(sprite.rotation);
+            wmatrix.translate((sprite.centerx * sprite.width) + sprite.pos.x, (sprite.centery * sprite.height) + sprite.pos.y, 0);
+
+            var p1 = wmatrix.mul(0, 0, 0);
+            var p2 = wmatrix.mul(0, 1, 0);
+            var p3 = wmatrix.mul(1, 1, 0);
+            var p4 = wmatrix.mul(1, 0, 0);
+
+            var u1, v1, u2, v2;
+
+            // determine the texture coordinates
+            if(this.textures[sprite.texture].spriteSheet === null) {
+                // if this is just a normal sprite
+                u1 = sprite.u1 + sprite.tileOffsetX;
+                v1 = sprite.v1 + sprite.tileOffsetY;
+                u2 = (sprite.width / sprite.tileWidth) + sprite.tileOffsetX ;
+                v2 = (sprite.height / sprite.tileHeight) + sprite.tileOffsetY;
+            } else {
+                // if this is an animated sprite
+                var spriteSheet = this.textures[sprite.texture].spriteSheet;
+                var useg = 1/spriteSheet.width;
+                var vseg = 1/spriteSheet.height;
+                var row = parseInt(sprite.frame / spriteSheet.width);
+                var column = sprite.frame % spriteSheet.width;
+                u1 = column * useg;
+                v1 = row * vseg;
+                u2 = u1 + useg;
+                v2 = v1 + vseg;
+            }
+
+            // vert one
+            addPoint(p1);
+            addTexCoords(u1, v2);
+
+            // vert two
+            addPoint(p2);
+            addTexCoords(u1, v1);
+
+            // vert three
+            addPoint(p3);
+            addTexCoords(u2, v1);
+
+            // vert four
+            addPoint(p1);
+            addTexCoords(u1, v2);
+
+            // vert five
+            addPoint(p3);
+            addTexCoords(u2, v1);
+
+            // vert six
+            addPoint(p4);
+            addTexCoords(u2, v2);
+
+            this.sprites[sprite.texture].num++;
         };
 
         constructor.prototype.drawLine = function(line) {

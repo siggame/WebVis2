@@ -7,15 +7,15 @@ WebVis.ready(function(){
     var Base = (function() {
         var constructor = function() {
             this.entities = {};
-        }
+        };
 
         constructor.prototype.clear = function() {
             this.entities = {};
-        }
+        };
 
         constructor.prototype.getEntities = function() {
             return this.entities;
-        }
+        };
 
         constructor.prototype.loadGame = function() {
             throw "The loadGame function has not been implemented.\n";
@@ -40,6 +40,8 @@ WebVis.ready(function(){
 
             this.func(completion);
         };
+
+        return constructor;
     })();
 
     var Entity = (function() {
@@ -69,8 +71,8 @@ WebVis.ready(function(){
                 return;
             }
             for(var otheranim of this.channels[init.channel]) {
-                if((otheranim.start <= init.anim.start && init.anim.start <= otheranim.end) ||
-                (otheranim.start <= init.anim.end && init.anim.end <= otheranim.end)) {
+                if((otheranim.start < init.anim.start && init.anim.start < otheranim.end) ||
+                (otheranim.start < init.anim.end && init.anim.end < otheranim.end)) {
                     console.error("the animation would intersect with another in channel " + init.channel);
                     return;
                 }
@@ -105,7 +107,7 @@ WebVis.ready(function(){
             }
         };
 
-        constructor.prototype.draw = function(currentTurn, context) {
+        constructor.prototype.draw = function(context) {
             throw "Function not implemented";
         };
 
@@ -129,20 +131,23 @@ WebVis.ready(function(){
             callback();
             return;
         } else {
-            var success = function() {
+            var success = function(text) {
                 console.log("plugin successfully loaded.");
                 console.log(plugins);
-                currentPlugin = plugins[gameName];
-                callback();
+                WebVis.renderer.context.loadTextures(gameName, function() {
+                    currentPlugin = plugins[gameName];
+                    callback();
+                });
             };
 
             var error = function(jqXHR, textStatus, errorThrown) {
                 console.error("Could not find a plugin that could play the specified file.");
-                console.error(textStatus + " " + errorThrown);
+                console.error(errorThrown.stack);
             };
 
             $.ajax({
                 type: "GET",
+                cache: true,
                 dataType: "script",
                 url: 'plugins/' + gameName + '/' + gameName + '.js',
                 success: success,

@@ -1,10 +1,10 @@
 WebVis.ready(function() {
-    
+
     var lastAnimTime = new Date();
     var onPlay = function() {};
     var onPause = function() {};
-    var onCurrentTurnChange = function() {}
-    var onMaxTurnChange = function() {}
+    var onCurrentTurnChange = function() {};
+    var onMaxTurnChange = function() {};
 
     var updateTime = function() {
         var currentDate = new Date();
@@ -43,9 +43,12 @@ WebVis.ready(function() {
             context.begin();
 
             var entities = WebVis.plugin.getEntities();
-            for(var i = 0; i < entities.length; i++) {
-                entities[i].animate(context, WebVis.game.currentTurn, dt);
-                entities[i].draw(context, WebVis.game.currentTurn, dt);
+            for(var prop in entities) {
+                if(!entities.hasOwnProperty(prop)) return;
+                var ent = entities[prop];
+
+                ent.animate(context, WebVis.game.currentTurn, dt);
+                ent.draw(context);
             }
 
             context.end();
@@ -74,6 +77,11 @@ WebVis.ready(function() {
 
         togglePlayMode: function() {
             WebVis.game.playing
+        },
+
+        setMaxTurn: function(maxturn) {
+            WebVis.game.maxTurn = maxturn;
+            onMaxTurnChange(maxturn);
         },
 
         // events

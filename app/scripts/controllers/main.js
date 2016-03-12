@@ -146,6 +146,7 @@ WebVis.ready(function() {
                     case "finish":
                         WebVis.setDebugData(obj.data);
                         WebVis.plugin.loadGame(obj.data);
+                        WebVis.game.setMaxTurn(obj.data.deltas.length);
                         break;
                 }
             });
@@ -178,7 +179,7 @@ WebVis.ready(function() {
     });
 
     WebVis.game.onMaxTurnChange(function() {
-        $("#turn-slider").slider('max', parseInt(WebVis.game.maxTurn));
+        $("#turn-slider").slider('option', {'max': parseInt(WebVis.game.maxTurn)});
     });
 
     //---------------------------------------------------

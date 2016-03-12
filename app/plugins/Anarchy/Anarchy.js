@@ -1,51 +1,76 @@
+//# sourceURL=Anarchy.js
+
 (function() {
     var Anarchy = function() {
         this.__proto__ = new WebVis.plugin.Base;
 
-        var Building = function(startPos) {
-            this.__proto__ = new WebVis.plugin.Entity;
+        var Test = function(birth, death, initx, inity) {
             var self = this;
-            self.sprite = new WebVis.renderer.Sprite;
-            self.start = 0;
-            self.end = 0;
-            self.startPos = startPos;
+            self.__proto__ = new WebVis.plugin.Entity;
+            self.sprite = new WebVis.renderer.Sprite();
+            self.sprite.pos.x = 0;
+            self.sprite.pos.y = 0;
+            self.sprite.texture = "building";
+
+            self.rect = new WebVis.renderer.Rect();
+            self.rect.pos.x = 0;
+            self.rect.pos.y = 0;
+            self.rect.color.setColor(1.0, 0.0, 0.0, 1.0);
+
+            var visAnim = function(begin, end) {
+                return new WebVis.plugin.Animation(begin, end, function(completion) {
+                    if(completion < 1.0) {
+                        self.sprite = visible;
+                    } else {
+                        self.sprite = visible;
+                    }
+                });
+            };
+
+            self.smoothMoveAnim = function(begin, end, fromx, fromy, tox, toy) {
+                return new WebVis.plugin.Animation(begin, end, function(completion) {
+                    self.sprite.pos.x = fromx + ((tox - fromx) * completion);
+                    self.sprite.pos.y = fromy + ((toy - fromy) * completion);
+                });
+            };
 
             self.addChannel({
                 name: "movement",
                 start: function() {
-                    self.sprite.pos.x = self.startPos.x;
-                    self.sprite.pos.y = self.startPos.y;
+                    self.sprite.pos.x = 0;
+                    self.sprite.pos.y = 0;
                 }
             });
 
             self.addChannel({
-                name: "rotation",
+                name: "visibility",
                 start: function() {
-                    self.sprite.rotation = 0;
+                    self.sprite.visible = false;
                 }
             });
 
-            self.draw = function(currentTurn, context) {
-                if(self.start <= currentTurn && currentTurn <= self.end) {
-                    context.drawSprite(self.sprite);
-                }
+            self.addAnim({
+                channel: "visibility",
+                anim: visAnim([self.sprite], birth, death)
+            });
+
+            self.draw = function(context) {
+                context.drawRect(self.rect);
+                context.drawSprite(self.sprite);
             };
         };
 
         this.loadGame = function(data) {
-            for(var delta of data.deltas) {
-                for(var prop in delta.game.gameObjects) {
-                    if(!delta.game.gameObjects.hasOwnProperty(prop)) return;
-                    var obj = delta.game.gameObjects[prop];
+            var blah = new Test(0, 10, 5, 5);
+            blah.addAnim({
+                channel: "movement",
+                anim: blah.smoothMoveAnim(2, 4, 5, 5, 10, 10)
+            });
 
-                    if(type !== "Warehouse" &&
-                       type !== "WeatherStation" &&
-                       type !== "PoliceDepartment" &&
-                       type !== "FireDepartment")
-                }
-            }
+            this.entities["blah"] = blah;
         };
     };
 
     WebVis.plugin.addPlugin("Anarchy", new Anarchy);
+
 })();
