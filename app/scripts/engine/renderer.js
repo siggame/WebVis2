@@ -533,9 +533,7 @@ WebVis.ready(function() {
 
                     // arrays
                     prog.aVertPos = self.gl.getAttribLocation(prog, "aVertPos");
-                    self.gl.enableVertexAttribArray(prog.aVertPos);
                     prog.aVertColor = self.gl.getAttribLocation(prog, "aVertColor");
-                    self.gl.enableVertexAttribArray(prog.aVertColor);
 
                     // uniforms
                     prog.uPMatrix = self.gl.getUniformLocation(prog, "uPMatrix");
@@ -549,13 +547,11 @@ WebVis.ready(function() {
 
                     // arrays
                     prog.aVertPos = self.gl.getAttribLocation(prog, "aVertPos");
-                    self.gl.enableVertexAttribArray(prog.aVertPos);
                     prog.aTexCoord = self.gl.getAttribLocation(prog, "aTexCoord");
-                    self.gl.enableVertexAttribArray(prog.aTexCoord);
 
                     // uniforms
                     prog.uPMatrix = self.gl.getUniformLocation(prog, "uPMatrix");
-                    prog.uVmatrix = self.gl.getUniformLocation(prog, "uVMatrix");
+                    prog.uVMatrix = self.gl.getUniformLocation(prog, "uVMatrix");
                     prog.uSampler = self.gl.getUniformLocation(prog, "uSampler");
                     prog.uTint = self.gl.getUniformLocation(prog, "uTint");
                 })
@@ -721,13 +717,12 @@ WebVis.ready(function() {
             var self = this;
             var draw = function(prog, bo, setAttribs) {
                 self.gl.useProgram(prog);
-                self.gl.enableVertexAttribArray(prog.aVertPos);
-                self.gl.enableVertexAttribArray(prog.aVertColor);
                 self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
                 self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(bo.buffer));
                 var meh = new Matrix4x4();
                 self.gl.uniformMatrix4fv(prog.uPMatrix, false, self.projection.elements);
-                self.gl.uniformMatrix4fv(prog.uVMatrix, false, meh.elements);
+                self.gl.uniformMatrix4fv(prog.uVMatrix, false, self.currentCamera.transform.elements);
+                //self.gl.uniformMatrix4fv(prog.uVMatrix, false, meh.elements);
 
                 setAttribs();
                 self.gl.drawArrays(self.gl.TRIANGLES, 0, bo.num* 6);
@@ -736,9 +731,13 @@ WebVis.ready(function() {
             // draw rectangles in buffer
             if(self.rects.num > 0) {
                 draw(self.colorProg, self.rects, function() {
-                  self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
-                  self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
                 });
+                self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
+                self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
                 self.rects.num = 0;
             }
 
@@ -750,12 +749,16 @@ WebVis.ready(function() {
                     var texData = self.textures[prop];
 
                     draw(self.textureProg, spriteBuffer, function() {
+                        self.gl.enableVertexAttribArray(self.textureProg.aVertPos);
+                        self.gl.enableVertexAttribArray(self.textureProg.aTexCoord);
                         self.gl.activeTexture(self.gl.TEXTURE0);
                         self.gl.bindTexture(self.gl.TEXTURE_2D, texData.texture);
-                        self.gl.uniform1i(self.textureProg.samplerUniform, 0);
+                        self.gl.uniform1i(self.textureProg.uSampler, 0);
                         self.gl.vertexAttribPointer(self.textureProg.aVertPos, 3, self.gl.FLOAT, false, 20, 0);
                         self.gl.vertexAttribPointer(self.textureProg.aTexCoord, 2, self.gl.FLOAT, false, 20, 12);
                     });
+                    self.gl.disableVertexAttribArray(self.textureProg.aVertPos);
+                    self.gl.disableVertexAttribArray(self.textureProg.aTexCoord);
                     spriteBuffer.num = 0;
                 }
             }
@@ -784,7 +787,7 @@ WebVis.ready(function() {
 
             var wmatrix = new Matrix4x4();
             wmatrix.scale(rect.width, rect.height, 1);
-            wmatrix.translate(-rect.centerx * rect.width, -rect.centery * rect.height);
+            wmatrix.translate(-rect.centerx * rect.width, -rect.centery * rect.height, 0);
             wmatrix.rotate(rect.rotation);
             wmatrix.translate(rect.centerx * rect.width + rect.pos.x, rect.centery * rect.height + rect.pos.y, 0);
 
@@ -851,7 +854,7 @@ WebVis.ready(function() {
 
             var wmatrix = new Matrix4x4();
             wmatrix.scale(sprite.width, sprite.height, 1);
-            wmatrix.translate(-sprite.centerx * sprite.width, -sprite.centery * sprite.height);
+            wmatrix.translate(-sprite.centerx * sprite.width, -sprite.centery * sprite.height, 0);
             wmatrix.rotate(sprite.rotation);
             wmatrix.translate((sprite.centerx * sprite.width) + sprite.pos.x, (sprite.centery * sprite.height) + sprite.pos.y, 0);
 

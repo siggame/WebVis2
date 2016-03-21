@@ -7,7 +7,6 @@ uniform mat4 uPMatrix;
 varying vec2 vTexCoord;
 
 void main(void) {
-    vec4 pos = uPMatrix * uVMatrix * vec4(aVertPos, 1.0);
-    gl_Position = pos;
+    gl_Position = uPMatrix * uVMatrix * vec4(aVertPos, 1.0);
     vTexCoord = aTexCoord;
 }
