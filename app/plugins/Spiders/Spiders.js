@@ -17,9 +17,17 @@
         self.sprite.pos.z = 0;
         self.sprite.texture = "building";
 
+        self.line = new WebVis.renderer.Line();
+        self.line.p1.x = 2;
+        self.line.p1.y = 0;
+        self.line.p2.x = 2;
+        self.line.p2.y = 2;
+        self.line.color.setColor(0.0, 1.0, 0.0, 1.0);
+
         self.draw = function(context) {
             context.drawRect(self.rect);
             context.drawSprite(self.sprite);
+            context.drawLine(self.line);
         };
     }
 

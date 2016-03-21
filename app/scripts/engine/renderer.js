@@ -476,9 +476,9 @@ WebVis.ready(function() {
             // initialize the buffer holders
             this.rects = new this.Buffer(28);
             this.sprites = {};
+            this.lines = new this.Buffer(14);
 
             // TODO: line and text buffers
-            this.lineBuffers = {};
             this.textBuffers = {};
 
             // create and initialize shaders
@@ -715,7 +715,7 @@ WebVis.ready(function() {
 
         constructor.prototype.end = function() {
             var self = this;
-            var draw = function(prog, bo, setAttribs) {
+            var draw = function(prog, bo, method, setAttribs) {
                 self.gl.useProgram(prog);
                 self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
                 self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(bo.buffer));
@@ -725,12 +725,12 @@ WebVis.ready(function() {
                 //self.gl.uniformMatrix4fv(prog.uVMatrix, false, meh.elements);
 
                 setAttribs();
-                self.gl.drawArrays(self.gl.TRIANGLE_FAN, 0, bo.num* 4);
+                self.gl.drawArrays(method, 0, bo.num* 4);
             };
 
             // draw rectangles in buffer
             if(self.rects.num > 0) {
-                draw(self.colorProg, self.rects, function() {
+                draw(self.colorProg, self.rects,self.gl.TRIANGLE_FAN, function() {
                     self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
                     self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
                     self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
@@ -748,7 +748,7 @@ WebVis.ready(function() {
                     var spriteBuffer = self.sprites[prop];
                     var texData = self.textures[prop];
 
-                    draw(self.textureProg, spriteBuffer, function() {
+                    draw(self.textureProg, spriteBuffer, self.gl.TRIANGLE_FAN, function() {
                         self.gl.enableVertexAttribArray(self.textureProg.aVertPos);
                         self.gl.enableVertexAttribArray(self.textureProg.aTexCoord);
                         self.gl.activeTexture(self.gl.TEXTURE0);
@@ -761,6 +761,19 @@ WebVis.ready(function() {
                     self.gl.disableVertexAttribArray(self.textureProg.aTexCoord);
                     spriteBuffer.num = 0;
                 }
+            }
+
+            // draw lines in buffer
+            if(self.lines.num > 0) {
+                draw(self.colorProg, self.lines, self.gl.LINES, function() {
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
+                });
+                self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
+                self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
+                self.lines.num = 0;
             }
         };
 
@@ -897,7 +910,35 @@ WebVis.ready(function() {
         };
 
         constructor.prototype.drawLine = function(line) {
-            // stub
+            var buffer = this.lines.buffer;
+            var offset = this.lines.num * this.lines.stride;
+
+            var addPoint = function(point) {
+                buffer[offset] = point.x;
+                buffer[offset + 1] = point.y;
+                buffer[offset + 2] = point.z;
+
+                offset += 3;
+            };
+
+            var addColor = function(color) {
+                buffer[offset] = color.r;
+                buffer[offset + 1] = color.g;
+                buffer[offset + 2] = color.b;
+                buffer[offset + 3] = color.a;
+
+                offset += 4;
+            };
+
+            // vert one
+            addPoint(line.p1);
+            addColor(line.color);
+
+            // vert two
+            addPoint(line.p2);
+            addColor(line.color);
+
+            this.lines.num++;
         };
 
         constructor.prototype.drawText = function(text) {
