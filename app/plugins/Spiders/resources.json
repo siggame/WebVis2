@@ -1,3 +1,119 @@
 {
-  "resources": []
+    "resources":[
+        {
+            "id": "myUnit",
+            "image": "digdug.png",
+            "spriteSheet": null
+	    },
+        {
+            "id": "building",
+            "image": "building.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "firehouse",
+            "image": "firehouse.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "policestation",
+            "image": "policestation.png",
+            "spriteSheet": null
+        },
+	    {
+            "id": "weatherstation",
+            "image": "WeatherStation.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "rubble",
+            "image": "rubble.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "drab",
+            "image": "drab.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "drab2",
+            "image": "drab2.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "graffiti1",
+            "image": "graffiti1.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "graffiti2",
+            "image": "graffiti2.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "road",
+            "image": "BaseRoad.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "sidewalkn",
+            "image": "SidewalkN.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "sidewalks",
+            "image": "SidewalkS.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "sidewalke",
+            "image": "SidewalkE.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "sidewalkw",
+            "image": "SidewalkW.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "crosswalk",
+            "image": "Crosswalks.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "manhole",
+            "image": "ManholeCover.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "grass",
+            "image": "Grass.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "explosion",
+            "image": "explosion.png",
+            "spriteSheet": "Anim8x1.json"
+        },
+        {
+            "id": "fire",
+            "image": "fire.png",
+            "spriteSheet": "Anim4x2.json"
+        },
+        {
+            "id": "bribed",
+            "image": "dollar.png",
+            "spriteSheet": "Anim8x1.json"
+        },
+        {
+            "id": "arrows",
+            "image": "Arrows.png",
+            "spriteSheet": "Anim4x1.json"
+        },
+        {
+            "id": "concretebg",
+            "image": "concreteBackground.png",
+            "spriteSheet": null
+        }
+    ]
 }

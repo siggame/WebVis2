@@ -18,6 +18,7 @@ module.exports = function(grunt) {
                     "app/{,*/}*.html",
                     "app/styles/{,*/}*.css",
                     "app/scripts/{,*/}*.js",
+                    "app/plugins/{,*/}*.js",
                     "app/plugins/{,*/}*.*",
                     "app/images/{,*/}*.{png, jpg, jpeg, gif, webp, svg}"
                 ]

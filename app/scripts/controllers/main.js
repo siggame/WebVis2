@@ -187,19 +187,21 @@ WebVis.ready(function() {
     //---------------------------------------------------
     var getUrlParams = function() {
         var params = {};
-        var query = window.location.hash.split("?")[1];
+        var query = window.location.href.split("?")[1];
         if(query !== undefined) {
             var pairs = query.split("&");
             for(var i = 0; i < pairs.length; i++) {
                 var pair = pairs[i].split("=");
                 if(pair.length < 2) return;
                 if(params[pair[0]] !== undefined) {
-                    params[pair[0]] = pair[1];
-                } else if(typeof(params[pair[0]]) === 'string') {
-                    var arr = [params[pair[0]], pair[1]];
-                    params[pair[0]] = arr;
+                    if(typeof(params[pair[0]]) === 'string') {
+                        var arr = [params[pair[0]], pair[1]];
+                        params[pair[0]] = arr;
+                    } else {
+                        params[pair[0]].push(pair[1]);
+                    }
                 } else {
-                    params[pair[0]].push(pair[1]);
+                    params[pair[0]] = pair[1];
                 }
             }
         }
@@ -208,6 +210,7 @@ WebVis.ready(function() {
 
     var uri = getUrlParams();
     if(uri.logUrl !== undefined) {
+        console.log("in here");
         WebVis.fileLoader.loadFromUrl(uri.logUrl, initPluginFromLog);
     }
 

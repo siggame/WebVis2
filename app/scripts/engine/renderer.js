@@ -143,9 +143,9 @@ WebVis.ready(function() {
                     (this.get(1, 2) * zt) +
                     this.get(1, 3);
 
-            var z = (this.get(2, 3) * xt) +
-                    (this.get(2, 3) * yt) +
-                    (this.get(2, 3) * zt) +
+            var z = (this.get(2, 0) * xt) +
+                    (this.get(2, 1) * yt) +
+                    (this.get(2, 2) * zt) +
                     this.get(2, 3);
 
             return {
@@ -169,7 +169,7 @@ WebVis.ready(function() {
 
         constructor.prototype.ortho = function(l, r, t, b, n, f) {
             this.set(0, 0, 2/(r - l));
-            this.set(1, 1, -2/(t - b));
+            this.set(1, 1, 2/(t - b));
             this.set(2, 2, -2/(f - n));
             this.set(0, 3, -(r + l)/(r - l));
             this.set(1, 3, -(t + b)/(t - b));
@@ -437,8 +437,7 @@ WebVis.ready(function() {
 
             // hard coded orthograph
             this.projection = new Matrix4x4();
-            this.projection.ortho(0, worldWidth, 0, worldHeight, this.FAR, this.NEAR);
-
+            this.projection.ortho(0, worldWidth, 0, worldHeight, this.NEAR, this.FAR);
 
             // set up the default camera
             var pos = new Point(0, 0, -10);
@@ -722,11 +721,13 @@ WebVis.ready(function() {
             var self = this;
             var draw = function(prog, bo, setAttribs) {
                 self.gl.useProgram(prog);
+                self.gl.enableVertexAttribArray(prog.aVertPos);
+                self.gl.enableVertexAttribArray(prog.aVertColor);
                 self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
                 self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(bo.buffer));
                 var meh = new Matrix4x4();
-                self.gl.uniformMatrix4fv(prog.uPMatrix, false, meh.elements);
-                self.gl.uniformMatrix4fv(prog.uVMatrix, false, self.currentCamera.transform.elements);
+                self.gl.uniformMatrix4fv(prog.uPMatrix, false, self.projection.elements);
+                self.gl.uniformMatrix4fv(prog.uVMatrix, false, meh.elements);
 
                 setAttribs();
                 self.gl.drawArrays(self.gl.TRIANGLES, 0, bo.num* 6);
@@ -787,10 +788,10 @@ WebVis.ready(function() {
             wmatrix.rotate(rect.rotation);
             wmatrix.translate(rect.centerx * rect.width + rect.pos.x, rect.centery * rect.height + rect.pos.y, 0);
 
-            var p1 = wmatrix.mul(0, 0, 0);
-            var p2 = wmatrix.mul(0, 1, 0);
-            var p3 = wmatrix.mul(1, 1, 0);
-            var p4 = wmatrix.mul(1, 0, 0);
+            var p1 = wmatrix.mul(0, 0, rect.pos.z);
+            var p2 = wmatrix.mul(0, 1, rect.pos.z);
+            var p3 = wmatrix.mul(1, 1, rect.pos.z);
+            var p4 = wmatrix.mul(1, 0, rect.pos.z);
 
             // vert one
             addPoint(p1);
@@ -854,10 +855,10 @@ WebVis.ready(function() {
             wmatrix.rotate(sprite.rotation);
             wmatrix.translate((sprite.centerx * sprite.width) + sprite.pos.x, (sprite.centery * sprite.height) + sprite.pos.y, 0);
 
-            var p1 = wmatrix.mul(0, 0, 0);
-            var p2 = wmatrix.mul(0, 1, 0);
-            var p3 = wmatrix.mul(1, 1, 0);
-            var p4 = wmatrix.mul(1, 0, 0);
+            var p1 = wmatrix.mul(0, 0, sprite.pos.z);
+            var p2 = wmatrix.mul(0, 1, sprite.pos.z);
+            var p3 = wmatrix.mul(1, 1, sprite.pos.z);
+            var p4 = wmatrix.mul(1, 0, sprite.pos.z);
 
             var u1, v1, u2, v2;
 
