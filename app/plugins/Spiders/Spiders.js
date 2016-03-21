@@ -18,7 +18,7 @@
         self.sprite.texture = "building";
 
         self.draw = function(context) {
-            // context.drawRect(self.rect);
+            context.drawRect(self.rect);
             context.drawSprite(self.sprite);
         };
     }

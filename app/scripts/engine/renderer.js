@@ -474,7 +474,7 @@ WebVis.ready(function() {
             };
 
             // initialize the buffer holders
-            this.rects = new this.Buffer(42);
+            this.rects = new this.Buffer(28);
             this.sprites = {};
 
             // TODO: line and text buffers
@@ -725,7 +725,7 @@ WebVis.ready(function() {
                 //self.gl.uniformMatrix4fv(prog.uVMatrix, false, meh.elements);
 
                 setAttribs();
-                self.gl.drawArrays(self.gl.TRIANGLES, 0, bo.num* 6);
+                self.gl.drawArrays(self.gl.TRIANGLE_FAN, 0, bo.num* 4);
             };
 
             // draw rectangles in buffer
@@ -808,14 +808,6 @@ WebVis.ready(function() {
             addPoint(p3);
             addColor(rect.color);
 
-            // vert four
-            addPoint(p1);
-            addColor(rect.color);
-
-            // vert five
-            addPoint(p3);
-            addColor(rect.color);
-
             // vert six
             addPoint(p4);
             addColor(rect.color);
@@ -830,7 +822,7 @@ WebVis.ready(function() {
             }
 
             if(this.sprites[sprite.texture] === undefined) {
-                this.sprites[sprite.texture] = new this.Buffer(30);
+                this.sprites[sprite.texture] = new this.Buffer(20);
             }
 
             var bufferObject = this.sprites[sprite.texture];
@@ -894,14 +886,6 @@ WebVis.ready(function() {
             addTexCoords(u1, v1);
 
             // vert three
-            addPoint(p3);
-            addTexCoords(u2, v1);
-
-            // vert four
-            addPoint(p1);
-            addTexCoords(u1, v2);
-
-            // vert five
             addPoint(p3);
             addTexCoords(u2, v1);
 
