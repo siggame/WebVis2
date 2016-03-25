@@ -590,7 +590,7 @@ WebVis.ready(function() {
         constructor.prototype = BaseContext;
 
         constructor.prototype.resizeWorld = function(worldWidth, worldHeight) {
-            this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+            this.projection.ortho(0, worldWidth, 0, worldHeight, this.NEAR, this.FAR);
         };
 
         constructor.prototype.setCamera = function(camera) {

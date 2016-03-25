@@ -51,6 +51,7 @@
         this.__proto__ = new WebVis.plugin.Base;
 
         this.loadGame = function(data) {
+            WebVis.renderer.context.resizeWorld(40, 20);
             var blah = new Spider(0, 10, 1, 1);
             this.entities["blah"] = blah;
         };
