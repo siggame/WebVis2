@@ -40,6 +40,7 @@ WebVis.ready(function() {
 
         if(WebVis.renderer.context !== null) {
             var context = WebVis.renderer.context;
+            WebVis.plugin.predraw(context);
             context.begin();
 
             var entities = WebVis.plugin.getEntities();
@@ -52,6 +53,7 @@ WebVis.ready(function() {
             }
 
             context.end();
+            WebVis.plugin.postdraw(context);
         }
     };
 

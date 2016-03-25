@@ -17,8 +17,14 @@ WebVis.ready(function(){
             return this.entities;
         };
 
+        constructor.prototype.predraw = function(context) {
+        };
+
         constructor.prototype.loadGame = function() {
             throw "The loadGame function has not been implemented.\n";
+        };
+
+        constructor.prototype.postdraw = function(context) {
         };
 
         return constructor;
@@ -172,6 +178,18 @@ WebVis.ready(function(){
         }
     };
 
+    var predraw = function(context) {
+        if(currentPlugin !== null) {
+            currentPlugin.predraw(context);
+        }
+    }
+
+    var postdraw = function(context) {
+        if(currentPlugin !== null) {
+            currentPlugin.postdraw(context);
+        }
+    }
+
     WebVis.plugin = {
         Base: Base,
         Animation: Animation,
@@ -179,7 +197,9 @@ WebVis.ready(function(){
         addPlugin: addPlugin,
         changePlugin: changePlugin,
         loadGame: loadGame,
-        getEntities: getEntities
+        getEntities: getEntities,
+        predraw: predraw,
+        postdraw: postdraw
     };
 
 });
