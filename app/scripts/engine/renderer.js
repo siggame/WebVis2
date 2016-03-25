@@ -245,6 +245,7 @@ WebVis.ready(function() {
             if(a.length === 1) {
                 a = "0" + a;
             }
+            return "#" + r + g + b;
         };
 
         return constructor;
@@ -305,13 +306,23 @@ WebVis.ready(function() {
 
     var Text = function() {
         this.visible = true;
-        this.text = "";
+        this.font = "sans-serif";
+        this.value = "";
         this.alignment = "left";
         this.pos = new Point(0, 0, 0);
-        this.width = 0.0;
-        this.size = 0;
-        this.color = new Color(0, 0, 0, 0);
+        this.maxWidth = 0.0;
+        this.size = 12;
+        this.color = new Color(0, 0, 0, 1.0);
     };
+
+    var Circle = function() {
+        this.visible = true;
+        this.center = new Point(0, 0, 0);
+        this.radius = 1;
+        this.color = new Color(0, 0, 0, 1.0);
+        this.resolution = 16;
+        this.percentage = 1.0;
+    }
 
     var Camera = (function() {
         var constructor = function() {
@@ -413,6 +424,10 @@ WebVis.ready(function() {
             throw "Function not implemented.";
         };
 
+        constructor.prototype.drawCircle = function(circle) {
+            throw "Function not implemented.";
+        };
+
         return constructor;
     })();
 
@@ -422,6 +437,7 @@ WebVis.ready(function() {
 
             // create members
             this.canvas = null;
+            this.textCanvas = null;
             this.gl = null;
             this.texturesLoaded = null;
             this.textures = null;
@@ -461,6 +477,18 @@ WebVis.ready(function() {
             this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
             this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
+            // create the canvas over the main canvas to contain text rendered with a 2d context
+            this.textCanvas = document.createElement('canvas');
+            var $textCanvas = $(this.textCanvas);
+            this.textCanvas.width = this.canvas.width;
+            this.textCanvas.height = this.canvas.height;
+            this.textCanvasCtx = this.textCanvas.getContext("2d");
+            if(this.textCanvasCtx === undefined) {
+                throw "This browser does not support HTML5 Canvas";
+            }
+            $(canvas).parent().append(this.textCanvas);
+            $textCanvas.addClass("webvis-canvas-layer");
+
             // initialize the shared buffer
             // TODO: get rid of this
             this.drawBuffer = this.gl.createBuffer();
@@ -477,9 +505,7 @@ WebVis.ready(function() {
             this.rects = new this.Buffer(28);
             this.sprites = {};
             this.lines = new this.Buffer(14);
-
-            // TODO: line and text buffers
-            this.textBuffers = {};
+            this.circles = new this.Buffer(7);
 
             // create and initialize shaders
             var getShader = function(shaderDesc, callback) {
@@ -709,7 +735,11 @@ WebVis.ready(function() {
 
         constructor.prototype.begin = function() {
             this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+            this.textCanvas.width = this.canvas.width;
+            this.textCanvas.height = this.canvas.height;
+
             this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+            this.textCanvasCtx.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height);
             this.rects.num = 0;
         };
 
@@ -774,6 +804,20 @@ WebVis.ready(function() {
                 self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
                 self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
                 self.lines.num = 0;
+            }
+
+            if(self.circles.num > 0) {
+                self.gl.useProgram(self.colorProg);
+                self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
+                self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(self.circles.buffer));
+                self.gl.uniformMatrix4fv(self.colorProg.uPMatrix, false, self.projection.elements);
+                self.gl.uniformMatrix4fv(self.colorProg.uVMatrix, false, self.currentCamera.transform.elements);
+                self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
+                self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
+                self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
+                self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
+                self.gl.drawArrays(self.gl.TRIANGLE_FAN, 0, self.circles.num);
+                self.circles.num = 0;
             }
         };
 
@@ -942,7 +986,54 @@ WebVis.ready(function() {
         };
 
         constructor.prototype.drawText = function(text) {
-            // stub
+            this.textCanvasCtx.font = text.size + "px " + text.font;
+            var pt = this.projection.mul(text.pos.x, text.pos.y, 0);
+            var maxWidth = this.projection.mul(text.maxWidth, 0, 0).x;
+            var ux = (pt.x + 1)/2;
+            var uy = -(pt.y - 1)/2;
+            maxWidth = (maxWidth + 1)/2;
+            ux = parseInt(ux * this.textCanvas.width);
+            uy = parseInt(uy * this.textCanvas.height);
+            maxWidth = parseInt(maxWidth * this.textCanvas.width);
+            this.textCanvasCtx.fillStyle = text.color.toCss();
+
+            this.textCanvasCtx.fillText(text.value, ux, uy, maxWidth);
+        };
+
+        constructor.prototype.drawCircle = function(circle) {
+            var buffer = this.circles.buffer;
+            var offset = this.circles.stride * this.circles.num;
+
+            var addPoint = function(point) {
+                buffer[offset] = point.x;
+                buffer[offset + 1] = point.y;
+                buffer[offset + 2] = point.z;
+
+                offset += 3;
+            };
+
+            var addColor = function(color) {
+                buffer[offset] = color.r;
+                buffer[offset + 1] = color.g;
+                buffer[offset + 2] = color.b;
+                buffer[offset + 3] = color.a;
+
+                offset += 4;
+            };
+
+            var wmatrix = new Matrix4x4();
+            wmatrix.rotate(circle.rotation);
+            wmatrix.translate(circle.center.x, circle.center.y, circle.center.z);
+
+            for(var i = 0; i < circle.resolution; i++) {
+                var rad = circle.percentage * i * (1/circle.resolution) * (2 * Math.PI);
+                var x = circle.radius * Math.sin(rad);
+                var y = circle.radius * Math.cos(rad);
+                var p = wmatrix.mul(x, y, circle.center.z);
+                addPoint(p);
+                addColor(circle.color);
+                this.circles.num++;
+            }
         };
 
         return constructor;
@@ -964,7 +1055,8 @@ WebVis.ready(function() {
         Sprite: Sprite,
         Rect: Rect,
         Path: Path,
-        Text: Text ,
+        Text: Text,
+        Circle: Circle,
         Camera: Camera,
         init : init
     };

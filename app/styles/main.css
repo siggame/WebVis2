@@ -11,6 +11,13 @@
     height: 100%;
 }
 
+.webvis-canvas-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
 .webvis-heading {
     display:inline;
     width:100%;

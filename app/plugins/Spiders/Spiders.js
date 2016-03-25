@@ -24,10 +24,26 @@
         self.line.p2.y = 2;
         self.line.color.setColor(0.0, 1.0, 0.0, 1.0);
 
+        self.text = new WebVis.renderer.Text();
+        self.text.pos.x = 3;
+        self.text.pos.y = 3;
+        self.text.value = "Blah";
+        self.text.maxWidth = 1;
+        self.text.size = 25;
+        self.text.color.setColor(1.0, 1.0, 1.0, 1.0);
+
+        self.circle = new WebVis.renderer.Circle();
+        self.circle.center.x = 5;
+        self.circle.center.y = 3;
+        self.circle.radius = 0.5;
+        self.circle.color.setColor(0.0, 0.0, 1.0, 1.0);
+
         self.draw = function(context) {
             context.drawRect(self.rect);
             context.drawSprite(self.sprite);
             context.drawLine(self.line);
+            context.drawText(self.text);
+            context.drawCircle(self.circle);
         };
     }
 
