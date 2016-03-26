@@ -1,7 +1,50 @@
 WebVis.ready(function() {
+    var version = "2.0.0";
 
     // forward declarations
     var resize = null;
+
+    var initPluginFromLog = function(file) {
+        var gameObject = JSON.parse(file.data);
+        console.log("Loading plugin \""+gameObject.gameName+"\"");
+        WebVis.plugin.changePlugin(gameObject.gameName, function() {
+            //WebVis.util.buildStatesFromJson(gameObject);
+            var flattenWorker = new Worker("/scripts/engine/flatten.js");
+            flattenWorker.addEventListener("message", function(obj) {
+                obj = obj.data;
+                switch(obj.message) {
+                    case "update":
+                        console.log(obj.data);
+                        break;
+                    case "finish":
+                        WebVis.setDebugData(obj.data);
+                        WebVis.plugin.loadGame(obj.data);
+                        WebVis.game.setMaxTurn(obj.data.deltas.length);
+                        break;
+                }
+            });
+
+            flattenWorker.postMessage(gameObject);
+        });
+    };
+
+    //-------------------------------------------------
+    // place the version of the engine in the name and attach
+    // manual file loader
+    //-------------------------------------------------
+    $('#webvis-version-text').text(version);
+    var formTag = $('#manual-open-btn').find('form');
+    var inputTag = formTag.find("input[type='file']");
+    $('#manual-open-btn').bind('click', function(event) {
+        inputTag.click();
+    });
+    inputTag.click(function(event) {
+        event.stopPropagation();
+    });
+    inputTag.change(function(event) {
+        WebVis.fileLoader.loadFile(event.target.files, initPluginFromLog);
+        inputTag.val(null);
+    });
 
     //-------------------------------------------------
     // attach the time slider to it's element
@@ -140,30 +183,6 @@ WebVis.ready(function() {
         event.stopPropagation();
         event.preventDefault();
     });
-
-    var initPluginFromLog = function(file) {
-        var gameObject = JSON.parse(file.data);
-        console.log("Loading plugin \""+gameObject.gameName+"\"");
-        WebVis.plugin.changePlugin(gameObject.gameName, function() {
-            //WebVis.util.buildStatesFromJson(gameObject);
-            var flattenWorker = new Worker("/scripts/engine/flatten.js");
-            flattenWorker.addEventListener("message", function(obj) {
-                obj = obj.data;
-                switch(obj.message) {
-                    case "update":
-                        console.log(obj.data);
-                        break;
-                    case "finish":
-                        WebVis.setDebugData(obj.data);
-                        WebVis.plugin.loadGame(obj.data);
-                        WebVis.game.setMaxTurn(obj.data.deltas.length);
-                        break;
-                }
-            });
-
-            flattenWorker.postMessage(gameObject);
-        });
-    };
 
     $('body').bind('drop', function(event) {
         event.stopPropagation();
