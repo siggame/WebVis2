@@ -222,8 +222,8 @@ WebVis.ready(function() {
         var canvas = $canvas.get(0);
         WebVis.renderer.init(canvas, 20, 20);
         $(window).resize(function() {
-            $('#canvas').get(0).width = $('#canvas').width();
-            $('#canvas').get(0).height = $('#canvas').height();
+            $('#canvas').get(0).width = $('#canvas').css('width');
+            $('#canvas').get(0).height = $('#canvas').css('height');
         });
 
         canvas.width = canvas.clientWidth;
