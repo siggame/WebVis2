@@ -267,11 +267,9 @@ WebVis.ready(function() {
     (function() {
         WebVis.renderer.init(canvas, 20, 20);
 
-        setTimeout(function() {
-            fillWidth();
-            fillHeight();
-            updateCanvasSize();
-        }, 400);
+        fillWidth();
+        fillHeight();
+        updateCanvasSize();
 
         var uri = WebVis.util.getUrlParams();
         if(uri.logUrl !== undefined) {
