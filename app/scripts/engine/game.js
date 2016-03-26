@@ -13,7 +13,7 @@ WebVis.ready(function() {
 
         if(WebVis.game.playing) {
             var prevCurrentTurn = WebVis.game.currentTurn;
-            WebVis.game.currentTurn += WebVis.game.speed * dtSeconds;
+            WebVis.game.currentTurn += Math.pow(2, WebVis.game.speed) * dtSeconds;
 
             // handle reaching/exceeding max turn
             if(WebVis.game.currentTurn >= WebVis.game.maxTurn) {
@@ -61,9 +61,9 @@ WebVis.ready(function() {
         // publics
         currentTurn: 0,
         maxTurn: 10,
-        speed: 1,
+        speed: 0,
         playing: false,
-        turnMode: true,
+        turnMode: false,
 
         // methods
         play: function() {

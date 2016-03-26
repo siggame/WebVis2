@@ -20,12 +20,14 @@ WebVis.ready(function() {
     //-------------------------------------------------
     $('#speed-slider').slider({
         animate: true,
-        max: 10,
+        max: 5,
         min: 0,
         slide: function(event, ui) {
             WebVis.game.speed = ui.value;
+            $('#speed-slider-text').text(Math.pow(2, WebVis.game.speed) + "x");
         }
-    })
+    });
+    $('#speed-slider-text').text(Math.pow(2, WebVis.game.speed) + "x");
 
     //-------------------------------------------------
     // attach the step back button
