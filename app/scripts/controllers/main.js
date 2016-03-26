@@ -1,40 +1,5 @@
 WebVis.ready(function() {
 
-    var fillHeight = function() {
-        $('.fill-height').each(function(index, elem){
-            var $elem = $(elem);
-            var offset = 0;
-            var children = $elem.parent().children().not($elem);
-            children.each(function(i, otherelem) {
-                var $otherelem = $(otherelem);
-                offset += $otherelem.outerHeight();
-            });
-
-            $elem.outerHeight($elem.parent().height() - offset);
-        });
-    };
-
-    var fillWidth = function() {
-        $('.fill-width').each(function(index, elem){
-            var $elem = $(elem);
-            var offset = 0;
-            var children = $elem.parent().children().not($elem);
-            children.each(function(i, otherelem) {
-                var $otherelem = $(otherelem);
-                if(!$otherelem.hasClass('ret')) {
-                    offset += $otherelem.outerWidth();
-                }
-            });
-
-            $elem.outerWidth($elem.parent().width() - offset);
-        });
-    };
-
-    $(window).resize(fillWidth);
-    $(window).resize(fillHeight);
-    fillWidth();
-    fillHeight();
-
     //-------------------------------------------------
     // attach the time slider to it's element
     //-------------------------------------------------
@@ -182,52 +147,73 @@ WebVis.ready(function() {
         $("#turn-slider").slider('option', {'max': parseInt(WebVis.game.maxTurn)});
     });
 
-    //---------------------------------------------------
-    // parse the uri and check for load url
-    //---------------------------------------------------
-    var getUrlParams = function() {
-        var params = {};
-        var query = window.location.href.split("?")[1];
-        if(query !== undefined) {
-            var pairs = query.split("&");
-            for(var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i].split("=");
-                if(pair.length < 2) return;
-                if(params[pair[0]] !== undefined) {
-                    if(typeof(params[pair[0]]) === 'string') {
-                        var arr = [params[pair[0]], pair[1]];
-                        params[pair[0]] = arr;
-                    } else {
-                        params[pair[0]].push(pair[1]);
-                    }
-                } else {
-                    params[pair[0]] = pair[1];
-                }
-            }
-        }
-        return params
+    //--------------------------------------------------------------
+    // Functions for handling fillWidth and fillHeight dom elements
+    //--------------------------------------------------------------
+    var fillHeight = function() {
+        $('.fill-height').each(function(index, elem){
+            var $elem = $(elem);
+            var offset = 0;
+            var children = $elem.parent().children().not($elem);
+            children.each(function(i, otherelem) {
+                var $otherelem = $(otherelem);
+                offset += $otherelem.outerHeight();
+            });
+
+            $elem.outerHeight($elem.parent().height() - offset);
+        });
     };
 
-    var uri = getUrlParams();
-    if(uri.logUrl !== undefined) {
-        console.log("in here");
-        WebVis.fileLoader.loadFromUrl(uri.logUrl, initPluginFromLog);
+    var fillWidth = function() {
+        $('.fill-width').each(function(index, elem){
+            var $elem = $(elem);
+            var offset = 0;
+            var children = $elem.parent().children().not($elem);
+            children.each(function(i, otherelem) {
+                var $otherelem = $(otherelem);
+                if(!$otherelem.hasClass('ret')) {
+                    offset += $otherelem.outerWidth();
+                }
+            });
+
+            $elem.outerWidth($elem.parent().width() - offset);
+        });
+    };
+
+    //---------------------------------------------------------
+    //  Canvas setup and window resize bindingbinding
+    //---------------------------------------------------------
+    var updateCanvasSize = function() {
+        var $canvas = $('#canvas');
+        $canvas.get(0).width = $canvas.parent().width();
+        $canvas.get(0).height = $canvas.parent().height();
     }
 
-    //---------------------------------------------------------
-    //  Canvas setup and binding
-    //---------------------------------------------------------
-    (function() {
-        var $canvas = $('#canvas');
-        var canvas = $canvas.get(0);
-        WebVis.renderer.init(canvas, 20, 20);
-        $(window).resize(function() {
-            $('#canvas').get(0).width = $('#canvas').width();
-            $('#canvas').get(0).height = $('#canvas').height();
-        });
+    $(window).resize(function() {
+        setTimeout(function(){
+            fillWidth();
+            fillHeight();
+            updateCanvasSize();
+        }, 400);
+    });
 
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
+    //=-------------------------------------------------------
+    // Initial page configuration
+    //--------------------------------------------------------
+    (function() {
+        WebVis.renderer.init(canvas, 20, 20);
+
+        setTimeout(function() {
+            fillWidth();
+            fillHeight();
+            updateCanvasSize();
+        }, 400);
+
+        var uri = WebVis.util.getUrlParams();
+        if(uri.logUrl !== undefined) {
+            console.log("in here");
+            WebVis.fileLoader.loadFromUrl(uri.logUrl, initPluginFromLog);
+        }
     })();
 
     WebVis.fillWidth = fillWidth;
