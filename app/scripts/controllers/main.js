@@ -190,11 +190,9 @@ WebVis.ready(function() {
     }
 
     $(window).resize(function() {
-        setTimeout(function(){
-            fillWidth();
-            fillHeight();
-            updateCanvasSize();
-        }, 400);
+        fillWidth();
+        fillHeight();
+        updateCanvasSize();
     });
 
     //=-------------------------------------------------------
