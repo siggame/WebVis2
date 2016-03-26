@@ -1,5 +1,8 @@
 WebVis.ready(function() {
 
+    // forward declarations
+    var resize = null;
+
     //-------------------------------------------------
     // attach the time slider to it's element
     //-------------------------------------------------
@@ -86,6 +89,46 @@ WebVis.ready(function() {
 
     $('#turn-toggle').click(function() {
         evalTurnToggle();
+    });
+
+    //--------------------------------------------------
+    // Attach the fullscreen button
+    //--------------------------------------------------
+    $('#fullscreen-toggle').click(function() {
+        var elem = document.getElementById('playback');
+        if(document.fullscreenElement ||
+           document.webkitFullscreenElement ||
+           document.mozFullScreenElement ||
+           document.msFullscreenElement)
+        {
+            if(document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if(document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if(document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if(document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            $(elem).removeClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+            $(elem).addClass('col-md-9 col-lg-9 col-xs-9 col-sm-9');
+        } else {
+            if(elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if(elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            } else if(elem.mozRequestFullscreen) {
+                elem.mozRequestFullscreen();
+            } else if(elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            }
+            $(elem).removeClass('col-md-9 col-lg-9 col-xs-9 col-sm-9');
+            $(elem).addClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+        }
+        // TODO: Find a way to actually attach callback to the end of the fullscreen css
+        // transition rather than just waiting an arbitrary time for it to finish.
+        // This type of thing is just disgusting, (THANKS AGAIN W3 -_-)
+        setTimeout(resize, 200);
     });
 
     //--------------------------------------------------
@@ -189,11 +232,13 @@ WebVis.ready(function() {
         $canvas.get(0).height = $canvas.parent().height();
     }
 
-    $(window).resize(function() {
+    var resize = function() {
         fillWidth();
         fillHeight();
         updateCanvasSize();
-    });
+    }
+
+    $(window).resize(resize);
 
     //=-------------------------------------------------------
     // Initial page configuration
