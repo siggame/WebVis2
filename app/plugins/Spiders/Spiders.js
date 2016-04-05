@@ -49,9 +49,29 @@
 
     var Spiders = function() {
         this.__proto__ = new WebVis.plugin.Base;
+        this.projection = new WebVis.renderer.Matrix4x4();
+        this.worldWidth = 44;
+        this.worldHeight = 24;
+
+        this.predraw = function(context) {
+            // aspect ratio management
+            var worldRatio = this.worldWidth / this.worldHeight;
+            var screenSize = context.getScreenSize();
+            var screenRatio = screenSize.width / screenSize.height;
+
+            if((worldRatio / screenRatio) > 1) {
+                this.projection.ortho(0, this.worldWidth, 0, this.worldHeight * ( worldRatio / screenRatio), 0.001, 1000);
+            } else {
+                this.projection.ortho(0, this.worldWidth * (worldRatio / screenRatio), 0, this.worldHeight, 0.001, 1000);
+            }
+            context.push(this.projection);
+        };
+
+        this.postdraw = function(context) {
+            context.pop();
+        };
 
         this.loadGame = function(data) {
-            WebVis.renderer.context.resizeWorld(40, 20);
             var blah = new Spider(0, 10, 1, 1);
             this.entities["blah"] = blah;
         };

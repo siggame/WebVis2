@@ -45,6 +45,7 @@ WebVis.ready(function() {
         var constructor = function(param) {
             this.elements = new Float32Array(16);
             if(param === undefined) {
+                // identity by default
                 this.identity();
             } else {
                 for(var i = 0; i < 16; i++) {
@@ -154,6 +155,20 @@ WebVis.ready(function() {
               z: z
             };
         };
+
+        constructor.prototype.mulmat = function(mat) {
+            var newmat = new Matrix4x4();
+            for(var row = 0; row < 4; row++) {
+                for(var col = 0; col < 4; col++) {
+                    var val = 0;
+                    for(var k = 0; k < 4; k++) {
+                        val += this.get(k, col) * mat.get(row, k);
+                    }
+                    newmat.set(row, col, val);
+                }
+            }
+            return newmat;
+        }
 
         constructor.prototype.identity = function() {
             for(var i = 0; i < 4; i++) {
@@ -451,7 +466,6 @@ WebVis.ready(function() {
 
             // hard coded orthograph initially
             this.projection = new Matrix4x4();
-            this.projection.ortho(0, worldWidth, 0, worldHeight, this.NEAR, this.FAR);
             this.projections = [];
             this.projections.push(this.projection);
 
@@ -599,8 +613,15 @@ WebVis.ready(function() {
         // attach the prototype basecontext prototype
         constructor.prototype = BaseContext;
 
-        constructor.prototype.resizeWorld = function(worldWidth, worldHeight) {
-            this.projection.ortho(0, worldWidth, 0, worldHeight, this.NEAR, this.FAR);
+        constructor.prototype.push = function(mat) {
+            var newMat = mat.mulmat(this.projection);
+            this.projections.push(newMat);
+            this.projection = newMat;
+        };
+
+        constructor.prototype.pop = function() {
+            this.projections.pop();
+            this.projection = this.projections[this.projections.length - 1];
         };
 
         constructor.prototype.setCamera = function(camera) {
