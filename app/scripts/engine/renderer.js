@@ -504,15 +504,19 @@ WebVis.ready(function() {
             $textCanvas.addClass("webvis-canvas-layer");
 
             // initialize the shared buffer
-            // TODO: get rid of this
             this.drawBuffer = this.gl.createBuffer();
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.drawBuffer);
             this.gl.bufferData(this.gl.ARRAY_BUFFER, 100000, this.gl.DYNAMIC_DRAW);
+
+            this.indexBuffer = this.gl.createBuffer();
+            this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+            this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, 100000, this.gl.DYNAMIC_DRAW);
 
             this.Buffer = function(vertex_size) {
                 this.num = 0;           // number of vertices to draw
                 this.vertex_size = vertex_size;   // number of floats in a vertex
                 this.buffer = [];       // the current array of vertices to draw
+                this.indexBuffer = [];  // the list of indices to use in order
             };
 
             // initialize the buffer holders
@@ -807,7 +811,6 @@ WebVis.ready(function() {
                         var texData = self.textures[prop2];
 
                         self.gl.useProgram(self.textureProg);
-
                         self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
                         self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(spriteBuffer.buffer));
                         self.gl.activeTexture(self.gl.TEXTURE0);
@@ -834,15 +837,20 @@ WebVis.ready(function() {
                 var buffer = self.lines[prop];
 
                 if(buffer.num > 0) {
-                    draw(self.colorProg, buffer, self.gl.LINES, function() {
-                        self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
-                        self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
-                        self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
-                        self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
-                    });
+                    self.gl.useProgram(self.colorProg);
+                    self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
+                    self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(buffer.buffer));
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
+                    self.gl.uniformMatrix4fv(self.colorProg.uPMatrix, false, self.projection.elements);
+                    self.gl.uniformMatrix4fv(self.colorProg.uVMatrix, false, self.currentCamera.transform.elements);
+                    self.gl.drawArrays(self.gl.LINES, 0, buffer.num);
                     self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
                     self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
                     buffer.num = 0;
+                    buffer.offset = 0;
                 }
             }
 
@@ -854,15 +862,18 @@ WebVis.ready(function() {
                     self.gl.useProgram(self.colorProg);
                     self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
                     self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(buffer.buffer));  // sorry :(
+                    self.gl.bindBuffer(self.gl.ELEMENT_ARRAY_BUFFER, self.indexBuffer);
+                    self.gl.bufferSubData(self.gl.ELEMENT_ARRAY_BUFFER, 0, new Uint16Array(buffer.indexBuffer));
                     self.gl.uniformMatrix4fv(self.colorProg.uPMatrix, false, self.projection.elements);
                     self.gl.uniformMatrix4fv(self.colorProg.uVMatrix, false, self.currentCamera.transform.elements);
                     self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
                     self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
                     self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
                     self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
-                    self.gl.drawArrays(self.gl.TRIANGLE_FAN, 0, buffer.num);
+                    self.gl.drawElements(self.gl.TRIANGLES, buffer.indexBuffer.length, self.gl.UNSIGNED_SHORT, 0);
                     buffer.num = 0;
                     buffer.offset = 0;
+                    buffer.indexBuffer = [];
                 }
 
             }
@@ -1018,11 +1029,11 @@ WebVis.ready(function() {
 
         constructor.prototype.drawLine = function(line) {
             if(this.lines[this.projection.elements] === undefined) {
-                this.lines[this.projection.elements] = new this.Buffer(14);
+                this.lines[this.projection.elements] = new this.Buffer(7);
             }
 
             var buffer = this.lines[this.projection.elements].buffer;
-            var offset = this.lines[this.projection.elements].num * this.lines[this.projection.elements].stride;
+            var offset = this.lines[this.projection.elements].offset;
 
             var addPoint = function(point) {
                 buffer[offset] = point.x;
@@ -1049,7 +1060,8 @@ WebVis.ready(function() {
             addPoint(line.p2);
             addColor(line.color);
 
-            this.lines[this.projection.elements].num++;
+            this.lines[this.projection.elements].offset = offset;
+            this.lines[this.projection.elements].num += 2;
         };
 
         constructor.prototype.drawText = function(text) {
@@ -1072,8 +1084,9 @@ WebVis.ready(function() {
                 this.circles[this.projection.elements] = new this.Buffer(7);
             }
 
-            var buffer = this.circles[this.projection.elements].buffer;
-            var offset = this.circles[this.projection.elements].offset;
+            var vbo = this.circles[this.projection.elements];
+            var buffer = vbo.buffer;
+            var offset = vbo.offset;
 
             var addPoint = function(point) {
                 buffer[offset] = point.x;
@@ -1096,19 +1109,34 @@ WebVis.ready(function() {
             wmatrix.rotate(circle.rotation);
             wmatrix.translate(circle.center.x, circle.center.y, circle.center.z);
 
+            var firstIndex = vbo.num;
+
             addPoint(new Point(circle.center.x, circle.center.y, circle.center.z));
             addColor(circle.color);
+            vbo.num++;
 
-            for(var i = 0; i <= circle.resolution + 1; i++) {
-                var rad = circle.percentage * i * (1/circle.resolution) * (2 * Math.PI);
-                var x = circle.radius * Math.cos(rad);
-                var y = -circle.radius * Math.sin(rad);
-                var p = wmatrix.mul(x, y, circle.center.z);
+            var rad = 0;
+            var x = circle.radius * Math.cos(rad);
+            var y = -circle.radius * Math.sin(rad);
+            var p = wmatrix.mul(x, y, circle.center.z);
+            addPoint(p);
+            addColor(circle.color);
+            vbo.num++;
+
+            for(var i = 1; i <= circle.resolution ; i++) {
+                vbo.indexBuffer.push(firstIndex);
+                rad = circle.percentage * i * (1/circle.resolution) * (2 * Math.PI);
+                x = circle.radius * Math.cos(rad);
+                y = -circle.radius * Math.sin(rad);
+                p = wmatrix.mul(x, y, circle.center.z);
                 addPoint(p);
                 addColor(circle.color);
-                this.circles[this.projection.elements].num++;
+                vbo.indexBuffer.push(vbo.num - 1);
+                vbo.indexBuffer.push(vbo.num);
+                vbo.num++;
             }
-            this.circles[this.projection.elements].offset = offset;
+
+            vbo.offset = offset;
         };
 
         return constructor;

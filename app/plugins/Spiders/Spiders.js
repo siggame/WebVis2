@@ -50,15 +50,6 @@
     var Nest = function(initx, inity) {
         this.__proto__ = new WebVis.plugin.Entity;
 
-        this.pc = new WebVis.renderer.Circle();
-        this.pc.center.x = initx;
-        this.pc.center.y = inity;
-        this.pc.center.z = 0;
-        this.pc.rotation = Math.PI/4;
-        this.pc.resolution = 8;
-        this.pc.percentage = 0.25;
-        this.pc.color.setColor(0.0, 1.0, 0.0, 1.0);
-
         this.rect = new WebVis.renderer.Rect();
         this.rect.pos.x = initx + 1;
         this.rect.pos.y = inity + 1;
@@ -83,12 +74,47 @@
         this.sprite2.pos.z = 0;
         this.sprite2.texture = "building";
 
+        this.line = new WebVis.renderer.Line();
+        this.line.p1.x = 2;
+        this.line.p1.y = 0;
+        this.line.p2.x = 2;
+        this.line.p2.y = 2;
+        this.line.color.setColor(0.0, 1.0, 0.0, 1.0);
+
+        this.line2 = new WebVis.renderer.Line();
+        this.line2.p1.x = 3;
+        this.line2.p1.y = 0;
+        this.line2.p2.x = 3;
+        this.line2.p2.y = 3;
+        this.line2.color.setColor(1.0, 0.0, 1.0, 1.0);
+
+        this.circle = new WebVis.renderer.Circle();
+        this.circle.center.x = initx;
+        this.circle.center.y = inity;
+        this.circle.center.z = 0;
+        this.circle.rotation = Math.PI/4;
+        this.circle.resolution = 8;
+        this.circle.percentage = 0.25;
+        this.circle.color.setColor(0.0, 1.0, 0.0, 1.0);
+
+        this.circle2 = new WebVis.renderer.Circle();
+        this.circle2.center.x = initx + 3;
+        this.circle2.center.y = inity + 3;
+        this.circle2.center.z = 0;
+        this.circle2.rotation = Math.PI/4;
+        this.circle2.resolution = 8;
+        this.circle2.percentage = 0.25;
+        this.circle2.color.setColor(1.0, 0.0, 0.0, 1.0);
+
         this.draw = function(context) {
             context.drawRect(this.rect);
             context.drawRect(this.rect2);
-            context.drawCircle(this.pc);
             context.drawSprite(this.sprite);
-            context.drawSprite(this.sprite2)
+            context.drawSprite(this.sprite2);
+            context.drawLine(this.line);
+            context.drawLine(this.line2);
+            context.drawCircle(this.circle);
+            context.drawCircle(this.circle2);
         };
     };
 
