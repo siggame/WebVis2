@@ -59,8 +59,36 @@
         this.pc.percentage = 0.25;
         this.pc.color.setColor(0.0, 1.0, 0.0, 1.0);
 
+        this.rect = new WebVis.renderer.Rect();
+        this.rect.pos.x = initx + 1;
+        this.rect.pos.y = inity + 1;
+        this.rect.pos.z = 0;
+        this.rect.color.setColor(1.0, 0.0, 0.0, 1.0);
+
+        this.rect2 = new WebVis.renderer.Rect();
+        this.rect2.pos.x = initx + 2;
+        this.rect2.pos.y = inity + 2;
+        this.rect2.pos.z = 0;
+        this.rect2.color.setColor(1.0, 0.0, 1.0, 1.0);
+
+        this.sprite = new WebVis.renderer.Sprite();
+        this.sprite.pos.x = 0;
+        this.sprite.pos.y = 0;
+        this.sprite.pos.z = 0;
+        this.sprite.texture = "building";
+
+        this.sprite2 = new WebVis.renderer.Sprite();
+        this.sprite2.pos.x = 1;
+        this.sprite2.pos.y = 1;
+        this.sprite2.pos.z = 0;
+        this.sprite2.texture = "building";
+
         this.draw = function(context) {
+            context.drawRect(this.rect);
+            context.drawRect(this.rect2);
             context.drawCircle(this.pc);
+            context.drawSprite(this.sprite);
+            context.drawSprite(this.sprite2)
         };
     };
 

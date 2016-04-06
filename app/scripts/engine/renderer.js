@@ -509,27 +509,18 @@ WebVis.ready(function() {
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.drawBuffer);
             this.gl.bufferData(this.gl.ARRAY_BUFFER, 100000, this.gl.DYNAMIC_DRAW);
 
-            this.Buffer = function(stride) {
-                this.stride = stride;
-                this.num = 0;
-                this.buffer = [];
-                this.offset = 0;
+            this.Buffer = function(vertex_size) {
+                this.num = 0;           // number of vertices to draw
+                this.vertex_size = vertex_size;   // number of floats in a vertex
+                this.buffer = [];       // the current array of vertices to draw
             };
 
             // initialize the buffer holders
             var projElements = this.projection.elements;
-            this.rects = {
-                projElements : new this.Buffer(28)
-            };
-            this.sprites = {
-                projElements : {}
-            };
-            this.lines = {
-                projElements : new this.Buffer(14)
-            };
-            this.circles = {
-                projElements : new this.Buffer(7)
-            };
+            this.rects = {};
+            this.sprites = {};
+            this.lines = {};
+            this.circles = {};
 
             // create and initialize shaders
             var getShader = function(shaderDesc, callback) {
@@ -778,7 +769,7 @@ WebVis.ready(function() {
                 //self.gl.uniformMatrix4fv(prog.uVMatrix, false, meh.elements);
 
                 setAttribs();
-                self.gl.drawArrays(method, 0, bo.num* 4);
+                self.gl.drawArrays(method, 0, bo.num* 5);
             };
 
             // draw rectangles in buffer
@@ -787,15 +778,20 @@ WebVis.ready(function() {
                 var buffer = self.rects[prop];
 
                 if(buffer.num > 0) {
-                    draw(self.colorProg, buffer,self.gl.TRIANGLE_FAN, function() {
-                        self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
-                        self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
-                        self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
-                        self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
-                    });
+                    self.gl.useProgram(self.colorProg);
+                    self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
+                    self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(buffer.buffer));
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
+                    self.gl.uniformMatrix4fv(self.colorProg.uPMatrix, false, self.projection.elements);
+                    self.gl.uniformMatrix4fv(self.colorProg.uVMatrix, false, self.currentCamera.transform.elements);
+                    self.gl.drawArrays(self.gl.TRIANGLE_STRIP, 0, buffer.num);
                     self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
                     self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
                     buffer.num = 0;
+                    buffer.offset = 0;
                 }
             }
 
@@ -810,18 +806,24 @@ WebVis.ready(function() {
                         var spriteBuffer = spriteBuffers[prop2];
                         var texData = self.textures[prop2];
 
-                        draw(self.textureProg, spriteBuffer, self.gl.TRIANGLE_FAN, function() {
-                            self.gl.enableVertexAttribArray(self.textureProg.aVertPos);
-                            self.gl.enableVertexAttribArray(self.textureProg.aTexCoord);
-                            self.gl.activeTexture(self.gl.TEXTURE0);
-                            self.gl.bindTexture(self.gl.TEXTURE_2D, texData.texture);
-                            self.gl.uniform1i(self.textureProg.uSampler, 0);
-                            self.gl.vertexAttribPointer(self.textureProg.aVertPos, 3, self.gl.FLOAT, false, 20, 0);
-                            self.gl.vertexAttribPointer(self.textureProg.aTexCoord, 2, self.gl.FLOAT, false, 20, 12);
-                        });
+                        self.gl.useProgram(self.textureProg);
+
+                        self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
+                        self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(spriteBuffer.buffer));
+                        self.gl.activeTexture(self.gl.TEXTURE0);
+                        self.gl.bindTexture(self.gl.TEXTURE_2D, texData.texture);
+                        self.gl.uniform1i(self.textureProg.uSampler, 0);
+                        self.gl.enableVertexAttribArray(self.textureProg.aVertPos);
+                        self.gl.enableVertexAttribArray(self.textureProg.aTexCoord);
+                        self.gl.vertexAttribPointer(self.textureProg.aVertPos, 3, self.gl.FLOAT, false, 20, 0);
+                        self.gl.vertexAttribPointer(self.textureProg.aTexCoord, 2, self.gl.FLOAT, false, 20, 12);
+                        self.gl.uniformMatrix4fv(self.textureProg.uPMatrix, false, self.projection.elements);
+                        self.gl.uniformMatrix4fv(self.textureProg.uVMatrix, false, self.currentCamera.transform.elements);
+                        self.gl.drawArrays(self.gl.TRIANGLE_STRIP, 0, spriteBuffer.num);
                         self.gl.disableVertexAttribArray(self.textureProg.aVertPos);
                         self.gl.disableVertexAttribArray(self.textureProg.aTexCoord);
                         spriteBuffer.num = 0;
+                        spriteBuffer.offset = 0;
                     }
                 }
             }
@@ -868,10 +870,10 @@ WebVis.ready(function() {
 
         constructor.prototype.drawRect = function(rect) {
             if(this.rects[this.projection.elements] === undefined) {
-                this.rects[this.projection.elements] = new this.Buffer(28);
+                this.rects[this.projection.elements] = new this.Buffer(7);
             }
             var buffer = this.rects[this.projection.elements].buffer;
-            var offset = this.rects[this.projection.elements].num * this.rects[this.projection.elements].stride;
+            var offset = this.rects[this.projection.elements].offset;
 
             var addPoint = function(point) {
                 buffer[offset] = point.x;
@@ -905,6 +907,10 @@ WebVis.ready(function() {
             addPoint(p1);
             addColor(rect.color);
 
+            // vert six
+            addPoint(p4);
+            addColor(rect.color);
+
             // vert two
             addPoint(p2);
             addColor(rect.color);
@@ -913,11 +919,11 @@ WebVis.ready(function() {
             addPoint(p3);
             addColor(rect.color);
 
-            // vert six
-            addPoint(p4);
+            addPoint(p3);
             addColor(rect.color);
 
-            this.rects[this.projection.elements].num++;
+            this.rects[this.projection.elements].offset = offset;
+            this.rects[this.projection.elements].num += 5;
         };
 
         constructor.prototype.drawSprite = function(sprite) {
@@ -932,12 +938,12 @@ WebVis.ready(function() {
             var sameProjectionGroup = this.sprites[this.projection.elements];
 
             if(sameProjectionGroup[sprite.texture] === undefined) {
-                sameProjectionGroup[sprite.texture] = new this.Buffer(20);
+                sameProjectionGroup[sprite.texture] = new this.Buffer(5);
             }
 
             var bufferObject = sameProjectionGroup[sprite.texture];
             var buffer = bufferObject.buffer;
-            var offset = bufferObject.num * bufferObject.stride;
+            var offset = bufferObject.offset;
 
             var addPoint = function(point) {
                 buffer[offset] = point.x;
@@ -991,6 +997,10 @@ WebVis.ready(function() {
             addPoint(p1);
             addTexCoords(u1, v2);
 
+            // vert six
+            addPoint(p4);
+            addTexCoords(u2, v2);
+
             // vert two
             addPoint(p2);
             addTexCoords(u1, v1);
@@ -999,11 +1009,11 @@ WebVis.ready(function() {
             addPoint(p3);
             addTexCoords(u2, v1);
 
-            // vert six
-            addPoint(p4);
-            addTexCoords(u2, v2);
+            addPoint(p3);
+            addTexCoords(u2, v1);
 
-            sameProjectionGroup[sprite.texture].num++;
+            bufferObject.offset = offset;
+            bufferObject.num += 5;
         };
 
         constructor.prototype.drawLine = function(line) {
