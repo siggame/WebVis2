@@ -1086,10 +1086,13 @@ WebVis.ready(function() {
             wmatrix.rotate(circle.rotation);
             wmatrix.translate(circle.center.x, circle.center.y, circle.center.z);
 
-            for(var i = 0; i < circle.resolution; i++) {
+            addPoint(new Point(circle.center.x, circle.center.y, circle.center.z));
+            addColor(circle.color);
+
+            for(var i = 0; i <= circle.resolution + 1; i++) {
                 var rad = circle.percentage * i * (1/circle.resolution) * (2 * Math.PI);
-                var x = circle.radius * Math.sin(rad);
-                var y = circle.radius * Math.cos(rad);
+                var x = circle.radius * Math.cos(rad);
+                var y = -circle.radius * Math.sin(rad);
                 var p = wmatrix.mul(x, y, circle.center.z);
                 addPoint(p);
                 addColor(circle.color);

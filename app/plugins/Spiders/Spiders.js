@@ -47,11 +47,28 @@
         };
     }
 
+    var Nest = function(initx, inity) {
+        this.__proto__ = new WebVis.plugin.Entity;
+
+        this.pc = new WebVis.renderer.Circle();
+        this.pc.center.x = initx;
+        this.pc.center.y = inity;
+        this.pc.center.z = 0;
+        this.pc.rotation = Math.PI/4;
+        this.pc.resolution = 8;
+        this.pc.percentage = 0.25;
+        this.pc.color.setColor(0.0, 1.0, 0.0, 1.0);
+
+        this.draw = function(context) {
+            context.drawCircle(this.pc);
+        };
+    };
+
     var Spiders = function() {
         this.__proto__ = new WebVis.plugin.Base;
         this.projection = new WebVis.renderer.Matrix4x4();
-        this.worldWidth = 44;
-        this.worldHeight = 24;
+        this.worldWidth = 40;
+        this.worldHeight = 20;
 
         this.predraw = function(context) {
             // aspect ratio management
@@ -72,8 +89,15 @@
         };
 
         this.loadGame = function(data) {
-            var blah = new Spider(0, 10, 1, 1);
-            this.entities["blah"] = blah;
+            var newEnt = new Nest(7, 5);
+            this.entities["myOwnId"] = newEnt;
+
+            /*
+            for(var state of data.deltas) {
+                // if(state.type )
+            }
+            */
+
         };
     };
 
