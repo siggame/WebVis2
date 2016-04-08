@@ -17,7 +17,9 @@ WebVis.ready(function() {
                         console.log(obj.data);
                         break;
                     case "finish":
-                        WebVis.setDebugData(obj.data);
+                        if(obj.data.deltas !== undefined && obj.data.deltas[0] !== undefined) {
+                            WebVis.setDebugData(obj.data.deltas[0].game);
+                        }
                         WebVis.plugin.loadGame(obj.data);
                         WebVis.game.setMaxTurn(obj.data.deltas.length);
                         break;
@@ -44,6 +46,16 @@ WebVis.ready(function() {
     inputTag.change(function(event) {
         WebVis.fileLoader.loadFile(event.target.files, initPluginFromLog);
         inputTag.val(null);
+    });
+
+    //-------------------------------------------------
+    // Attach a click handler to the canvas and call plugins
+    //-------------------------------------------------
+    $('#canvas').click(function(e) {
+        var offset = $(this).offset();
+        var pagex = e.pagex - offset.left;
+        var pagey = e.pagey - offset.top;
+        WebVis.plugin.makeSelection();
     });
 
     //-------------------------------------------------
@@ -205,6 +217,7 @@ WebVis.ready(function() {
 
     WebVis.game.onCurrentTurnChange(function() {
         $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
+        WebVis.plugin.turnChange(WebVis.game.currentTurn);
     });
 
     WebVis.game.onMaxTurnChange(function() {

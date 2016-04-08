@@ -506,14 +506,15 @@ WebVis.ready(function() {
             // initialize the shared buffer
             this.drawBuffer = this.gl.createBuffer();
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.drawBuffer);
-            this.gl.bufferData(this.gl.ARRAY_BUFFER, 100000, this.gl.DYNAMIC_DRAW);
+            this.gl.bufferData(this.gl.ARRAY_BUFFER, 1000000, this.gl.DYNAMIC_DRAW);
 
             this.indexBuffer = this.gl.createBuffer();
             this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-            this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, 100000, this.gl.DYNAMIC_DRAW);
+            this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, 1000000, this.gl.DYNAMIC_DRAW);
 
             this.Buffer = function(vertex_size) {
                 this.num = 0;           // number of vertices to draw
+                this.offset = 0;
                 this.vertex_size = vertex_size;   // number of floats in a vertex
                 this.buffer = [];       // the current array of vertices to draw
                 this.indexBuffer = [];  // the list of indices to use in order
@@ -846,6 +847,7 @@ WebVis.ready(function() {
                     self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
                     self.gl.uniformMatrix4fv(self.colorProg.uPMatrix, false, self.projection.elements);
                     self.gl.uniformMatrix4fv(self.colorProg.uVMatrix, false, self.currentCamera.transform.elements);
+                    self.gl.lineWidth(20);
                     self.gl.drawArrays(self.gl.LINES, 0, buffer.num);
                     self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
                     self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
@@ -914,6 +916,9 @@ WebVis.ready(function() {
             var p3 = wmatrix.mul(1, 1, rect.pos.z);
             var p4 = wmatrix.mul(1, 0, rect.pos.z);
 
+            addPoint(p1);
+            addColor(rect.color);
+
             // vert one
             addPoint(p1);
             addColor(rect.color);
@@ -934,7 +939,7 @@ WebVis.ready(function() {
             addColor(rect.color);
 
             this.rects[this.projection.elements].offset = offset;
-            this.rects[this.projection.elements].num += 5;
+            this.rects[this.projection.elements].num += 6;
         };
 
         constructor.prototype.drawSprite = function(sprite) {

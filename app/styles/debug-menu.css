@@ -36,6 +36,12 @@
     width: 60%;
 }
 
+.debug-tree-clickable {}
+
+.debug-tree-clickable:hover {
+  background-color: #b8b894;
+}
+
 .debug-tree-subtree {
     display: none;
     float: left;

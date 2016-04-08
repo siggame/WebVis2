@@ -1,4 +1,5 @@
 WebVis.ready(function() {
+    var mainList;
     var $debug = $(WebVis.pages["Debug"])
     .css({
         "overflow-y": "scroll",
@@ -16,6 +17,36 @@ WebVis.ready(function() {
         this.$subtreeIcon = self.$elem.children().not(".debug-tree").find(".debug-tree-subtree");
         this.$value = self.$elem.children().not(".debug-tree").find(".debug-tree-elem-value");
         this.$subtree = self.$elem.children(".debug-tree:first");
+
+        if(name === "id") {
+            this.$value.parent().addClass('debug-tree-clickable');
+            this.$value.parent().click(function() {
+                var $gameObjects;
+                mainList.getSubtree().each(function(i, elem) {
+                    var controller = $(elem).data('controller');
+                    var name = controller.getName();
+                    if(name === "gameObject") {
+                        $gameObjects = controller;
+                        $gameObjects.openSubtree();
+                        return false;
+                    }
+                });
+
+                $gameObjects.getSubtree().each(function(i, elem) {
+                    var controller = $(elem).data('controller');
+                    var n = controller.getName();
+                    if(n === value) {
+                        controller.openSubtree();
+                        console.log($(elem).offset);
+                        return false;
+                    }
+                });
+            });
+        }
+
+        this.getSubtree = function() {
+            return self.$subtree;
+        };
 
         var updateSubtree = function() {
             for(var prop in self.value) {
@@ -55,20 +86,28 @@ WebVis.ready(function() {
             self.$value.text(textValue);
         };
 
+        this.closeSubtree = function() {
+            self.$subtree.css("display", "none");
+            self.visible = false;
+            self.$subtreeIcon
+            .removeClass("glyphicon-triangle-bottom")
+            .addClass("glyphicon-triangle-right");
+        };
+
+        this.openSubtree = function() {
+            self.$subtree.css("display", "block");
+            self.visible = true;
+            self.$subtreeIcon
+            .removeClass("glyphicon-triangle-right")
+            .addClass("glyphicon-triangle-bottom");
+            updateSubtree();
+        }
+
         this.toggleSubTree = function() {
             if(self.visible) {
-                self.$subtree.css("display", "none");
-                self.visible = false;
-                self.$subtreeIcon
-                .removeClass("glyphicon-triangle-bottom")
-                .addClass("glyphicon-triangle-right");
+                this.closeSubtree();
             } else {
-                self.$subtree.css("display", "block");
-                self.visible = true;
-                self.$subtreeIcon
-                .removeClass("glyphicon-triangle-right")
-                .addClass("glyphicon-triangle-bottom");
-                updateSubtree();
+                this.openSubtree();
             }
         };
 
@@ -83,7 +122,6 @@ WebVis.ready(function() {
 
     var setDebugData = function(data) {
         mainList.setValue(data);
-        mainList.toggleSubTree();
         $debug.append(mainList.$elem);
         WebVis.fillWidth();
     };
