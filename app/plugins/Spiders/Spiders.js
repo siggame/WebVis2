@@ -41,7 +41,7 @@
             }
         };
     };
-
+    
     var Web = function(p1, p2) {
         this.__proto__ = new WebVis.plugin.Entity;
 
@@ -54,7 +54,18 @@
             context.drawLine(this.line);
         }
     };
-
+    
+    var Gui = function() {
+        this.__proto__ = new WebVis.plugin.Entity;
+        
+        //this.bg = new WebVis.renderer.Sprite();
+        this.bg = new WebVis.renderer.Rect();
+        
+        this.draw = function(context) {
+            context.drawRect(this.bg);  
+        };
+    };
+    
     // The plugin object for the engine
     var Spiders = function() {
         this.__proto__ = new WebVis.plugin.Base;
@@ -65,6 +76,7 @@
         this.worldDown = 0;
         this.worldWidth = 40;
         this.worldHeight = 20;
+        this.guiStart;
 
         this.turnChange = function(turn) {
             console.log("updating debug table");
@@ -73,13 +85,12 @@
 
         this.predraw = function(context) {
             // aspect ratio management
-            this.worldWidth = this.worldRight - this.worldLeft;
-            this.worldHeight = this.worldDown - this.worldTop;
             //var worldRatio = this.worldWidth / this.worldHeight;
             //var screenSize = context.getScreenSize();
             //var screenRatio = screenSize.width / screenSize.height;
-            this.projection.ortho(this.worldLeft, this.worldRight, this.worldUp, this.worldDown, 0.001, 1000);
-
+            var guiHeight = this.worldHeight / 4;
+            this.projection.ortho(this.worldLeft, this.worldRight, this.worldUp, this.worldDown + guiHeight, 0.001, 1000);
+            
             /*
             if((worldRatio / screenRatio) > 1) {
                 this.projection.ortho(this.worldLeft, this.worldRight, this.worldTop, this.worldHeight * ( worldRatio / screenRatio), 0.001, 1000);
@@ -112,7 +123,8 @@
             var bottomBound = 0;
             var numNests = 0;
             var numWebs = 0;
-
+            var gui = new Gui();
+            
             // iterate once over the nest to determine the world bounds
             for(var prop in state.game.gameObjects) {
                 if(!state.game.gameObjects.hasOwnProperty(prop)) continue;
@@ -133,13 +145,20 @@
                     }
                 }
             }
-
             var nestWidth = (rightBound - leftBound)/35;
             this.worldLeft = leftBound - nestWidth;
             this.worldRight = rightBound + nestWidth;
             this.worldUp = topBound - nestWidth;
             this.worldDown = bottomBound + nestWidth;
-
+            this.worldWidth = this.worldRight - this.worldLeft;
+            this.worldHeight = this.worldDown - this.worldUp;
+            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldHeight, 0); //guistart is just worldHeight though
+            gui.bg.width = this.worldWidth;
+            gui.bg.height = this.worldHeight / 4;
+            gui.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
+            this.entities["Gooey"] = gui;
+            
+            
             // iterate over the game objects again to instantiate their entities
             for(var prop in state.game.gameObjects) {
                 if(!state.game.gameObjects.hasOwnProperty(prop)) continue;
@@ -161,7 +180,6 @@
                     numWebs++;
                 }
             }
-
 
             console.log("Nests: " + numNests);
             console.log("Webs: " + numWebs);
