@@ -4,6 +4,7 @@
 
     var Nest = function(initx, inity, initz, radius) {
         this.__proto__ = new WebVis.plugin.Entity;
+        var self = this;
 
         this.circles = [];
         this.background = new WebVis.renderer.Circle();
@@ -33,6 +34,101 @@
         this.circles[3].color.setColor(1.0, 0.0, 1.0, 1.0);
         this.circles[4].color.setColor(1.0, 1.0, 0.0, 1.0);
         this.circles[5].color.setColor(0.0, 1.0, 1.0, 1.0);
+
+        this.addChannel({
+            name: "pies",
+            start: function() {
+                for(var i = 0; i < 6; i++) {
+                    var piece = self.circles[i];
+                    piece.percentage = (1/6);
+                    piece.rotation = (5/6 * Math.PI) + (((1/6) * 2*Math.PI) * i);
+                }
+            }
+        });
+
+        this.pieFunc = function(gameobjects, data) {
+            var p1s1 = 0, p1s2 = 0, p1s3 = 0, p2s1 = 0, p2s2 = 0, p2s3 = 0;
+
+            for(var prop in data.spiders) {
+                if(!data.spiders.hasOwnProperty(prop)) return;
+                if(prop === "&LEN") continue;
+                var spider = data.spiders[prop];
+                spider = gameobjects[spider.id];
+                if(typeof spider === "undefined") continue;
+
+                if(spider.owner.id === 1) {
+                    if(spider.gameObjectName === "Spitter") {
+                        p1s1++;
+                    } else if(spider.gameObjectName === "Weaver") {
+                        p1s2++;
+                    } else if(spider.gameObjectName === "Cutter") {
+                        p1s3++;
+                    }
+                } else {
+                    if(spider.gameObjectName === "Spitter") {
+                        p2s1++;
+                    } else if(spider.gameObjectName === "Weaver") {
+                        p2s2++;
+                    } else if(spider.gameObjectName === "Cutter") {
+                        p2s3++;
+                    }
+                }
+
+            }
+
+            console.log(p1s1);
+            var total1 = p1s1 + p1s2 + p1s3;
+            var percents = []
+            if(total1 !== 0) {
+                percents[0] = ((0.5) * (p1s1 / total1));
+                percents[1] = ((0.5) * (p1s2 / total1));
+                percents[2] = ((0.5) * (p1s3 / total1));
+            }
+            total2 = p2s1 + p2s2 + p2s3;
+            if(total2 !== 0) {
+                percents[3] = ((0.5) * (p2s1 / total2));
+                percents[4] = ((0.5) * (p2s2 / total2));
+                percents[5] = ((0.5) * (p2s3 / total2));
+            }
+
+            var last = 0;
+            var rotations = []
+            for(var i = 0; i < 6; i++) {
+              last += (2 * Math.PI * percents[i]);
+              rotations.push((5/6 * Math.PI) + last);
+            }
+
+            return function() {
+                if(total1 === 0) {
+                    circles[0].visible = false;
+                    circles[1].visible = false;
+                    circles[2].visible = false;
+                } else {
+                    circles[0].visible = true;
+                    circles[1].visible = true;
+                    circles[2].visible = true;
+                    for(var i = 0; i < 3; i++) {
+                        self.circles[i].percentage = percents[i];
+                        self.circles[i].rotation = rotations[i];
+                    }
+                }
+
+                if(total2 === 0) {
+                    circles[3].visible = false;
+                    circles[4].visible = false;
+                    circles[5].visible = false;
+                } else {
+                    circles[3].visible = true;
+                    circles[4].visible = true;
+                    circles[5].visible = true;
+                    for(var i = 3; i < 6; i++) {
+                        self.circles[i].percentage = percents[i];
+                        self.circles[i].rotation = rotations[i];
+                    }
+                }
+            }
+
+        };
 
         this.draw = function(context) {
             context.drawCircle(this.background);
@@ -96,12 +192,14 @@
 
         this.loadGame = function(data) {
             this.data = data;
+            var i = 0;
             for(var state of data.deltas) {
+                i++;
                 if(state.type === "start") {
                     this.startFunc(state);
+                } else {
+                    this.otherFunc(i, state);
                 }
-
-                // TODO: start making animations with subsequent deltas
             }
         };
 
@@ -170,8 +268,23 @@
             console.log("rightbound: " + this.worldRight);
             console.log("topbound: " + this.worldUp);
             console.log("bottomBound: " + this.worldDown);
+        };
 
-        }
+        this.otherFunc = function(turn, state) {
+            for(var prop in state.game.gameObjects) {
+                if(!state.game.gameObjects.hasOwnProperty(prop)) return;
+                var obj = state.game.gameObjects[prop];
+
+                if(obj.gameObjectName === "Nest") {
+                    var animFunc = this.entities[obj.id].pieFunc(state.game.gameObjects, obj);
+                    this.entities[obj.id].addAnim({
+                        channel: "pies",
+                        anim : new WebVis.plugin.Animation(turn, turn + 1, animFunc)
+                    });
+                }
+            }
+
+        };
     };
 
     WebVis.plugin.addPlugin("Spiders", new Spiders);

@@ -39,8 +39,8 @@ WebVis.ready(function(){
             if(!util.defined("end", end)) return;
             if(!util.defined("func", func)) return;
 
-            this.start = 0;
-            this.end = 0;
+            this.start = start;
+            this.end = end;
             this.func = func;
         };
 
@@ -97,7 +97,9 @@ WebVis.ready(function(){
             for(var prop in this.channels) {
                 if(!this.channels.hasOwnProperty(prop)) continue;
                 var channel = this.channels[prop];
-                for(var anim of channel) {
+                for(var i = channel.length - 1; i >= 0; i--) {
+                    var anim = channel[i];
+
                     // if the animation intersects with the current turn
                     // compute how far through the anim you are then break
                     if(anim.start <= currentturn && currentturn <= anim.end) {

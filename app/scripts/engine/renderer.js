@@ -882,6 +882,7 @@ WebVis.ready(function() {
         };
 
         constructor.prototype.drawRect = function(rect) {
+            if(rect.visible === false) return;
             if(this.rects[this.projection.elements] === undefined) {
                 this.rects[this.projection.elements] = new this.Buffer(7);
             }
@@ -943,6 +944,7 @@ WebVis.ready(function() {
         };
 
         constructor.prototype.drawSprite = function(sprite) {
+            if(sprite.visible === false) return;
             if(this.textures[sprite.texture] === undefined) {
                 console.warn("specified texture does not exist.");
                 return;
@@ -1033,6 +1035,7 @@ WebVis.ready(function() {
         };
 
         constructor.prototype.drawLine = function(line) {
+            if(line.visible === false) return;
             if(this.lines[this.projection.elements] === undefined) {
                 this.lines[this.projection.elements] = new this.Buffer(7);
             }
@@ -1070,6 +1073,7 @@ WebVis.ready(function() {
         };
 
         constructor.prototype.drawText = function(text) {
+            if(text.visible === false) return;
             this.textCanvasCtx.font = text.size + "px " + text.font;
             var pt = this.projection.mul(text.pos.x, text.pos.y, 0);
             var maxWidth = this.projection.mul(text.maxWidth, 0, 0).x;
@@ -1085,6 +1089,7 @@ WebVis.ready(function() {
         };
 
         constructor.prototype.drawCircle = function(circle) {
+            if(circle.visible === false) return;
             if(this.circles[this.projection.elements] === undefined) {
                 this.circles[this.projection.elements] = new this.Buffer(7);
             }
