@@ -2,9 +2,25 @@
 
 (function() {
 
-    var Nest = function(initx, inity, initz, radius) {
-        this.__proto__ = new WebVis.plugin.Entity;
+    var SpidersEntity = function(id, type) {
+            this.__proto__ = new WebVis.plugin.Entity;
+            this.id = id;
+            this.type = type;
+            this.select = function(x, y) {};
+    };
+
+    var Nest = function(id, initx, inity, initz, radius) {
+        this.__proto__ = new SpidersEntity(id, "nest");
         var self = this;
+
+        this.select = function(x, y) {
+            var r = Math.sqrt(Math.pow(initx - x, 2) + Math.pow(inity - y,2));
+            if(r < radius) {
+                return true;
+            } else {
+                return false;
+            }
+        }
 
         this.circles = [];
         this.counters = []
@@ -167,8 +183,8 @@
         };
     };
 
-    var Web = function(p1, p2) {
-        this.__proto__ = new WebVis.plugin.Entity;
+    var Web = function(id, p1, p2) {
+        this.__proto__ = new SpidersEntity(id, "web");
         var self = this;
 
         this.line = new WebVis.renderer.Line;
@@ -199,7 +215,7 @@
     };
 
     var Gui = function() {
-        this.__proto__ = new WebVis.plugin.Entity;
+        this.__proto__ = new SpidersEntity(null, "gui");
 
         //this.bg = new WebVis.renderer.Sprite();
         this.bg = new WebVis.renderer.Rect();
@@ -219,12 +235,41 @@
         this.worldDown = 0;
         this.worldWidth = 40;
         this.worldHeight = 20;
-        this.guiStart;
+        this.currentSelection = null;
 
         this.turnChange = function(turn) {
             // console.log("updating debug table");
-            WebVis.setDebugData(this.data.deltas[parseInt(turn)].game);
-        }
+            if(this.currentSelection === null) {
+                WebVis.setDebugData(this.data.deltas[parseInt(turn)].game);
+            } else {
+                WebVis.setDebugData(this.data.deltas[parseInt(WebVis.game.currentTurn)].game.gameObjects[this.currentSelection]);
+            }
+        };
+
+        this.selectEntity = function(x, y) {
+            console.log(x + " " + y);
+            var screenSize = WebVis.renderer.context.getScreenSize();
+            var nx = x / screenSize.width;
+            var ny = y / screenSize.height;
+            var worldx = this.worldLeft + (nx * this.worldWidth);
+            var worldy = this.worldUp + (ny * (this.worldHeight + this.entities["Gooey"].bg.height));
+
+            var selectionMade = false;
+            for(var prop in this.entities) {
+                if(!this.entities.hasOwnProperty(prop)) continue;
+                var ent = this.entities[prop];
+
+                if(ent.select(worldx, worldy)) {
+                    this.currentSelection = ent.id;
+                    WebVis.setDebugData(this.data.deltas[parseInt(WebVis.game.currentTurn)].game.gameObjects[ent.id]);
+                    selectionMade = true;
+                    break;
+                }
+            }
+            if(!selectionMade) {
+                WebVis.setDebugData(this.data.deltas[parseInt(WebVis.game.currentTurn)].game);
+            }
+        };
 
         this.predraw = function(context) {
             // aspect ratio management
@@ -297,7 +342,7 @@
             this.worldDown = bottomBound + nestWidth;
             this.worldWidth = this.worldRight - this.worldLeft;
             this.worldHeight = this.worldDown - this.worldUp;
-            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldUp + this.worldHeight + nestWidth, 0); //guistart is just worldHeight though
+            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldUp + this.worldHeight + nestWidth, 0);
             gui.bg.width = this.worldWidth;
             gui.bg.height = this.worldHeight / 4;
             gui.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
@@ -310,7 +355,7 @@
                 var obj = state.game.gameObjects[prop];
 
                 if(obj.gameObjectName === "Nest") {
-                    var nest = new Nest(obj.x, obj.y, 0, nestWidth);
+                    var nest = new Nest(obj.id, obj.x, obj.y, 0, nestWidth);
                     this.entities[obj.id] = nest;
                     numNests++;
                 }
@@ -320,7 +365,7 @@
                     var nestb = state.game.gameObjects[obj.nestB.id];
                     var p1 = new WebVis.renderer.Point(nesta.x, nesta.y, 0);
                     var p2 = new WebVis.renderer.Point(nestb.x, nestb.y, 0);
-                    var web = new Web(p1, p2);
+                    var web = new Web(obj.id, p1, p2);
                     this.entities[obj.id] = web;
                     var webdied = false;
                     for(var i = 0; i < this.data.deltas.length; i++) {
@@ -371,7 +416,7 @@
                     var nestb = state.game.gameObjects[obj.nestB.id];
                     var p1 = new WebVis.renderer.Point(nesta.x, nesta.y, 0);
                     var p2 = new WebVis.renderer.Point(nestb.x, nestb.y, 0);
-                    var web = new Web(p1, p2);var webdied = false;
+                    var web = new Web(obj.id, p1, p2);var webdied = false;
                     for(var i = turn; i < this.data.deltas.length; i++) {
                         var webstate = this.data.deltas[i].game.gameObjects[obj.id];
                         if(webstate.strength <= 0) {

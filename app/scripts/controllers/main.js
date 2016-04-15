@@ -52,10 +52,11 @@ WebVis.ready(function() {
     // Attach a click handler to the canvas and call plugins
     //-------------------------------------------------
     $('#canvas').click(function(e) {
+        console.log("called");
         var offset = $(this).offset();
-        var pagex = e.pagex - offset.left;
-        var pagey = e.pagey - offset.top;
-        WebVis.plugin.makeSelection();
+        var pagex = e.pageX - offset.left;
+        var pagey = e.pageY - offset.top;
+        WebVis.plugin.selectEntity(pagex, pagey);
     });
 
     //-------------------------------------------------

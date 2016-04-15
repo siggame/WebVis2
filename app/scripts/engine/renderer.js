@@ -495,6 +495,7 @@ WebVis.ready(function() {
             // create the canvas over the main canvas to contain text rendered with a 2d context
             this.textCanvas = document.createElement('canvas');
             var $textCanvas = $(this.textCanvas);
+            $textCanvas.css('pointer-events', 'none');
             this.textCanvas.width = this.canvas.width;
             this.textCanvas.height = this.canvas.height;
             this.textCanvasCtx = this.textCanvas.getContext("2d");

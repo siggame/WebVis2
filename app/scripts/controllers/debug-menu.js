@@ -49,20 +49,19 @@ WebVis.ready(function() {
         };
 
         this.detach = function() {
-            //this.$elem.hide();
+            this.$elem.hide();
         }
 
         var updateSubtree = function() {
             for(var prop in self.value) {
                 if(!self.value.hasOwnProperty(prop)) continue;
+                if(prop === "&LEN") continue;
 
                 if(self.subelems[prop] !== undefined) {
                     self.subelems[prop].setValue(self.value[prop]);
-                    /*
                     if(!self.subelems[prop].$elem.is(":visible")) {
                         self.subelems[prop].$elem.show();
                     }
-                    */
                 } else {
                     var newelem = new ElemController(prop, self.value[prop]);
                     self.$subtree.append(newelem.$elem);
@@ -70,10 +69,14 @@ WebVis.ready(function() {
                 }
             }
 
+            if(self.value === null) {
+                self.subelems[prop].detach();
+            }
+
             for(var prop in self.subelems) {
                 if(!self.subelems.hasOwnProperty(prop)) continue;
 
-                if(self.value === null) {
+                if(self.subelems[prop].value === "&RM") {
                     self.subelems[prop].detach();
                 }
 
@@ -91,22 +94,21 @@ WebVis.ready(function() {
         this.setValue = function(value) {
             var oldvalue = self.value;
             self.value = value;
-            var textValue;
+            var textValue = null;
 
             if(typeof value === "object") {
-                if($.isArray(value)) {
-                    textValue = "<array>";
-                } else {
-                    textValue = "<object>"
+                for(var prop in self.value) {
+                    if(prop === "&LEN") {
+                        textValue = "<array>";
+                        break;
+                    }
+                }
+                if(textValue === null) {
+                    textValue = "<object>";
                 }
                 if(self.$subtreeIcon.css("display") === "") {
                     self.$subtreeIcon.show();
                 }
-                /*
-                if(!self.$subtreeIcon.is(":visible")) {
-                    self.$subtreeIcon.show();
-                }
-                */
                 if(self.visible) {
                     updateSubtree();
                 }

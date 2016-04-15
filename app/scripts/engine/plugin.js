@@ -20,6 +20,9 @@ WebVis.ready(function(){
         constructor.prototype.turnChange = function(turn) {
         };
 
+        constructor.prototype.select = function(x, y) {
+        };
+
         constructor.prototype.predraw = function(context) {
         };
 
@@ -181,6 +184,12 @@ WebVis.ready(function(){
         }
     }
 
+    var selectEntity = function(x, y) {
+        if(currentPlugin !== null) {
+            currentPlugin.selectEntity(x, y);
+        }
+    };
+
     var getEntities = function() {
         if(currentPlugin !== null) {
             return currentPlugin.getEntities();
@@ -208,6 +217,7 @@ WebVis.ready(function(){
         addPlugin: addPlugin,
         changePlugin: changePlugin,
         turnChange: turnChange,
+        selectEntity: selectEntity,
         loadGame: loadGame,
         getEntities: getEntities,
         predraw: predraw,
