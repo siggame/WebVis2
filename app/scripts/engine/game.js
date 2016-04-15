@@ -86,6 +86,11 @@ WebVis.ready(function() {
             onMaxTurnChange(maxturn);
         },
 
+        setCurrentTurn: function(turn) {
+            WebVis.game.currentTurn = turn;
+            onCurrentTurnChange(turn);
+        },
+
         // events
         onPlay: function(callback) {
             onPlay = callback;
