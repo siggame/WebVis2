@@ -214,6 +214,22 @@
         }
     };
 
+    var BroodMother = function(id, initx, inity, radius) {
+        this.__proto__ = new SpidersEntity(id, "BroodMother");
+
+        this.rect = new WebVis.renderer.Rect();
+        this.rect.pos.x = initx - radius/4;
+        this.rect.pos.y = inity - radius/4;
+        this.rect.pos.z = 2;
+        this.rect.width = radius/2;
+        this.rect.height = radius/2;
+        this.rect.color.setColor(0.0, 0.0, 0.0, 1.0);
+
+        this.draw = function(context) {
+            context.drawRect(this.rect);
+        }
+    }
+
     var Gui = function() {
         this.__proto__ = new SpidersEntity(null, "gui");
 
@@ -358,6 +374,12 @@
                     var nest = new Nest(obj.id, obj.x, obj.y, 0, nestWidth);
                     this.entities[obj.id] = nest;
                     numNests++;
+                }
+
+                if(obj.gameObjectName === "BroodMother") {
+                    var nest = state.game.gameObjects[obj.nest.id];
+                    var bm = new BroodMother(obj.id, nest.x, nest.y, nestWidth);
+                    this.entities[obj.id] = bm;
                 }
 
                 if(obj.gameObjectName === "Web") {
