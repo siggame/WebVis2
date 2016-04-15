@@ -76,7 +76,6 @@
 
             }
 
-            console.log(p1s1);
             var total1 = p1s1 + p1s2 + p1s3;
             var percents = []
             if(total1 !== 0) {
@@ -84,7 +83,7 @@
                 percents[1] = ((0.5) * (p1s2 / total1));
                 percents[2] = ((0.5) * (p1s3 / total1));
             }
-            total2 = p2s1 + p2s2 + p2s3;
+            var total2 = p2s1 + p2s2 + p2s3;
             if(total2 !== 0) {
                 percents[3] = ((0.5) * (p2s1 / total2));
                 percents[4] = ((0.5) * (p2s2 / total2));
@@ -100,13 +99,13 @@
 
             return function() {
                 if(total1 === 0) {
-                    circles[0].visible = false;
-                    circles[1].visible = false;
-                    circles[2].visible = false;
+                    self.circles[0].visible = false;
+                    self.circles[1].visible = false;
+                    self.circles[2].visible = false;
                 } else {
-                    circles[0].visible = true;
-                    circles[1].visible = true;
-                    circles[2].visible = true;
+                    self.circles[0].visible = true;
+                    self.circles[1].visible = true;
+                    self.circles[2].visible = true;
                     for(var i = 0; i < 3; i++) {
                         self.circles[i].percentage = percents[i];
                         self.circles[i].rotation = rotations[i];
@@ -114,13 +113,13 @@
                 }
 
                 if(total2 === 0) {
-                    circles[3].visible = false;
-                    circles[4].visible = false;
-                    circles[5].visible = false;
+                    self.circles[3].visible = false;
+                    self.circles[4].visible = false;
+                    self.circles[5].visible = false;
                 } else {
-                    circles[3].visible = true;
-                    circles[4].visible = true;
-                    circles[5].visible = true;
+                    self.circles[3].visible = true;
+                    self.circles[4].visible = true;
+                    self.circles[5].visible = true;
                     for(var i = 3; i < 6; i++) {
                         self.circles[i].percentage = percents[i];
                         self.circles[i].rotation = rotations[i];
@@ -137,7 +136,7 @@
             }
         };
     };
-    
+
     var Web = function(p1, p2) {
         this.__proto__ = new WebVis.plugin.Entity;
 
@@ -150,18 +149,18 @@
             context.drawLine(this.line);
         }
     };
-    
+
     var Gui = function() {
         this.__proto__ = new WebVis.plugin.Entity;
-        
+
         //this.bg = new WebVis.renderer.Sprite();
         this.bg = new WebVis.renderer.Rect();
-        
+
         this.draw = function(context) {
-            context.drawRect(this.bg);  
+            context.drawRect(this.bg);
         };
     };
-    
+
     // The plugin object for the engine
     var Spiders = function() {
         this.__proto__ = new WebVis.plugin.Base;
@@ -186,7 +185,7 @@
             //var screenRatio = screenSize.width / screenSize.height;
             var guiHeight = this.worldHeight / 4;
             this.projection.ortho(this.worldLeft, this.worldRight, this.worldUp, this.worldDown + guiHeight, 0.001, 1000);
-            
+
             /*
             if((worldRatio / screenRatio) > 1) {
                 this.projection.ortho(this.worldLeft, this.worldRight, this.worldTop, this.worldHeight * ( worldRatio / screenRatio), 0.001, 1000);
@@ -222,7 +221,7 @@
             var numNests = 0;
             var numWebs = 0;
             var gui = new Gui();
-            
+
             // iterate once over the nest to determine the world bounds
             for(var prop in state.game.gameObjects) {
                 if(!state.game.gameObjects.hasOwnProperty(prop)) continue;
@@ -250,13 +249,13 @@
             this.worldDown = bottomBound + nestWidth;
             this.worldWidth = this.worldRight - this.worldLeft;
             this.worldHeight = this.worldDown - this.worldUp;
-            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldHeight, 0); //guistart is just worldHeight though
+            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldHeight + nestWidth, 0); //guistart is just worldHeight though
             gui.bg.width = this.worldWidth;
             gui.bg.height = this.worldHeight / 4;
             gui.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
             this.entities["Gooey"] = gui;
-            
-            
+
+
             // iterate over the game objects again to instantiate their entities
             for(var prop in state.game.gameObjects) {
                 if(!state.game.gameObjects.hasOwnProperty(prop)) continue;
@@ -294,6 +293,12 @@
                 var obj = state.game.gameObjects[prop];
 
                 if(obj.gameObjectName === "Nest") {
+                    if(obj.spiders['&LEN'] !== 0) {
+                        var spid = state.game.gameObjects[obj.spiders['0'].id];
+                        if(spid.gameObjectName != "BroodMother") {
+                            console.log("this nest has spiders!");
+                        }
+                    }
                     var animFunc = this.entities[obj.id].pieFunc(state.game.gameObjects, obj);
                     this.entities[obj.id].addAnim({
                         channel: "pies",
