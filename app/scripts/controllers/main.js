@@ -67,7 +67,6 @@ WebVis.ready(function() {
         max: WebVis.game.maxTurn,
         slide: function(event, ui) {
             WebVis.game.setCurrentTurn(ui.value);
-            WebVis.plugin.turnChange(WebVis.game.currentTurn);
         }
     });
 
@@ -208,6 +207,8 @@ WebVis.ready(function() {
     // -------------------------------------------------
     // Initialize game state callbacks
     // -------------------------------------------------
+    var turnInvalidated = false;
+
     WebVis.game.onPlay(function() {
         evalPlaying();
     });
@@ -218,12 +219,20 @@ WebVis.ready(function() {
 
     WebVis.game.onCurrentTurnChange(function() {
         $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
-        WebVis.plugin.turnChange(WebVis.game.currentTurn);
+        turnInvalidated = true;
     });
 
     WebVis.game.onMaxTurnChange(function() {
         $("#turn-slider").slider('option', {'max': parseInt(WebVis.game.maxTurn)});
     });
+
+    setInterval(function() {
+        if(turnInvalidated) {
+            console.log("redrawn");
+            WebVis.plugin.turnChange(WebVis.game.currentTurn);
+            turnInvalidated = false;
+        }
+    }, 1000/2);
 
     //--------------------------------------------------------------
     // Functions for handling fillWidth and fillHeight dom elements

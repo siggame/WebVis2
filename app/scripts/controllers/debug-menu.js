@@ -49,15 +49,20 @@ WebVis.ready(function() {
         };
 
         this.detach = function() {
-            this.$elem.remove();
+            //this.$elem.hide();
         }
 
         var updateSubtree = function() {
             for(var prop in self.value) {
-                if(!self.value.hasOwnProperty(prop)) return
+                if(!self.value.hasOwnProperty(prop)) continue;
 
                 if(self.subelems[prop] !== undefined) {
                     self.subelems[prop].setValue(self.value[prop]);
+                    /*
+                    if(!self.subelems[prop].$elem.is(":visible")) {
+                        self.subelems[prop].$elem.show();
+                    }
+                    */
                 } else {
                     var newelem = new ElemController(prop, self.value[prop]);
                     self.$subtree.append(newelem.$elem);
@@ -66,16 +71,14 @@ WebVis.ready(function() {
             }
 
             for(var prop in self.subelems) {
-                if(!self.subelems.hasOwnProperty(prop)) return;
+                if(!self.subelems.hasOwnProperty(prop)) continue;
 
                 if(self.value === null) {
                     self.subelems[prop].detach();
-                    delete self.subelems[prop];
                 }
 
                 if(!self.value.hasOwnProperty(self.subelems[prop].name)) {
                     self.subelems[prop].detach();
-                    delete self.subelems[prop];
                 }
             }
 
@@ -86,6 +89,7 @@ WebVis.ready(function() {
         }
 
         this.setValue = function(value) {
+            var oldvalue = self.value;
             self.value = value;
             var textValue;
 
@@ -95,18 +99,27 @@ WebVis.ready(function() {
                 } else {
                     textValue = "<object>"
                 }
-                self.$subtreeIcon.css("display", "inline");
+                if(self.$subtreeIcon.css("display") === "") {
+                    self.$subtreeIcon.show();
+                }
+                /*
+                if(!self.$subtreeIcon.is(":visible")) {
+                    self.$subtreeIcon.show();
+                }
+                */
                 if(self.visible) {
                     updateSubtree();
                 }
             } else {
                 textValue = value;
             }
-            self.$value.text(textValue);
+            if(oldvalue !== self.value) {
+                self.$value.text(textValue);
+            }
         };
 
         this.closeSubtree = function() {
-            self.$subtree.css("display", "none");
+            self.$subtree.hide();
             self.visible = false;
             self.$subtreeIcon
             .removeClass("glyphicon-triangle-bottom")
@@ -114,7 +127,7 @@ WebVis.ready(function() {
         };
 
         this.openSubtree = function() {
-            self.$subtree.css("display", "block");
+            self.$subtree.show();
             self.visible = true;
             self.$subtreeIcon
             .removeClass("glyphicon-triangle-right")
@@ -142,7 +155,6 @@ WebVis.ready(function() {
     var setDebugData = function(data) {
         mainList.setValue(data);
         $debug.append(mainList.$elem);
-        WebVis.fillWidth();
     };
 
     WebVis.setDebugData = setDebugData;
