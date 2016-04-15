@@ -30,9 +30,7 @@
             var piece = new WebVis.renderer.Circle();
 
             piece.visible = false;
-            piece.center.x = initx;
-            piece.center.y = inity;
-            piece.center.z = initz;
+            piece.center = new WebVis.renderer.Point(initx, inity, initz);
             piece.radius = radius;
             this.circles.push(piece);
         }
@@ -52,9 +50,7 @@
             this.counters.push(text);
         }
 
-        this.background.center.x = initx;
-        this.background.center.y = inity;
-        this.background.center.z = initz - 1;
+        this.background.center = new WebVis.renderer.Point(initx, inity, initz - 1);
         this.background.radius = radius;
         this.background.resolution = 16;
         this.background.color.setColor(0.5, 0.5, 0.5, 1.0);
@@ -233,7 +229,6 @@
     var Gui = function() {
         this.__proto__ = new SpidersEntity(null, "gui");
 
-        //this.bg = new WebVis.renderer.Sprite();
         this.bg = new WebVis.renderer.Rect();
 
         this.draw = function(context) {
