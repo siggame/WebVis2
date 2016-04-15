@@ -48,6 +48,10 @@ WebVis.ready(function() {
             return self.$subtree;
         };
 
+        this.detach = function() {
+            this.$elem.remove();
+        }
+
         var updateSubtree = function() {
             for(var prop in self.value) {
                 if(!self.value.hasOwnProperty(prop)) return
@@ -60,6 +64,21 @@ WebVis.ready(function() {
                     self.subelems[prop] = newelem;
                 }
             }
+
+            for(var prop in self.subelems) {
+                if(!self.subelems.hasOwnProperty(prop)) return;
+
+                if(self.value === null) {
+                    self.subelems[prop].detach();
+                    delete self.subelems[prop];
+                }
+
+                if(!self.value.hasOwnProperty(self.subelems[prop].name)) {
+                    self.subelems[prop].detach();
+                    delete self.subelems[prop];
+                }
+            }
+
         }
 
         this.getName = function(name) {
