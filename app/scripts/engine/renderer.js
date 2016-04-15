@@ -324,6 +324,7 @@ WebVis.ready(function() {
         this.font = "sans-serif";
         this.value = "";
         this.alignment = "left";
+        this.baseline = "alphabetic"
         this.pos = new Point(0, 0, 0);
         this.maxWidth = 0.0;
         this.size = 12;
@@ -1084,7 +1085,8 @@ WebVis.ready(function() {
             uy = parseInt(uy * this.textCanvas.height);
             maxWidth = parseInt(maxWidth * this.textCanvas.width);
             this.textCanvasCtx.fillStyle = text.color.toCss();
-
+            this.textCanvasCtx.textAlign = text.alignment;
+            this.textCanvasCtx.textBaseline = text.baseline;
             this.textCanvasCtx.fillText(text.value, ux, uy, maxWidth);
         };
 

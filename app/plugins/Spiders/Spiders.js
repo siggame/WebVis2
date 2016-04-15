@@ -7,20 +7,35 @@
         var self = this;
 
         this.circles = [];
+        this.counters = []
         this.background = new WebVis.renderer.Circle();
 
         for(var i = 0; i < 6; i++) {
             var piece = new WebVis.renderer.Circle();
 
+            piece.visible = false;
             piece.center.x = initx;
             piece.center.y = inity;
             piece.center.z = initz;
             piece.radius = radius;
-            piece.percentage = (1/6);
-            piece.rotation = (5/6 * Math.PI) + (((1/6) * 2*Math.PI) * i);
-            piece.resolution = 4;
             this.circles.push(piece);
         }
+
+        for(var i = 0; i < 6; i++) {
+            var text = new WebVis.renderer.Text();
+            text.visible = true;
+            last = 3*Math.PI/2 - (1/3 * Math.PI * i) - (1/6 * Math.PI);
+            text.pos.x = initx + (Math.cos(last) * radius * 1.5);
+            text.pos.y = inity + (Math.sin(last) * radius * 1.5);
+            text.pos.z = 0;
+            text.value = "";
+            text.maxWidth = 100;
+            text.alignment = "center"
+            text.baseline = "middle";
+            text.color.setColor(1.0, 1.0, 1.0, 1.0);
+            this.counters.push(text);
+        }
+
         this.background.center.x = initx;
         this.background.center.y = inity;
         this.background.center.z = initz - 1;
@@ -34,6 +49,13 @@
         this.circles[3].color.setColor(1.0, 0.0, 1.0, 1.0);
         this.circles[4].color.setColor(1.0, 1.0, 0.0, 1.0);
         this.circles[5].color.setColor(0.0, 1.0, 1.0, 1.0);
+
+        this.counters[0].color.setColor(0.0, 0.0, 1.0, 1.0);
+        this.counters[1].color.setColor(0.0, 1.0, 0.0, 1.0);
+        this.counters[2].color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.counters[3].color.setColor(1.0, 0.0, 1.0, 1.0);
+        this.counters[4].color.setColor(1.0, 1.0, 0.0, 1.0);
+        this.counters[5].color.setColor(0.0, 1.0, 1.0, 1.0);
 
         this.addChannel({
             name: "pies",
@@ -55,8 +77,9 @@
                 var spider = data.spiders[prop];
                 spider = gameobjects[spider.id];
                 if(typeof spider === "undefined") continue;
+                if(spider.gameObjectName === "BroodMother") continue;
 
-                if(spider.owner.id === 1) {
+                if(spider.owner.id === "0") {
                     if(spider.gameObjectName === "Spitter") {
                         p1s1++;
                     } else if(spider.gameObjectName === "Weaver") {
@@ -77,53 +100,63 @@
             }
 
             var total1 = p1s1 + p1s2 + p1s3;
-            var percents = []
+            var total2 = p2s1 + p2s2 + p2s3;
+            var percents = [];
+            var rotations = [];
+
             if(total1 !== 0) {
                 percents[0] = ((0.5) * (p1s1 / total1));
                 percents[1] = ((0.5) * (p1s2 / total1));
                 percents[2] = ((0.5) * (p1s3 / total1));
+                rotations[0] = 3*Math.PI/2;
+                rotations[1] = rotations[0] - (percents[0] * 2*Math.PI);
+                rotations[2] = rotations[1] - (percents[1] * 2*Math.PI);
             }
-            var total2 = p2s1 + p2s2 + p2s3;
+
+            var last = Math.PI/2;
             if(total2 !== 0) {
                 percents[3] = ((0.5) * (p2s1 / total2));
                 percents[4] = ((0.5) * (p2s2 / total2));
                 percents[5] = ((0.5) * (p2s3 / total2));
-            }
+                rotations[3] = Math.PI/2;
+                rotations[4] = rotations[3] - (percents[3] * 2*Math.PI);
+                rotations[5] = rotations[4] - (percents[4] * 2*Math.PI);
 
-            var last = 0;
-            var rotations = []
-            for(var i = 0; i < 6; i++) {
-              last += (2 * Math.PI * percents[i]);
-              rotations.push((5/6 * Math.PI) + last);
             }
 
             return function() {
                 if(total1 === 0) {
-                    self.circles[0].visible = false;
-                    self.circles[1].visible = false;
-                    self.circles[2].visible = false;
-                } else {
-                    self.circles[0].visible = true;
-                    self.circles[1].visible = true;
-                    self.circles[2].visible = true;
                     for(var i = 0; i < 3; i++) {
+                        self.circles[i].visible = false;
+                        self.counters[i].visible = false;
+                    }
+                } else {
+                    for(var i = 0; i < 3; i++) {
+                        self.counters[i].visible = true;
+                        self.circles[i].visible = true;
                         self.circles[i].percentage = percents[i];
                         self.circles[i].rotation = rotations[i];
                     }
+                    self.counters[0].value = "" + p1s1;
+                    self.counters[1].value = "" + p1s2;
+                    self.counters[2].value = "" + p1s3;
                 }
 
                 if(total2 === 0) {
-                    self.circles[3].visible = false;
-                    self.circles[4].visible = false;
-                    self.circles[5].visible = false;
-                } else {
-                    self.circles[3].visible = true;
-                    self.circles[4].visible = true;
-                    self.circles[5].visible = true;
                     for(var i = 3; i < 6; i++) {
+                        self.circles[i].visible = false;
+                        self.counters[i].visible = false;
+                    }
+                } else {
+                    for(var i = 3; i < 6; i++) {
+                        self.circles[i].visible = true;
+                        self.counters[i].visible = true;
                         self.circles[i].percentage = percents[i];
                         self.circles[i].rotation = rotations[i];
                     }
+                    self.counters[3].value = "" + p2s1;
+                    self.counters[4].value = "" + p2s2;
+                    self.counters[5].value = "" + p2s3;
                 }
             }
 
@@ -133,6 +166,9 @@
             context.drawCircle(this.background);
             for(var circle of this.circles) {
                 context.drawCircle(circle);
+            }
+            for(var text of this.counters) {
+                context.drawText(text);
             }
         };
     };
@@ -249,7 +285,7 @@
             this.worldDown = bottomBound + nestWidth;
             this.worldWidth = this.worldRight - this.worldLeft;
             this.worldHeight = this.worldDown - this.worldUp;
-            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldHeight + nestWidth, 0); //guistart is just worldHeight though
+            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldUp + this.worldHeight + nestWidth, 0); //guistart is just worldHeight though
             gui.bg.width = this.worldWidth;
             gui.bg.height = this.worldHeight / 4;
             gui.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
@@ -293,12 +329,6 @@
                 var obj = state.game.gameObjects[prop];
 
                 if(obj.gameObjectName === "Nest") {
-                    if(obj.spiders['&LEN'] !== 0) {
-                        var spid = state.game.gameObjects[obj.spiders['0'].id];
-                        if(spid.gameObjectName != "BroodMother") {
-                            console.log("this nest has spiders!");
-                        }
-                    }
                     var animFunc = this.entities[obj.id].pieFunc(state.game.gameObjects, obj);
                     this.entities[obj.id].addAnim({
                         channel: "pies",
