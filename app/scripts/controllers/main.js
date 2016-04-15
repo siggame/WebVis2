@@ -66,7 +66,8 @@ WebVis.ready(function() {
         min: 0,
         max: WebVis.game.maxTurn,
         slide: function(event, ui) {
-            WebVis.game.currentTurn = ui.value;
+            WebVis.game.setCurrentTurn(ui.value);
+            WebVis.plugin.turnChange(WebVis.game.currentTurn);
         }
     });
 
@@ -89,9 +90,9 @@ WebVis.ready(function() {
     //-------------------------------------------------
     $('#back-button').click(function() {
         if(WebVis.game.currentTurn > 1) {
-            WebVis.game.currentTurn = parseInt(WebVis.game.currentTurn - 1);
+            WebVis.game.setCurrentTurn(parseInt(WebVis.game.currentTurn - 1));
         } else {
-            WebVis.game.currentTurn = 0;
+            WebVis.game.setCurrentTurn(0);
             WebVis.game.playing = false;
         }
         $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
@@ -129,9 +130,9 @@ WebVis.ready(function() {
     //-------------------------------------------------
     $('#forward-button').click(function() {
         if(WebVis.game.currentTurn < WebVis.game.maxTurn - 1) {
-            WebVis.game.currentTurn = parseInt(WebVis.game.currentTurn + 1);
+            WebVis.game.setCurrentTurn(parseInt(WebVis.game.currentTurn + 1));
         } else {
-            WebVis.game.currentTurn = WebVis.game.maxTurn;
+            WebVis.game.setCurrentTurn(WebVis.game.maxTurn);
             WebVis.game.playing = false;
         }
         $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
