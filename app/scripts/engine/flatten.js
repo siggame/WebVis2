@@ -3,7 +3,7 @@ self.addEventListener("message", function(data) {
 
     var interpolateDeltas = function(prev, next) {
         for(var prop in prev) {
-            if(!prev.hasOwnProperty(prop)) return;
+            if(!prev.hasOwnProperty(prop)) continue;
             if(next === null) continue;
 
             if(typeof prev[prop] === "object" && next.hasOwnProperty(prop)) {

@@ -59,13 +59,7 @@
 
         this.addChannel({
             name: "pies",
-            start: function() {
-                for(var i = 0; i < 6; i++) {
-                    var piece = self.circles[i];
-                    piece.percentage = (1/6);
-                    piece.rotation = (5/6 * Math.PI) + (((1/6) * 2*Math.PI) * i);
-                }
-            }
+            start: function() {}
         });
 
         this.pieFunc = function(gameobjects, data) {
@@ -175,11 +169,29 @@
 
     var Web = function(p1, p2) {
         this.__proto__ = new WebVis.plugin.Entity;
+        var self = this;
 
         this.line = new WebVis.renderer.Line;
         this.line.p1 = p1;
         this.line.p2 = p2;
         this.line.color.setColor(1.0, 1.0, 1.0, 1.0);
+
+        this.addChannel({
+            name: "alive",
+            start: function() {
+                self.line.visible = false;
+            }
+        })
+
+        this.aliveAnim = function() {
+            return function(completion) {
+                if(completion === 1) {
+                    self.line.visible = false;
+                } else {
+                    self.line.visible = true;
+                }
+            };
+        }
 
         this.draw = function(context) {
             context.drawLine(this.line);
@@ -210,7 +222,7 @@
         this.guiStart;
 
         this.turnChange = function(turn) {
-            console.log("updating debug table");
+            // console.log("updating debug table");
             WebVis.setDebugData(this.data.deltas[parseInt(turn)].game);
         }
 
@@ -310,6 +322,24 @@
                     var p2 = new WebVis.renderer.Point(nestb.x, nestb.y, 0);
                     var web = new Web(p1, p2);
                     this.entities[obj.id] = web;
+                    var webdied = false;
+                    for(var i = 0; i < this.data.deltas.length; i++) {
+                        var webstate = this.data.deltas[i].game.gameObjects[obj.id];
+                        if(webstate.strength <= 0) {
+                            web.addAnim({
+                                channel: "alive",
+                                anim: new WebVis.plugin.Animation(0, i, web.aliveAnim())
+                            });
+                            webdied = true;
+                            break;
+                        }
+                    }
+                    if(webdied === false) {
+                        web.addAnim({
+                            channel: "alive",
+                            anim: new WebVis.plugin.Animation(0, i, web.aliveAnim())
+                        });
+                    }
                     numWebs++;
                 }
             }
@@ -334,6 +364,32 @@
                         channel: "pies",
                         anim : new WebVis.plugin.Animation(turn, turn + 1, animFunc)
                     });
+                }
+
+                if(obj.gameObjectName === "Web" && this.entities[obj.id] === undefined) {
+                    var nesta = state.game.gameObjects[obj.nestA.id];
+                    var nestb = state.game.gameObjects[obj.nestB.id];
+                    var p1 = new WebVis.renderer.Point(nesta.x, nesta.y, 0);
+                    var p2 = new WebVis.renderer.Point(nestb.x, nestb.y, 0);
+                    var web = new Web(p1, p2);var webdied = false;
+                    for(var i = turn; i < this.data.deltas.length; i++) {
+                        var webstate = this.data.deltas[i].game.gameObjects[obj.id];
+                        if(webstate.strength <= 0) {
+                            web.addAnim({
+                                channel: "alive",
+                                anim: new WebVis.plugin.Animation(turn, i, web.aliveAnim())
+                            });
+                            webdied = true;
+                            break;
+                        }
+                    }
+                    if(webdied === false) {
+                        web.addAnim({
+                            channel: "alive",
+                            anim: new WebVis.plugin.Animation(turn, i, web.aliveAnim())
+                        });
+                    }
+                    this.entities[obj.id] = web;
                 }
             }
 
