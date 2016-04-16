@@ -230,9 +230,19 @@
         this.__proto__ = new SpidersEntity(null, "gui");
 
         this.bg = new WebVis.renderer.Rect();
-
+        this.p1name = new WebVis.renderer.Text();
+        this.p2name = new WebVis.renderer.Text();
+        this.p1name.maxWidth = 1500;
+        this.p1name.size = 36;
+        this.p1name.color = new WebVis.renderer.Color(1, 0.6, 0, 1.0);
+        this.p2name.maxWidth = 1500;
+        this.p2name.color = new WebVis.renderer.Color(0.3, 0.6, 0.1, 1.0);
+        this.p2name.size = 36;
+        this.p2name.alignment = "right";
         this.draw = function(context) {
             context.drawRect(this.bg);
+            context.drawText(this.p1name);
+            context.drawText(this.p2name);
         };
     };
 
@@ -325,12 +335,19 @@
             var numNests = 0;
             var numWebs = 0;
             var gui = new Gui();
-
+            
             // iterate once over the nest to determine the world bounds
             for(var prop in state.game.gameObjects) {
                 if(!state.game.gameObjects.hasOwnProperty(prop)) continue;
                 var obj  = state.game.gameObjects[prop];
-
+                if(obj.gameObjectName === "Player")
+                {
+                    if(obj.id < obj.otherPlayer.id)
+                    {
+                        gui.p1name.value = obj.name;
+                        gui.p2name.value = state.game.gameObjects[obj.otherPlayer.id].name;
+                    }
+                }
                 if(obj.gameObjectName === "Nest") {
                     if(obj.x < leftBound) {
                         leftBound = obj.x;
@@ -357,6 +374,9 @@
             gui.bg.width = this.worldWidth;
             gui.bg.height = this.worldHeight / 4;
             gui.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
+            gui.p1name.pos = new WebVis.renderer.Point(gui.bg.pos.x + 50, gui.bg.pos.y + 250, 0);
+            gui.p2name.pos = new WebVis.renderer.Point(gui.bg.width - 50, gui.bg.pos.y + 250, 0);
+            
             this.entities["Gooey"] = gui;
 
 
