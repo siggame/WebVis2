@@ -208,6 +208,25 @@
         this.draw = function(context) {
             context.drawLine(this.line);
         }
+
+//base plugin.js, main.js
+        this.select = function(x3, y3)
+        {
+            var u = ((x3 - p1.x) * (p2.x - p1.x) ) + ((y3 - p1.y) * (p2.y - p1.y) );
+            var t_point = new WebVis.renderer.Point (p1.x - p2.x, p1.y - p2.y);
+            var normsqrd = (t_point.x * t_point.x) + (t_point.y * t_point.y);
+            u /= normsqrd;
+            var t_x = p1.x + u * (p2.x - p1.x);
+            var t_y = p1.y + u * (p2.y - p1.y);
+
+            var t_distance = Math.sqrt(((t_x - x3) * (t_x - x3)) + ((t_y - y3) * (t_y - y3)));
+            //need some sort of global constant for clicking distance
+            if(t_distance <= .5)
+            {
+                return true;
+            }
+            return false;
+        }
     };
 
     var BroodMother = function(id, initx, inity, radius) {
