@@ -71,6 +71,26 @@ module.exports = function(grunt) {
               }
             }
         },
+
+    		copy: {
+    			dist: {
+    				files: [
+    					{
+    						expand: true,
+    						dest: 'dist/',
+    						cwd: 'app/',
+    						src: ['**'],
+    					},
+    					{
+                expand: true,
+                dest: 'dist/',
+                src: ['bower_components/**']
+              }
+    				]
+    			}
+    		},
+
+        clean: ['dist']
     });
 
     grunt.registerTask('default', function(target) {
@@ -88,6 +108,8 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask('dist', [
-        'wiredep'
+        'clean',
+        'wiredep',
+		    'copy'
     ]);
 };

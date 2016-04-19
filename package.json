@@ -13,9 +13,9 @@
     "grunt-processhtml": "^0.3.9",
     "grunt-wiredep": "^2.0.0",
     "jit-grunt": "^0.9.1",
-    "time-grunt": "^1.2.2"
-  },
-  "dependencies": {
+    "time-grunt": "^1.2.2",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-copy": "^1.0.0",
     "serve-static": "^1.10.0"
-  }
+  },
 }

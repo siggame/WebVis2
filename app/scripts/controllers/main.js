@@ -63,7 +63,7 @@ WebVis.ready(function() {
     // attach the time slider to it's element
     //-------------------------------------------------
     $('#turn-slider').slider({
-        animate: true,
+        animate: false,
         min: 0,
         max: WebVis.game.maxTurn,
         slide: function(event, ui) {
