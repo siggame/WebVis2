@@ -849,7 +849,7 @@ WebVis.ready(function() {
                     self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
                     self.gl.uniformMatrix4fv(self.colorProg.uPMatrix, false, self.projection.elements);
                     self.gl.uniformMatrix4fv(self.colorProg.uVMatrix, false, self.currentCamera.transform.elements);
-                    self.gl.lineWidth(20);
+                    //self.gl.lineWidth(20);
                     self.gl.drawArrays(self.gl.LINES, 0, buffer.num);
                     self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
                     self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
