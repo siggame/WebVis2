@@ -247,7 +247,6 @@
 
     var Gui = function() {
         this.__proto__ = new SpidersEntity(null, "gui");
-
         this.bg = new WebVis.renderer.Rect();
         this.p1name = new WebVis.renderer.Text();
         this.p2name = new WebVis.renderer.Text();
@@ -389,13 +388,15 @@
             this.worldDown = bottomBound + nestWidth;
             this.worldWidth = this.worldRight - this.worldLeft;
             this.worldHeight = this.worldDown - this.worldUp;
+            
             gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldUp + this.worldHeight + nestWidth, 0);
             gui.bg.width = this.worldWidth;
             gui.bg.height = this.worldHeight / 4;
             gui.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
-            gui.p1name.pos = new WebVis.renderer.Point(gui.bg.pos.x + 50, gui.bg.pos.y + 250, 0);
-            gui.p2name.pos = new WebVis.renderer.Point(gui.bg.width - 50, gui.bg.pos.y + 250, 0);
-            
+            gui.p1name.pos = new WebVis.renderer.Point(this.worldLeft + 2 * (this.worldWidth/100), gui.bg.pos.y + (gui.bg.height / 5), 0);
+            gui.p1name.maxWidth = this.worldWidth / 5;
+            gui.p2name.pos = new WebVis.renderer.Point(this.worldWidth - 2 * (this.worldWidth/100), gui.bg.pos.y + (gui.bg.height / 5), 0);
+            gui.p2name.maxWidth = this.worldWidth / 5;
             this.entities["Gooey"] = gui;
 
 
