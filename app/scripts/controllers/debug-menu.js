@@ -12,12 +12,14 @@ WebVis.ready(function() {
         this.$elem = $(WebVis.delegates["tree-elem"]).clone();
         this.name = name;
         this.value = null;
-        this.$elem.children().not(".debug-tree").find('.debug-tree-elem-name').text(name);
         this.$elem.data('controller', this);
         this.subelems = {};
         this.$subtreeIcon = self.$elem.children().not(".debug-tree").find(".debug-tree-subtree");
+        this.$name = self.$elem.children().not(".debug-tree").find('.debug-tree-elem-name');
         this.$value = self.$elem.children().not(".debug-tree").find(".debug-tree-elem-value");
         this.$subtree = self.$elem.children(".debug-tree:first");
+
+        this.$name.text(name);
 
         if(name === "id") {
             this.$value.parent().addClass('debug-tree-clickable');
@@ -50,7 +52,7 @@ WebVis.ready(function() {
         };
 
         this.detach = function() {
-            this.$elem.hide();
+            this.$elem.addClass("debug-tree-elem-hidden");
         }
 
         var updateSubtree = function() {
@@ -60,9 +62,7 @@ WebVis.ready(function() {
 
                 if(self.subelems[prop] !== undefined) {
                     self.subelems[prop].setValue(self.value[prop]);
-                    if(!self.subelems[prop].visible) {
-                        self.subelems[prop].$elem.addClass("debug-tree-subtree-visible");
-                    }
+                    self.subelems[prop].$elem.removeClass("debug-tree-elem-hidden");
                 } else {
                     var newelem = new ElemController(prop, self.value[prop]);
                     self.$subtree.append(newelem.$elem);
@@ -90,6 +90,11 @@ WebVis.ready(function() {
 
         this.getName = function(name) {
             return self.name;
+        }
+
+        this.setName = function(name) {
+            this.$name.text(name);
+            this.name = name;
         }
 
         this.setValue = function(value) {
@@ -157,10 +162,12 @@ WebVis.ready(function() {
         this.setValue(data);
     };
 
-    mainList = new ElemController("main", "");
+    mainList = new ElemController("", "");
 
     var setDebugData = function(data) {
         mainList.setValue(data);
+        mainList.setName("main");
+        mainList.openSubtree();
     };
     $debug.append(mainList.$elem);
     $("#tab-bind-point").append($debug);
