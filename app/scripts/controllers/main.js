@@ -277,44 +277,6 @@ WebVis.ready(function() {
         }
     }, 1000/2);
 
-    //--------------------------------------------------------------
-    // Functions for handling fillWidth and fillHeight dom elements
-    //--------------------------------------------------------------
-    /*
-    var fillHeight = function() {
-        $('.fill-height').each(function(index, elem){
-            var $elem = $(elem);
-            var offset = 0;
-            var children = $elem.parent().children().not($elem);
-            children.each(function(i, otherelem) {
-                var $otherelem = $(otherelem);
-                console.log($otherelem.css("position"));
-                console.log(otherelem);
-                if(!$otherelem.hasClass("webvis-alert"))
-                    offset += $otherelem.outerHeight();
-            });
-
-            $elem.outerHeight($elem.parent().height() - offset);
-        });
-    };
-
-    var fillWidth = function() {
-        $('.fill-width').each(function(index, elem){
-            var $elem = $(elem);
-            var offset = 0;
-            var children = $elem.parent().children().not($elem);
-            children.each(function(i, otherelem) {
-                var $otherelem = $(otherelem);
-                if(!$otherelem.hasClass('ret')) {
-                    offset += $otherelem.outerWidth();
-                }
-            });
-
-            $elem.outerWidth($elem.parent().width() - offset);
-        });
-    };
-    */
-
     //---------------------------------------------------------
     //  Canvas setup and window resize bindingbinding
     //---------------------------------------------------------
@@ -325,11 +287,7 @@ WebVis.ready(function() {
     };
 
     var resize = function() {
-        setTimeout(function() {
-            //fillWidth();
-            //fillHeight();
-            updateCanvasSize();
-        }, 200);
+        updateCanvasSize();
     };
 
     $(window).resize(resize);
@@ -339,9 +297,6 @@ WebVis.ready(function() {
     //--------------------------------------------------------
     (function() {
         WebVis.renderer.init(canvas, 20, 20);
-
-        //fillWidth();
-        //fillHeight();
         updateCanvasSize();
 
         var uri = WebVis.util.getUrlParams();
@@ -351,6 +306,4 @@ WebVis.ready(function() {
         }
     })();
 
-    WebVis.fillWidth = fillWidth;
-    WebVis.fillHeight = fillHeight;
 });
