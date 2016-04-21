@@ -6,28 +6,53 @@ WebVis.ready(function() {
 
     var initPluginFromLog = function(file) {
         var gameObject = JSON.parse(file.data);
-        console.log("Loading plugin \""+gameObject.gameName+"\"");
-        WebVis.plugin.changePlugin(gameObject.gameName, function() {
-            //WebVis.util.buildStatesFromJson(gameObject);
-            var flattenWorker = new Worker("/scripts/engine/flatten.js");
-            flattenWorker.addEventListener("message", function(obj) {
-                obj = obj.data;
-                switch(obj.message) {
-                    case "update":
-                        console.log(obj.data);
-                        break;
-                    case "finish":
-                        if(obj.data.deltas !== undefined && obj.data.deltas[0] !== undefined) {
-                            WebVis.setDebugData(obj.data.deltas[0].game);
-                        }
-                        WebVis.plugin.loadGame(obj.data);
-                        WebVis.game.setMaxTurn(obj.data.deltas.length);
-                        break;
-                }
-            });
+        var $progress = $('#webvis-progress-bar').css('width', '0%');
+        $('#webvis-load-background').removeClass("hidden");
+        $('#webvis-progress-bar-background').removeClass("hidden");
+        var data;
 
+        var onLoadGame = function(message, percent) {
+            switch(message) {
+                case "update":
+                    var txt = 50 + parseInt(percent * 50) + "%";
+                    $progress.css('width', txt);
+                    $progress.text(txt);
+                    break;
+                case "finish":
+                    $progress.css('width', '100%');
+                    $progress.text('100%');
+                    $('#webvis-load-background').addClass("hidden");
+                    $('#webvis-progress-bar-background').addClass("hidden");
+                    WebVis.game.setMaxTurn(data.deltas.length);
+                    if(data.deltas !== undefined && data.deltas[0] !== undefined) {
+                        WebVis.setDebugData(data.deltas[0].game);
+                    }
+                    break;
+            }
+        };
+
+        var flattenHandler = function(obj) {
+            var obj = obj.data;
+            switch(obj.message) {
+                case "update":
+                    var txt = parseInt(obj.data * 50) + "%";
+                    $progress.css('width', txt);
+                    $progress.text(txt);
+                    break;
+                case "finish":
+                    data = obj.data;
+                    WebVis.plugin.loadGame(obj.data, onLoadGame);
+                    break;
+            }
+        };
+
+        var onChangePlugin = function() {
+            var flattenWorker = new Worker("/scripts/engine/flatten.js");
+            flattenWorker.addEventListener("message", flattenHandler);
             flattenWorker.postMessage(gameObject);
-        });
+        };
+
+        WebVis.plugin.changePlugin(gameObject.gameName, onChangePlugin);
     };
 
     //-------------------------------------------------

@@ -26,7 +26,7 @@ WebVis.ready(function(){
         constructor.prototype.predraw = function(context) {
         };
 
-        constructor.prototype.loadGame = function() {
+        constructor.prototype.loadGame = function(data, callback) {
             throw "The loadGame function has not been implemented.\n";
         };
 
@@ -170,11 +170,11 @@ WebVis.ready(function(){
         }
     };
 
-    var loadGame = function(data) {
+    var loadGame = function(data, callback) {
         if(!util.defined("data", data)) return;
 
         if(currentPlugin !== null) {
-            currentPlugin.loadGame(data);
+            currentPlugin.loadGame(data, callback);
         }
     };
 

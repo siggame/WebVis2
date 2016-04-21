@@ -332,7 +332,8 @@
             context.pop();
         };
 
-        this.loadGame = function(data) {
+        this.loadGame = function(data, callback) {
+            var self = this;
             this.data = data;
             var i = 0;
 
@@ -388,10 +389,26 @@
             gui.p2name.maxWidth = this.worldWidth / 5;
             this.entities["Gooey"] = gui;
 
-            for(var state of data.deltas) {
-                this.handleDelta(i, state);
-                i++;
+
+            var pacingFunction = function() {
+                var start = new Date().getTime();
+                do {
+                    self.handleDelta(i, data.deltas[i]);
+                    i++;
+                    callback("update", i/data.deltas.length);
+                } while(i < data.deltas.length - 1 && (new Date().getTime() - start < 50));
+
+                if(i < data.deltas.length - 1) {
+                    setTimeout(pacingFunction, 10);
+                } else {
+                    callback("finish", null);
+                }
             }
+            pacingFunction();
+            console.log("leftbound: " + this.worldLeft);
+            console.log("rightbound: " + this.worldRight);
+            console.log("topbound: " + this.worldUp);
+            console.log("bottomBound: " + this.worldDown);
         };
 
         this.handleDelta = function(turn, state) {
@@ -453,11 +470,6 @@
                     this.entities[obj.id] = web;
                 }
             }
-
-            console.log("leftbound: " + this.worldLeft);
-            console.log("rightbound: " + this.worldRight);
-            console.log("topbound: " + this.worldUp);
-            console.log("bottomBound: " + this.worldDown);
         };
 
     };
