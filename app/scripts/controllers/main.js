@@ -169,7 +169,7 @@ WebVis.ready(function() {
                 document.msExitFullscreen();
             }
             $(elem).removeClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
-            $(elem).addClass('col-md-9 col-lg-9 col-xs-9 col-sm-9');
+            $(elem).addClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
         } else {
             if(elem.requestFullscreen) {
                 elem.requestFullscreen();
@@ -180,7 +180,7 @@ WebVis.ready(function() {
             } else if(elem.webkitRequestFullscreen) {
                 elem.webkitRequestFullscreen();
             }
-            $(elem).removeClass('col-md-9 col-lg-9 col-xs-9 col-sm-9');
+            $(elem).removeClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
             $(elem).addClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
         }
         // TODO: Find a way to actually attach callback to the end of the fullscreen css
