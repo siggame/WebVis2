@@ -4,6 +4,9 @@ WebVis.ready(function() {
     // forward declarations
     var resize = null;
 
+    // test alert
+    WebVis.alert("success", "oh jesus hagen!");
+
     var initPluginFromLog = function(file) {
         var gameObject = JSON.parse(file.data);
         console.log("Loading plugin \""+gameObject.gameName+"\"");
@@ -245,7 +248,10 @@ WebVis.ready(function() {
             var children = $elem.parent().children().not($elem);
             children.each(function(i, otherelem) {
                 var $otherelem = $(otherelem);
-                offset += $otherelem.outerHeight();
+                console.log($otherelem.css("position"));
+                console.log(otherelem);
+                if(!$otherelem.hasClass("webvis-alert"))
+                    offset += $otherelem.outerHeight();
             });
 
             $elem.outerHeight($elem.parent().height() - offset);

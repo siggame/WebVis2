@@ -47,6 +47,10 @@
     float: left;
 }
 
+.debug-tree-subtree-visible {
+    display: block;
+}
+
 /*
 .debug-tree ul {
     list-style-type: none;

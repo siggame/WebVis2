@@ -11,6 +11,7 @@ WebVis.ready(function() {
         this.visible = false;
         this.$elem = $(WebVis.delegates["tree-elem"]).clone();
         this.name = name;
+        this.value = null;
         this.$elem.children().not(".debug-tree").find('.debug-tree-elem-name').text(name);
         this.$elem.data('controller', this);
         this.subelems = {};
@@ -59,8 +60,8 @@ WebVis.ready(function() {
 
                 if(self.subelems[prop] !== undefined) {
                     self.subelems[prop].setValue(self.value[prop]);
-                    if(!self.subelems[prop].$elem.is(":visible")) {
-                        self.subelems[prop].$elem.show();
+                    if(!self.subelems[prop].visible) {
+                        self.subelems[prop].$elem.addClass("debug-tree-subtree-visible");
                     }
                 } else {
                     var newelem = new ElemController(prop, self.value[prop]);
@@ -106,22 +107,26 @@ WebVis.ready(function() {
                 if(textValue === null) {
                     textValue = "<object>";
                 }
-                if(self.$subtreeIcon.css("display") === "") {
-                    self.$subtreeIcon.show();
+                if(!self.$subtreeIcon.hasClass("debug-tree-subtree-visible")) {
+                    self.$subtreeIcon.addClass("debug-tree-subtree-visible");
                 }
                 if(self.visible) {
                     updateSubtree();
                 }
             } else {
+                if(self.$subtreeIcon.hasClass("debug-tree-subtree-visible")) {
+                    self.$subtreeIcon.removeClass("debug-tree-subtree-visible");
+                }
                 textValue = value;
             }
-            if(oldvalue !== self.value) {
+
+            if(($.isPlainObject(self.value) && $.isPlainObject(oldvalue)) || oldvalue !== self.value) {
                 self.$value.text(textValue);
             }
         };
 
         this.closeSubtree = function() {
-            self.$subtree.hide();
+            self.$subtree.removeClass("debug-tree-subtree-visible");
             self.visible = false;
             self.$subtreeIcon
             .removeClass("glyphicon-triangle-bottom")
@@ -129,7 +134,7 @@ WebVis.ready(function() {
         };
 
         this.openSubtree = function() {
-            self.$subtree.show();
+            self.$subtree.addClass("debug-tree-subtree-visible");
             self.visible = true;
             self.$subtreeIcon
             .removeClass("glyphicon-triangle-right")
@@ -156,8 +161,9 @@ WebVis.ready(function() {
 
     var setDebugData = function(data) {
         mainList.setValue(data);
-        $debug.append(mainList.$elem);
     };
+    $debug.append(mainList.$elem);
+    $("#tab-bind-point").append($debug);
 
     WebVis.setDebugData = setDebugData;
 });

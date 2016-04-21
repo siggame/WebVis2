@@ -85,9 +85,35 @@ WebVis = {};
         }
     };
 
+    var alert = function(type, message) {
+        var $alert = $(document.createElement('div'))
+        .addClass("webvis-alert webvis-alert-enter alert");
+        switch(type) {
+            case "success":
+                $alert.addClass("alert-success");
+            case "info":
+                $alert.addClass("alert-info");
+            case "warning":
+                $alert.addClass("alert-warning");
+            case "danger":
+                $alert.addClass("alert-danger");
+        }
+        $alert.on('webkitAnimationEnd oAnimationEnd oAnimationEnd msAnimationEnd animationend', function() {
+            setTimeout(function() {
+                $alert.removeClass("webvis-alert-enter").addClass("webvis-alert-leave");
+                $alert.one('webkitAnimationEnd oAnimationEnd oAnimationEnd msAnimationEnd animationend', function() {
+                    $(this).remove();
+                });
+            }, 4000);
+        });
+        var $webvis = $('.webvis-main');
+        $('#playback').append($alert);
+    };
+
     WebVis = {
         ready: ready,
-        delegates: delegates
+        delegates: delegates,
+        alert: alert
     };
 
 })();
