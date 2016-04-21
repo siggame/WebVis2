@@ -177,41 +177,58 @@ WebVis.ready(function() {
     //--------------------------------------------------
     // Attach the fullscreen button
     //--------------------------------------------------
+    var sizeChange = false;
+    var updateFullScreen = function() {
+        var elem = document.getElementById('playback');
+        if(sizeChange) {
+            $(elem).removeClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
+            $(elem).addClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+        } else {
+            $(elem).removeClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+            $(elem).addClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
+        }
+    }
+
     $('#fullscreen-toggle').click(function() {
         var elem = document.getElementById('playback');
-        if(document.fullscreenElement ||
-           document.webkitFullscreenElement ||
-           document.mozFullScreenElement ||
-           document.msFullscreenElement)
+        var fullscreenMode = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        if(!fullscreenMode)
         {
+            if(elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if(elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if(elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if(elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+            $(elem).removeClass('col-lg-9 col-md-9 col-sm-12 col-xs-12');
+            $(elem).addClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+            sizeChange = true;
+        } else {
             if(document.exitFullscreen) {
                 document.exitFullscreen();
-            } else if(document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
             } else if(document.mozCancelFullScreen) {
                 document.mozCancelFullScreen();
+            } else if(document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
             } else if(document.msExitFullscreen) {
                 document.msExitFullscreen();
             }
             $(elem).removeClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
             $(elem).addClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
-        } else {
-            if(elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if(elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            } else if(elem.mozRequestFullscreen) {
-                elem.mozRequestFullscreen();
-            } else if(elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            }
-            $(elem).removeClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
-            $(elem).addClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+            sizeChange = false;
         }
         // TODO: Find a way to actually attach callback to the end of the fullscreen css
         // transition rather than just waiting an arbitrary time for it to finish.
         // This type of thing is just disgusting, (THANKS AGAIN W3 -_-)
-        setTimeout(resize, 200);
+        setTimeout(resize, 500);
+    });
+
+    $(document).on('mozfullscreenchange webkitfullscreenchange fullscreenchange', function() {
+        sizeChange = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        updateFullScreen();
     });
 
     //--------------------------------------------------
@@ -263,6 +280,7 @@ WebVis.ready(function() {
     //--------------------------------------------------------------
     // Functions for handling fillWidth and fillHeight dom elements
     //--------------------------------------------------------------
+    /*
     var fillHeight = function() {
         $('.fill-height').each(function(index, elem){
             var $elem = $(elem);
@@ -295,6 +313,7 @@ WebVis.ready(function() {
             $elem.outerWidth($elem.parent().width() - offset);
         });
     };
+    */
 
     //---------------------------------------------------------
     //  Canvas setup and window resize bindingbinding
@@ -303,13 +322,15 @@ WebVis.ready(function() {
         var $canvas = $('#canvas');
         $canvas.get(0).width = $canvas.parent().width();
         $canvas.get(0).height = $canvas.parent().height();
-    }
+    };
 
     var resize = function() {
-        fillWidth();
-        fillHeight();
-        updateCanvasSize();
-    }
+        setTimeout(function() {
+            //fillWidth();
+            //fillHeight();
+            updateCanvasSize();
+        }, 200);
+    };
 
     $(window).resize(resize);
 
@@ -319,8 +340,8 @@ WebVis.ready(function() {
     (function() {
         WebVis.renderer.init(canvas, 20, 20);
 
-        fillWidth();
-        fillHeight();
+        //fillWidth();
+        //fillHeight();
         updateCanvasSize();
 
         var uri = WebVis.util.getUrlParams();

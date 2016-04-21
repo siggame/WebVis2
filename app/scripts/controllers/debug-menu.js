@@ -2,7 +2,7 @@ WebVis.ready(function() {
     var mainList;
     var $debug = $(WebVis.pages["Debug"])
     .css({
-        "overflow-y": "scroll",
+        "overflow-y": "auto",
         "height": "100%"
     });
 
