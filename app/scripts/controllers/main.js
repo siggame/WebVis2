@@ -4,9 +4,6 @@ WebVis.ready(function() {
     // forward declarations
     var resize = null;
 
-    // test alert
-    WebVis.alert("success", "oh jesus hagen!");
-
     var initPluginFromLog = function(file) {
         var gameObject = JSON.parse(file.data);
         console.log("Loading plugin \""+gameObject.gameName+"\"");
