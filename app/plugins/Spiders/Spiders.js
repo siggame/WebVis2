@@ -257,8 +257,34 @@
         this.p2name.color = new WebVis.renderer.Color(0.3, 0.6, 0.1, 1.0);
         this.p2name.size = 36;
         this.p2name.alignment = "right";
+
+        // Health Bars
+        this.addChannel({
+            name: "healthbars",
+            start: function() {}
+        });
+        
+        this.p1HealthGreen = new WebVis.renderer.Rect();
+        this.p1HealthRed = new WebVis.renderer.Rect();
+        this.p2HealthGreen = new WebVis.renderer.Rect();
+        this.p2HealthRed = new WebVis.renderer.Rect();
+
+        this.p1HealthGreen.color.setColor(0.0, 1.0, 0.0, 1.0);
+        this.p1HealthRed.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p2HealthGreen.color.setColor(0.0, 1.0, 0.0, 1.0);
+        this.p2HealthRed.color.setColor(1.0, 0.0, 0.0, 1.0);
+        
+        this.p1HealthRed.width = 3000;
+        this.p2HealthRed.width = 3000;
+        this.p1HealthGreen.width = 3000; // needs to be set to the current health for player 1
+        this.p2HealthGreen.width = 3000; // needs to be set to the current health for player 2
+
         this.draw = function(context) {
             context.drawRect(this.bg);
+            context.drawRect(this.p1HealthGreen);
+            context.drawRect(this.p1HealthRed);
+            context.drawRect(this.p2HealthGreen);
+            context.drawRect(this.p2HealthRed);
             context.drawText(this.p1name);
             context.drawText(this.p2name);
         };
