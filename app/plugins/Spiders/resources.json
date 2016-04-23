@@ -16,6 +16,16 @@
             "spriteSheet": null
         },
         {
+            "id": "broodmother0",
+            "image": "broodmom0.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "broodmother1",
+            "image": "broodmom1.png",
+            "spriteSheet": null
+        },
+        {
             "id": "building",
             "image": "building.png",
             "spriteSheet": null
