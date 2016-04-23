@@ -223,11 +223,12 @@
         } else {
             this.sprite.texture = "broodmother1";
         }
-        this.sprite.pos.x = initx - radius/2;
-        this.sprite.pos.y = inity - radius/2;
+        var temp_radius = radius * 2
+        this.sprite.pos.x = initx - temp_radius/2;
+        this.sprite.pos.y = inity - temp_radius/2;
         this.sprite.pos.z = 2;
-        this.sprite.width = radius;
-        this.sprite.height = radius;
+        this.sprite.width = temp_radius;
+        this.sprite.height = temp_radius;
 
         this.draw = function(context) {
             context.drawSprite(this.sprite);
@@ -513,6 +514,7 @@
         this.sprite = new WebVis.renderer.Sprite();
         this.sprite.width = width;
         this.sprite.height = width;
+        this.nextVisCheck = -1;
         if(type === "Spitter") {
             if(ownerid === "0") {
                 this.sprite.texture = "spitter0";
@@ -1019,11 +1021,17 @@
                             spiderling.totalWork = obj.workRemaining;
                             var i = 0;
                             var nextGameState;
+                            if(spiderling.nextVisCheck < turn){
+                                //console.log("Here be spiders");
+                                //console.log(spiderling.nextVisCheck);
+
                             do {
                                 i+=1;
                                 nextGameState = this.data.deltas[turn+i];
                             } while ( typeof (nextGameState) != "undefined" && nextGameState.game.gameObjects[obj.id].busy === "Moving" );
                             spiderling.makeVisible(turn, turn+i);
+                            spiderling.nextVisCheck = turn+i;
+                            }
                         }
 
                         if(typeof prevstate !== "undefined" && prevstate.busy !== "" &&
@@ -1046,7 +1054,7 @@
                             fromx = nestStart.x + ((nestDest.x - nestStart.x) * (1 - prevstate.workRemaining/spiderling.totalWork));
                             fromy = nestStart.y + ((nestDest.y - nestStart.y) * (1 - prevstate.workRemaining/spiderling.totalWork));
 
-                            spiderling.makeVisible(turn, turn+1);
+                            //spiderling.makeVisible(turn, turn+1);
                             spiderling.move(turn, tox, toy, fromx, fromy);
                         }
                     }
