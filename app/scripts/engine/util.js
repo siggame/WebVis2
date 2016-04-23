@@ -22,7 +22,7 @@ WebVis.ready(function() {
     //---------------------------------------------------
     var getUrlParams = function() {
         var params = {};
-        var query = window.location.href.split("?")[1];
+        var query = decodeURIComponent(window.location.href).split("?")[1];
         if(query !== undefined) {
             var pairs = query.split("&");
             for(var i = 0; i < pairs.length; i++) {
