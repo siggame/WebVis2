@@ -74,36 +74,13 @@
             start: function() {}
         });
 
-        this.pieFunc = function(gameobjects, data) {
-            var p1s1 = 0, p1s2 = 0, p1s3 = 0, p2s1 = 0, p2s2 = 0, p2s3 = 0;
-
-            for(var prop in data.spiders) {
-                if(!data.spiders.hasOwnProperty(prop)) return;
-                if(prop === "&LEN") continue;
-                var spider = data.spiders[prop];
-                spider = gameobjects[spider.id];
-                if(typeof spider === "undefined") continue;
-                if(spider.gameObjectName === "BroodMother") continue;
-
-                if(spider.owner.id === "0") {
-                    if(spider.gameObjectName === "Spitter") {
-                        p1s1++;
-                    } else if(spider.gameObjectName === "Weaver") {
-                        p1s2++;
-                    } else if(spider.gameObjectName === "Cutter") {
-                        p1s3++;
-                    }
-                } else {
-                    if(spider.gameObjectName === "Spitter") {
-                        p2s1++;
-                    } else if(spider.gameObjectName === "Weaver") {
-                        p2s2++;
-                    } else if(spider.gameObjectName === "Cutter") {
-                        p2s3++;
-                    }
-                }
-
-            }
+        this.pieChange = function(turn, pieCalc) {
+            var p1s1 = pieCalc.p1s1;
+            var p1s2 = pieCalc.p1s2;
+            var p1s3 = pieCalc.p1s3;
+            var p2s1 = pieCalc.p2s1;
+            var p2s2 = pieCalc.p2s2;
+            var p2s3 = pieCalc.p2s3;
 
             var total1 = p1s1 + p1s2 + p1s3;
             var total2 = p2s1 + p2s2 + p2s3;
@@ -130,42 +107,44 @@
 
             }
 
-            return function() {
-                if(total1 === 0) {
-                    for(var i = 0; i < 3; i++) {
-                        self.circles[i].visible = false;
-                        self.counters[i].visible = false;
+            this.addAnim({
+                channel: "pies",
+                anim: new WebVis.plugin.Animation(turn, turn, function() {
+                    if(total1 === 0) {
+                        for(var i = 0; i < 3; i++) {
+                            self.circles[i].visible = false;
+                            self.counters[i].visible = false;
+                        }
+                    } else {
+                        for(var i = 0; i < 3; i++) {
+                            self.counters[i].visible = true;
+                            self.circles[i].visible = true;
+                            self.circles[i].percentage = percents[i];
+                            self.circles[i].rotation = rotations[i];
+                        }
+                        self.counters[0].value = "" + p1s1;
+                        self.counters[1].value = "" + p1s2;
+                        self.counters[2].value = "" + p1s3;
                     }
-                } else {
-                    for(var i = 0; i < 3; i++) {
-                        self.counters[i].visible = true;
-                        self.circles[i].visible = true;
-                        self.circles[i].percentage = percents[i];
-                        self.circles[i].rotation = rotations[i];
-                    }
-                    self.counters[0].value = "" + p1s1;
-                    self.counters[1].value = "" + p1s2;
-                    self.counters[2].value = "" + p1s3;
-                }
 
-                if(total2 === 0) {
-                    for(var i = 3; i < 6; i++) {
-                        self.circles[i].visible = false;
-                        self.counters[i].visible = false;
+                    if(total2 === 0) {
+                        for(var i = 3; i < 6; i++) {
+                            self.circles[i].visible = false;
+                            self.counters[i].visible = false;
+                        }
+                    } else {
+                        for(var i = 3; i < 6; i++) {
+                            self.circles[i].visible = true;
+                            self.counters[i].visible = true;
+                            self.circles[i].percentage = percents[i];
+                            self.circles[i].rotation = rotations[i];
+                        }
+                        self.counters[3].value = "" + p2s1;
+                        self.counters[4].value = "" + p2s2;
+                        self.counters[5].value = "" + p2s3;
                     }
-                } else {
-                    for(var i = 3; i < 6; i++) {
-                        self.circles[i].visible = true;
-                        self.counters[i].visible = true;
-                        self.circles[i].percentage = percents[i];
-                        self.circles[i].rotation = rotations[i];
-                    }
-                    self.counters[3].value = "" + p2s1;
-                    self.counters[4].value = "" + p2s2;
-                    self.counters[5].value = "" + p2s3;
-                }
-            }
-
+                })
+            });
         };
 
         this.draw = function(context) {
@@ -245,25 +224,41 @@
         }
     };
 
-    var Gui = function() {
+    var Gui = function(p1name, p2name, worldLeft, worldUp, worldRight, worldDown, worldWidth, worldHeight) {
         this.__proto__ = new SpidersEntity(null, "gui");
+        var self = this;
         this.bg = new WebVis.renderer.Rect();
+
+        var guiUnit = worldWidth/100;
+        var guiStartX = worldLeft;
+        var guiStartY = worldUp + worldHeight;
+        var guiUnitW = worldWidth/100;
+        var guiUnitH = worldHeight/4/20;
+        var healthBarMaxWidth = 46 * guiUnitW;
+        var healthBarHeight = 6 * guiUnitH;
+
+        this.bg.pos = new WebVis.renderer.Point(worldLeft, worldUp + worldHeight, 0);
+        this.bg.width = worldWidth;
+        this.bg.height = worldHeight / 4;
+        this.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
+
         this.p1name = new WebVis.renderer.Text();
-        this.p2name = new WebVis.renderer.Text();
-        this.p1name.maxWidth = 1500;
         this.p1name.size = 36;
+        this.p1name.maxWidth = 1500;
+        this.p1name.value = p1name;
         this.p1name.color = new WebVis.renderer.Color(1, 0.6, 0, 1.0);
-        this.p2name.maxWidth = 1500;
+        this.p1name.pos = new WebVis.renderer.Point(worldLeft + 2 * (worldWidth/100), this.bg.pos.y + (this.bg.height / 5), 0);
+        this.p1name.maxWidth = worldWidth / 5;
+
+        this.p2name = new WebVis.renderer.Text();
         this.p2name.color = new WebVis.renderer.Color(0.3, 0.6, 0.1, 1.0);
         this.p2name.size = 36;
+        this.p2name.maxWidth = 1500;
+        this.p2name.value = p2name;
+        this.p2name.pos = new WebVis.renderer.Point(worldRight - 2 * (worldWidth/100), this.bg.pos.y + (this.bg.height / 5), 0);
         this.p2name.alignment = "right";
 
         // Health Bars
-        this.addChannel({
-            name: "healthbars",
-            start: function() {}
-        });
-        
         this.p1HealthGreen = new WebVis.renderer.Rect();
         this.p1HealthRed = new WebVis.renderer.Rect();
         this.p2HealthGreen = new WebVis.renderer.Rect();
@@ -273,11 +268,87 @@
         this.p1HealthRed.color.setColor(1.0, 0.0, 0.0, 1.0);
         this.p2HealthGreen.color.setColor(0.0, 1.0, 0.0, 1.0);
         this.p2HealthRed.color.setColor(1.0, 0.0, 0.0, 1.0);
-        
-        this.p1HealthRed.width = 3000;
-        this.p2HealthRed.width = 3000;
-        this.p1HealthGreen.width = 3000; // needs to be set to the current health for player 1
-        this.p2HealthGreen.width = 3000; // needs to be set to the current health for player 2
+
+        this.p1HealthRed.width = healthBarMaxWidth;
+        this.p2HealthRed.width = healthBarMaxWidth;
+        this.p1HealthGreen.width = healthBarMaxWidth; // needs to be set to the current health for player 1
+        this.p2HealthGreen.width = healthBarMaxWidth; // needs to be set to the current health for player 2
+
+        this.p1HealthRed.height = healthBarHeight;
+        this.p2HealthRed.height = healthBarHeight;
+        this.p1HealthGreen.height = healthBarHeight;
+        this.p2HealthGreen.height = healthBarHeight;
+
+        this.p1HealthGreen.pos.x = guiStartX + (2 * guiUnitW);
+        this.p1HealthGreen.pos.y = guiStartY + (6 * guiUnitH);
+
+        this.p1HealthRed.pos.x = guiStartX + (2 * guiUnitW);
+        this.p1HealthRed.pos.y = guiStartY + (6 * guiUnitH);
+
+        this.p2HealthGreen.pos.x = guiStartX + (52 * guiUnitW);
+        this.p2HealthGreen.pos.y = guiStartY + (6 * guiUnitH);
+
+        this.p2HealthRed.pos.x = guiStartX + (52 * guiUnitW);
+        this.p2HealthRed.pos.y = guiStartY + (6 * guiUnitH);
+
+        this.p1HealthAmount = new WebVis.renderer.Text();
+        this.p1HealthAmount.color.setColor(0.0, 0.0, 0.0, 1.0);
+        this.p1HealthAmount.size = 14;
+        this.p1HealthAmount.maxWidth = 100;
+        this.p1HealthAmount.pos.x = this.p1HealthRed.pos.x + healthBarMaxWidth/2;
+        this.p1HealthAmount.pos.y = this.p1HealthRed.pos.y + healthBarHeight/2;
+        this.p1HealthAmount.alignment = "center"
+        this.p1HealthAmount.baseline = "middle";
+
+        this.p2HealthAmount = new WebVis.renderer.Text();
+        this.p2HealthAmount.color.setColor(0.0, 0.0, 0.0, 1.0);
+        this.p2HealthAmount.size = 14;
+        this.p2HealthAmount.maxWidth = 100;
+        this.p2HealthAmount.pos.x = this.p2HealthRed.pos.x + healthBarMaxWidth/2;
+        this.p2HealthAmount.pos.y = this.p2HealthRed.pos.y + healthBarHeight/2;
+        this.p2HealthAmount.alignment = "center"
+        this.p2HealthAmount.baseline = "middle";
+
+        var maxBroodHealth = 0;
+        this.addChannel({
+            name: "p1healthbar",
+            start: function() {
+                self.p1HealthGreen.width = healthBarMaxWidth;
+                self.p1HealthAmount.value = "" + maxBroodHealth + "/" + maxBroodHealth;
+            }
+        });
+
+        this.addChannel({
+            name: "p2healthbar",
+            start: function() {
+                self.p2HealthGreen.width = healthBarMaxWidth;
+                self.p2HealthAmount.value = "" + maxBroodHealth + "/" + maxBroodHealth;
+            }
+        });
+
+        this.setMaxBroodHealth = function(maxHealth) {
+            maxBroodHealth = maxHealth;
+        };
+
+        this.p1healthChange = function(turn, p1brood) {
+            this.addAnim({
+                channel: 'p1healthbar',
+                anim: new WebVis.plugin.Animation(turn, turn, function(completion) {
+                    self.p1HealthGreen.width = healthBarMaxWidth * (p1brood.health / maxBroodHealth);
+                    self.p1HealthAmount.value = "" + p1brood.health + "/" + maxBroodHealth;
+                })
+            });
+        };
+
+        this.p2healthChange = function(turn, p2brood) {
+            this.addAnim({
+                channel: 'p2healthbar',
+                anim: new WebVis.plugin.Animation(turn, turn, function(completion) {
+                    self.p2HealthGreen.width = healthBarMaxWidth * (p2brood.health / maxBroodHealth);
+                    self.p2HealthAmount.value = "" + p2brood.health + "/" + maxBroodHealth;
+                })
+            });
+        };
 
         this.draw = function(context) {
             context.drawRect(this.bg);
@@ -287,6 +358,8 @@
             context.drawRect(this.p2HealthRed);
             context.drawText(this.p1name);
             context.drawText(this.p2name);
+            context.drawText(this.p1HealthAmount);
+            context.drawText(this.p2HealthAmount);
         };
     };
 
@@ -367,7 +440,7 @@
             var rightBound = 0;
             var topBound = 999999999999999;
             var bottomBound = 0;
-            var gui = new Gui();
+            var p1name, p2name;
 
             // iterate once over the nest to determine the world bounds
             for(var prop in data.deltas[0].game.gameObjects) {
@@ -377,8 +450,8 @@
                 {
                     if(obj.id < obj.otherPlayer.id)
                     {
-                        gui.p1name.value = obj.name;
-                        gui.p2name.value = data.deltas[0].game.gameObjects[obj.otherPlayer.id].name;
+                        p1name = obj.name;
+                        p2name = data.deltas[0].game.gameObjects[obj.otherPlayer.id].name;
                     }
                 }
                 if(obj.gameObjectName === "Nest") {
@@ -405,16 +478,13 @@
             this.worldWidth = this.worldRight - this.worldLeft;
             this.worldHeight = this.worldDown - this.worldUp;
 
-            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldUp + this.worldHeight + this.nestWidth, 0);
-            gui.bg.width = this.worldWidth;
-            gui.bg.height = this.worldHeight / 4;
-            gui.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
-            gui.p1name.pos = new WebVis.renderer.Point(this.worldLeft + 2 * (this.worldWidth/100), gui.bg.pos.y + (gui.bg.height / 5), 0);
-            gui.p1name.maxWidth = this.worldWidth / 5;
-            gui.p2name.pos = new WebVis.renderer.Point(this.worldWidth - 2 * (this.worldWidth/100), gui.bg.pos.y + (gui.bg.height / 5), 0);
-            gui.p2name.maxWidth = this.worldWidth / 5;
+            var gui = new Gui(p1name, p2name, this.worldLeft, this.worldUp, this.worldRight, this.worldDown, this.worldWidth, this.worldHeight);
             this.entities["Gooey"] = gui;
 
+            // set the maxhealth of a brood mother
+            var p1 = data.deltas[0].game.gameObjects[data.deltas[0].game.players[0].id];
+            var brood1 = data.deltas[0].game.gameObjects[p1.broodMother.id];
+            gui.setMaxBroodHealth(brood1.health);
 
             var pacingFunction = function() {
                 var start = new Date().getTime();
@@ -437,6 +507,47 @@
             console.log("bottomBound: " + this.worldDown);
         };
 
+        this.spiderlingCalc = function(obj, state) {
+            var ret = {
+                p1s1 : 0,
+                p1s2 : 0,
+                p1s3 : 0,
+                p2s1 : 0,
+                p2s2 : 0,
+                p2s3 : 0
+            };
+
+            for(var prop in obj.spiders) {
+                if(!obj.spiders.hasOwnProperty(prop)) return;
+                if(prop === "&LEN") continue;
+
+                var spider = state.game.gameObjects[obj.spiders[prop].id];
+
+                if(typeof spider === "undefined") continue;
+                if(spider.gameObjectName === "BroodMother") continue;
+
+                if(spider.owner.id === "0") {
+                    if(spider.gameObjectName === "Spitter") {
+                        ret.p1s1++;
+                    } else if(spider.gameObjectName === "Weaver") {
+                        ret.p1s2++;
+                    } else if(spider.gameObjectName === "Cutter") {
+                        ret.p1s3++;
+                    }
+                } else {
+                    if(spider.gameObjectName === "Spitter") {
+                        ret.p2s1++;
+                    } else if(spider.gameObjectName === "Weaver") {
+                        ret.p2s2++;
+                    } else if(spider.gameObjectName === "Cutter") {
+                        ret.p2s3++;
+                    }
+                }
+            }
+
+            return ret;
+        }
+
         this.handleDelta = function(turn, state) {
             if(state.game === undefined) return;
 
@@ -450,11 +561,28 @@
                         var nest = new Nest(obj.id, obj.x, obj.y, 0, this.nestWidth);
                         this.entities[obj.id] = nest;
                     }
-                    var animFunc = this.entities[obj.id].pieFunc(state.game.gameObjects, obj);
-                    this.entities[obj.id].addAnim({
-                        channel: "pies",
-                        anim : new WebVis.plugin.Animation(turn, turn + 1, animFunc)
-                    });
+
+                    if(turn === 0) {
+                        var calc = this.spiderlingCalc(obj, state);
+                        this.entities[obj.id].pieChange(turn, calc);
+                    } else {
+                        var lastneststate = this.data.deltas[turn - 1].game.gameObjects[obj.id];
+                        var laststate = this.data.deltas[turn -1];
+                        var calc = this.spiderlingCalc(obj, state);
+                        var calcLast = this.spiderlingCalc(lastneststate, laststate);
+
+                        if(
+                            calc.p1s1 !== calcLast.p1s1 ||
+                            calc.p1s2 !== calcLast.p1s2 ||
+                            calc.p1s3 !== calcLast.p1s3 ||
+                            calc.p2s1 !== calcLast.p2s1 ||
+                            calc.p2s2 !== calcLast.p2s2 ||
+                            calc.p2s3 !== calcLast.p2s3
+                        ) {
+                            this.entities[obj.id].pieChange(turn, calc);
+                        }
+
+                    }
                 }
 
                 if(obj.gameObjectName === "BroodMother") {
@@ -462,6 +590,18 @@
                         var nest = state.game.gameObjects[obj.nest.id];
                         var bm = new BroodMother(obj.id, nest.x, nest.y, this.nestWidth);
                         this.entities[obj.id] = bm;
+                    }
+
+                    if(turn > 0) {
+                        var bm = this.entities[obj.id];
+                        var lastbmstate = this.data.deltas[turn - 1].game.gameObjects[obj.id];
+                        if(lastbmstate.health !== obj.health) {
+                            if(obj.owner.id === "0") {
+                                this.entities["Gooey"].p1healthChange(turn, obj);
+                            } else {
+                                this.entities["Gooey"].p2healthChange(turn, obj);
+                            }
+                        }
                     }
                 }
 

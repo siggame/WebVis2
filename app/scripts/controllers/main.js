@@ -23,7 +23,7 @@ WebVis.ready(function() {
                     $progress.text('100%');
                     $('#webvis-load-background').addClass("hidden");
                     $('#webvis-progress-bar-background').addClass("hidden");
-                    WebVis.game.setMaxTurn(data.deltas.length);
+                    WebVis.game.setMaxTurn(data.deltas.length - 1);
                     if(data.deltas !== undefined && data.deltas[0] !== undefined) {
                         WebVis.setDebugData(data.deltas[0].game);
                     }
