@@ -309,6 +309,97 @@
         this.p2HealthAmount.alignment = "center"
         this.p2HealthAmount.baseline = "middle";
 
+        var guiSpriteSize = 4 * guiUnitW;
+        this.p1spitter = new WebVis.renderer.Sprite();
+        this.p1spitter.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x, guiStartY + (13 * guiUnitH), 2);
+        this.p1spitter.texture = "cutter0";
+        this.p1spitter.width = guiSpriteSize;
+        this.p1spitter.height = this.p1spitter.width;
+
+        this.p1spitterAmount = new WebVis.renderer.Text();
+        this.p1spitterAmount.pos.x = this.p1spitter.pos.x + (5 * guiUnitW);
+        this.p1spitterAmount.pos.y = this.p1spitter.pos.y + (guiSpriteSize / 2);
+        this.p1spitterAmount.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p1spitterAmount.size = 14;
+        this.p1spitterAmount.maxWidth = 100;
+        this.p1spitterAmount.alignment = "center"
+        this.p1spitterAmount.baseline = "middle";
+
+        this.p1weaver = new WebVis.renderer.Sprite();
+        this.p1weaver.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x + (10 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
+        this.p1weaver.texture = "cutter0";
+        this.p1weaver.width = guiSpriteSize;
+        this.p1weaver.height = this.p1weaver.width;
+
+        this.p1weaverAmount = new WebVis.renderer.Text();
+        this.p1weaverAmount.pos.x = this.p1weaver.pos.x + (5 * guiUnitW);
+        this.p1weaverAmount.pos.y = this.p1weaver.pos.y + (guiSpriteSize / 2);
+        this.p1weaverAmount.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p1weaverAmount.size = 14;
+        this.p1weaverAmount.maxWidth = 100;
+        this.p1weaverAmount.alignment = "center"
+        this.p1weaverAmount.baseline = "middle";
+
+        this.p1cutter = new WebVis.renderer.Sprite();
+        this.p1cutter.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x + (20 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
+        this.p1cutter.texture = "cutter0";
+        this.p1cutter.width = guiSpriteSize;
+        this.p1cutter.height = this.p1weaver.width;
+
+        this.p1cutterAmount = new WebVis.renderer.Text();
+        this.p1cutterAmount.pos.x = this.p1cutter.pos.x + (5 * guiUnitW);
+        this.p1cutterAmount.pos.y = this.p1cutter.pos.y + (guiSpriteSize / 2);
+        this.p1cutterAmount.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p1cutterAmount.size = 14;
+        this.p1cutterAmount.maxWidth = 100;
+        this.p1cutterAmount.alignment = "center"
+        this.p1cutterAmount.baseline = "middle";
+
+        this.p2spitter = new WebVis.renderer.Sprite();
+        this.p2spitter.pos = new WebVis.renderer.Point(this.p2HealthRed.pos.x, guiStartY + (13 * guiUnitH), 2);
+        this.p2spitter.texture = "cutter1";
+        this.p2spitter.width = guiSpriteSize;
+        this.p2spitter.height = this.p1spitter.width;
+
+        this.p2spitterAmount = new WebVis.renderer.Text();
+        this.p2spitterAmount.pos.x = this.p2spitter.pos.x + (5 * guiUnitW);
+        this.p2spitterAmount.pos.y = this.p2spitter.pos.y + (guiSpriteSize / 2);
+        this.p2spitterAmount.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p2spitterAmount.size = 14;
+        this.p2spitterAmount.maxWidth = 100;
+        this.p2spitterAmount.alignment = "center"
+        this.p2spitterAmount.baseline = "middle";
+
+        this.p2weaver = new WebVis.renderer.Sprite();
+        this.p2weaver.pos = new WebVis.renderer.Point(this.p2HealthRed.pos.x + (10 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
+        this.p2weaver.texture = "cutter1";
+        this.p2weaver.width = guiSpriteSize;
+        this.p2weaver.height = this.p1spitter.width;
+
+        this.p2weaverAmount = new WebVis.renderer.Text();
+        this.p2weaverAmount.pos.x = this.p2weaver.pos.x + (5 * guiUnitW);
+        this.p2weaverAmount.pos.y = this.p2weaver.pos.y + (guiSpriteSize / 2);
+        this.p2weaverAmount.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p2weaverAmount.size = 14;
+        this.p2weaverAmount.maxWidth = 100;
+        this.p2weaverAmount.alignment = "center"
+        this.p2weaverAmount.baseline = "middle";
+
+        this.p2cutter = new WebVis.renderer.Sprite();
+        this.p2cutter.pos = new WebVis.renderer.Point(this.p2HealthRed.pos.x + (20 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
+        this.p2cutter.texture = "cutter1";
+        this.p2cutter.width = guiSpriteSize;
+        this.p2cutter.height = this.p1spitter.width;
+
+        this.p2cutterAmount = new WebVis.renderer.Text();
+        this.p2cutterAmount.pos.x = this.p2cutter.pos.x + (5 * guiUnitW);
+        this.p2cutterAmount.pos.y = this.p2cutter.pos.y + (guiSpriteSize / 2);
+        this.p2cutterAmount.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p2cutterAmount.size = 14;
+        this.p2cutterAmount.maxWidth = 100;
+        this.p2cutterAmount.alignment = "center"
+        this.p2cutterAmount.baseline = "middle";
+
         var maxBroodHealth = 0;
         this.addChannel({
             name: "p1healthbar",
@@ -323,6 +414,18 @@
             start: function() {
                 self.p2HealthGreen.width = healthBarMaxWidth;
                 self.p2HealthAmount.value = "" + maxBroodHealth + "/" + maxBroodHealth;
+            }
+        });
+
+        this.addChannel({
+            name: "spiderlingCount",
+            start: function() {
+                self.p1spitterAmount.value = "x 0";
+                self.p1weaverAmount.value = "x 0"
+                self.p1cutterAmount.value = "x 0";
+                self.p2spitterAmount.value = "x 0";
+                self.p2weaverAmount.value = "x 0";
+                self.p2cutterAmount.value = "x 0";
             }
         });
 
@@ -350,6 +453,20 @@
             });
         };
 
+        this.spiderlingCountChange = function(turn, calc) {
+            this.addAnim({
+                channel: 'spiderlingCount',
+                anim: new WebVis.plugin.Animation(turn, turn, function(completion) {
+                    self.p1spitterAmount.value = "x " + calc.p1s1;
+                    self.p1weaverAmount.value = "x " + calc.p1s2;
+                    self.p1cutterAmount.value = "x " + calc.p1s3;
+                    self.p2spitterAmount.value = "x " + calc.p2s2;
+                    self.p2weaverAmount.value = "x " + calc.p2s2;
+                    self.p2cutterAmount.value = "x " + calc.p2s3;
+                })
+            });
+        };
+
         this.draw = function(context) {
             context.drawRect(this.bg);
             context.drawRect(this.p1HealthGreen);
@@ -360,6 +477,18 @@
             context.drawText(this.p2name);
             context.drawText(this.p1HealthAmount);
             context.drawText(this.p2HealthAmount);
+            context.drawSprite(this.p1spitter);
+            context.drawText(this.p1spitterAmount);
+            context.drawSprite(this.p1weaver);
+            context.drawText(this.p1weaverAmount);
+            context.drawSprite(this.p1cutter);
+            context.drawText(this.p1cutterAmount);
+            context.drawSprite(this.p2spitter);
+            context.drawText(this.p2spitterAmount);
+            context.drawSprite(this.p2weaver);
+            context.drawText(this.p2weaverAmount);
+            context.drawSprite(this.p2cutter);
+            context.drawText(this.p2cutterAmount);
         };
     };
 
@@ -507,7 +636,7 @@
             console.log("bottomBound: " + this.worldDown);
         };
 
-        this.spiderlingCalc = function(obj, state) {
+        this.spiderlingCalcBrood = function(obj, state) {
             var ret = {
                 p1s1 : 0,
                 p1s2 : 0,
@@ -546,10 +675,66 @@
             }
 
             return ret;
-        }
+        };
+
+        this.spiderlingCalc = function(state) {
+            var ret = {
+                p1s1 : 0,
+                p1s2 : 0,
+                p1s3 : 0,
+                p2s1 : 0,
+                p2s2 : 0,
+                p2s3 : 0
+            };
+
+            for(var prop in state.gameObjects) {
+                if(!state.gameObjects.hasOwnProperty(prop)) return;
+                var obj = state.gameObjects[prop];
+                if(obj.owner === undefined) continue;
+
+                if(obj.owner.id === "0") {
+                    if(obj.gameObjectName === "Spitter") {
+                        ret.p1s1++;
+                    } else if(obj.gameObjectName === "Weaver") {
+                        ret.p1s2++;
+                    } else if(obj.gameObjectName === "Cutter") {
+                        ret.p1s3++;
+                    }
+                } else {
+                    if(obj.gameObjectName === "Spitter") {
+                        ret.p2s1++;
+                    } else if(obj.gameObjectName === "Weaver") {
+                        ret.p2s2++;
+                    } else if(obj.gameObjectName === "Cutter") {
+                        ret.p2s3++;
+                    }
+                }
+            }
+
+            return ret;
+        };
 
         this.handleDelta = function(turn, state) {
             if(state.game === undefined) return;
+
+            if(turn === 0) {
+                var spiderlings = this.spiderlingCalc(state.game);
+                this.entities["Gooey"].spiderlingCountChange(turn, spiderlings);
+            } else {
+                var spiderlings = this.spiderlingCalc(state.game);
+                var lastSpiderlings = this.spiderlingCalc(this.data.deltas[turn -1].game);
+
+                if(
+                    spiderlings.p1s1 !== lastSpiderlings.p1s1 ||
+                    spiderlings.p1s2 !== lastSpiderlings.p1s2 ||
+                    spiderlings.p1s3 !== lastSpiderlings.p1s3 ||
+                    spiderlings.p2s1 !== lastSpiderlings.p2s1 ||
+                    spiderlings.p2s2 !== lastSpiderlings.p2s2 ||
+                    spiderlings.p2s3 !== lastSpiderlings.p2s3
+                ) {
+                    this.entities["Gooey"].spiderlingCountChange(turn, spiderlings);
+                }
+            }
 
             // iterate over the game objects again to instantiate their entities
             for(var prop in state.game.gameObjects) {
@@ -563,13 +748,13 @@
                     }
 
                     if(turn === 0) {
-                        var calc = this.spiderlingCalc(obj, state);
+                        var calc = this.spiderlingCalcBrood(obj, state);
                         this.entities[obj.id].pieChange(turn, calc);
                     } else {
                         var lastneststate = this.data.deltas[turn - 1].game.gameObjects[obj.id];
                         var laststate = this.data.deltas[turn -1];
-                        var calc = this.spiderlingCalc(obj, state);
-                        var calcLast = this.spiderlingCalc(lastneststate, laststate);
+                        var calc = this.spiderlingCalcBrood(obj, state);
+                        var calcLast = this.spiderlingCalcBrood(lastneststate, laststate);
 
                         if(
                             calc.p1s1 !== calcLast.p1s1 ||

@@ -496,6 +496,7 @@ WebVis.ready(function() {
             this.textCanvas = document.createElement('canvas');
             var $textCanvas = $(this.textCanvas);
             $textCanvas.css('pointer-events', 'none');
+            $textCanvas.addClass('img-responsive webvis-canvas');
             this.textCanvas.width = this.canvas.width;
             this.textCanvas.height = this.canvas.height;
             this.textCanvasCtx = this.textCanvas.getContext("2d");
@@ -998,8 +999,8 @@ WebVis.ready(function() {
                 // if this is just a normal sprite
                 u1 = sprite.u1 + sprite.tileOffsetX;
                 v1 = sprite.v1 + sprite.tileOffsetY;
-                u2 = (sprite.width / sprite.tileWidth) + sprite.tileOffsetX ;
-                v2 = (sprite.height / sprite.tileHeight) + sprite.tileOffsetY;
+                u2 = (sprite.width / (sprite.tileWidth * sprite.width)) + sprite.tileOffsetX ;
+                v2 = (sprite.height / (sprite.tileHeight *sprite.height)) + sprite.tileOffsetY;
             } else {
                 // if this is an animated sprite
                 var spriteSheet = this.textures[sprite.texture].spriteSheet;
@@ -1013,27 +1014,30 @@ WebVis.ready(function() {
                 v2 = v1 + vseg;
             }
 
+            addPoint(p1);
+            addTexCoords(u1, v1);
+
             // vert one
             addPoint(p1);
-            addTexCoords(u1, v2);
+            addTexCoords(u1, v1);
 
             // vert six
             addPoint(p4);
-            addTexCoords(u2, v2);
+            addTexCoords(u2, v1);
 
             // vert two
             addPoint(p2);
-            addTexCoords(u1, v1);
+            addTexCoords(u1, v2);
 
             // vert three
             addPoint(p3);
-            addTexCoords(u2, v1);
+            addTexCoords(u2, v2);
 
             addPoint(p3);
-            addTexCoords(u2, v1);
+            addTexCoords(u2, v2);
 
             bufferObject.offset = offset;
-            bufferObject.num += 5;
+            bufferObject.num += 6;
         };
 
         constructor.prototype.drawLine = function(line) {
