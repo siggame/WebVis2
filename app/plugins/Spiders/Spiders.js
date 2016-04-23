@@ -475,7 +475,7 @@
                     self.p1spitterAmount.value = "x " + calc.p1s1;
                     self.p1weaverAmount.value = "x " + calc.p1s2;
                     self.p1cutterAmount.value = "x " + calc.p1s3;
-                    self.p2spitterAmount.value = "x " + calc.p2s2;
+                    self.p2spitterAmount.value = "x " + calc.p2s1;
                     self.p2weaverAmount.value = "x " + calc.p2s2;
                     self.p2cutterAmount.value = "x " + calc.p2s3;
                 })
@@ -862,29 +862,41 @@
                 p2s3 : 0
             };
 
-            for(var prop in state.gameObjects) {
-                if(!state.gameObjects.hasOwnProperty(prop)) return;
-                var obj = state.gameObjects[prop];
-                if(obj.owner === undefined) continue;
-
-                if(obj.owner.id === "0") {
-                    if(obj.gameObjectName === "Spitter") {
-                        ret.p1s1++;
-                    } else if(obj.gameObjectName === "Weaver") {
-                        ret.p1s2++;
-                    } else if(obj.gameObjectName === "Cutter") {
-                        ret.p1s3++;
-                    }
-                } else {
-                    if(obj.gameObjectName === "Spitter") {
-                        ret.p2s1++;
-                    } else if(obj.gameObjectName === "Weaver") {
-                        ret.p2s2++;
-                    } else if(obj.gameObjectName === "Cutter") {
-                        ret.p2s3++;
-                    }
+            for(var prop in state.gameObjects[0].spiders){
+                if(prop === "&LEN") continue;
+                if(!state.gameObjects[0].spiders.hasOwnProperty(prop)) continue;
+                if(state.gameObjects[0].spiders[prop] === "&RM") continue;
+                var id = state.gameObjects[0].spiders[prop].id
+                var spiderling = state.gameObjects[id];
+                if(spiderling.gameObjectName === "Spitter") {
+                    ret.p1s1++;
+                } else if(spiderling.gameObjectName === "Weaver") {
+                    ret.p1s2++;
+                } else if(spiderling.gameObjectName === "Cutter") {
+                    ret.p1s3++;
                 }
             }
+
+            for(var prop in state.gameObjects[1].spiders){
+                if(prop === "&LEN") continue;
+                if(!state.gameObjects[1].spiders.hasOwnProperty(prop)) continue;
+                if(state.gameObjects[1].spiders[prop] === "&RM") continue;
+                var id = state.gameObjects[1].spiders[prop].id
+                var spiderling = state.gameObjects[id];
+
+                if(state.currentTurn === 299) {
+                    console.log("could you not!");
+                }
+
+                if(spiderling.gameObjectName === "Spitter") {
+                    ret.p2s1++;
+                } else if(spiderling.gameObjectName === "Weaver") {
+                    ret.p2s2++;
+                } else if(spiderling.gameObjectName === "Cutter") {
+                    ret.p2s3++;
+                }
+            }
+
 
             return ret;
         };
