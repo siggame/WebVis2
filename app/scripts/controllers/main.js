@@ -81,7 +81,31 @@ WebVis.ready(function() {
         var offset = $(this).offset();
         var pagex = e.pageX - offset.left;
         var pagey = e.pageY - offset.top;
+        console.log("YO");
+        console.log(WebVis.options.getOptionValue("arena-url"));
+        console.log(WebVis.options.getOptionValue("arena-mode"));
         WebVis.plugin.selectEntity(pagex, pagey);
+
+        peh.meh = 6;
+    });
+
+
+    WebVis.options.optionOnClick("arena-mode", function() {
+        if(WebVis.options.getOptionValue("arena-mode")) {
+            var url = WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
+            $.ajax({
+                dataType: "text",
+                url: WebVis.options.getOptionValue("arena-url") + "/api/next_game/",
+                data: null,
+                success: function(data) {
+                    console.log(data);
+                    WebVis.fileLoader.loadFromUrl(data, initPluginFromLog);
+                },
+                error: function() {
+                    WebVis.alert("danger", "could not find " + url);
+                }
+            });
+        }
     });
 
     //-------------------------------------------------
@@ -291,6 +315,11 @@ WebVis.ready(function() {
     };
 
     $(window).resize(resize);
+
+    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+        WebVis.alert("danger", errorMsg)
+        return false;
+    };
 
     //=-------------------------------------------------------
     // Initial page configuration

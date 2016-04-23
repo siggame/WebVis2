@@ -140,7 +140,7 @@ WebVis.ready(function(){
         if(!util.defined("callback", callback)) return;
 
         if(plugins[gameName] !== undefined) {
-            currentPlugin = plugins[gameName];
+            currentPlugin = new plugins[gameName];
             currentPlugin.clear();
             callback();
             return;
@@ -149,7 +149,7 @@ WebVis.ready(function(){
                 console.log("plugin successfully loaded.");
                 console.log(plugins);
                 WebVis.renderer.context.loadTextures(gameName, function() {
-                    currentPlugin = plugins[gameName];
+                    currentPlugin = new plugins[gameName];
                     callback();
                 });
             };

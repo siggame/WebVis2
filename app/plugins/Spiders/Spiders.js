@@ -961,5 +961,5 @@
 
     };
 
-    WebVis.plugin.addPlugin("Spiders", new Spiders);
+    WebVis.plugin.addPlugin("Spiders", Spiders);
 })();

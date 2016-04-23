@@ -69,7 +69,9 @@ WebVis = {};
     when([
         loadIncludedHtml("menu", "/views/menu.html"),
         loadIncludedHtml("playback", "/views/playback.html"),
-        loadDelegate("tree-elem", "/views/tree-elem.html")
+        loadDelegate("tree-elem", "/views/tree-elem.html"),
+        loadDelegate("text-option", "/views/text-option.html"),
+        loadDelegate("checkbox-option", "/views/checkbox-option.html")
     ], function() {
         domReady  = true;
         for(var callback of readyEvents) {
@@ -88,6 +90,7 @@ WebVis = {};
     var alert = function(type, message) {
         var $alert = $(document.createElement('div'))
         .addClass("webvis-alert webvis-alert-enter alert");
+        $alert.text(message);
         switch(type) {
             case "success":
                 $alert.addClass("alert-success");
