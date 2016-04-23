@@ -337,7 +337,7 @@ WebVis.ready(function() {
         var uri = WebVis.util.getUrlParams();
         if(uri.logUrl !== undefined) {
             console.log("in here");
-            WebVis.fileLoader.loadFromUrl(uri.logUrl, initPluginFromLog);
+            WebVis.fileLoader.loadFromUrl(decodeURI(uri.logUrl), initPluginFromLog);
         }
     })();
 
