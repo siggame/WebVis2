@@ -2,7 +2,7 @@ WebVis.ready(function() {
     var mainList;
     var $debug = $(WebVis.pages["Debug"])
     .css({
-        "overflow-y": "scroll",
+        "overflow-y": "auto",
         "height": "100%"
     });
 
@@ -11,12 +11,15 @@ WebVis.ready(function() {
         this.visible = false;
         this.$elem = $(WebVis.delegates["tree-elem"]).clone();
         this.name = name;
-        this.$elem.children().not(".debug-tree").find('.debug-tree-elem-name').text(name);
+        this.value = null;
         this.$elem.data('controller', this);
         this.subelems = {};
         this.$subtreeIcon = self.$elem.children().not(".debug-tree").find(".debug-tree-subtree");
+        this.$name = self.$elem.children().not(".debug-tree").find('.debug-tree-elem-name');
         this.$value = self.$elem.children().not(".debug-tree").find(".debug-tree-elem-value");
         this.$subtree = self.$elem.children(".debug-tree:first");
+
+        this.$name.text(name);
 
         if(name === "id") {
             this.$value.parent().addClass('debug-tree-clickable');
@@ -49,7 +52,7 @@ WebVis.ready(function() {
         };
 
         this.detach = function() {
-            this.$elem.hide();
+            this.$elem.addClass("debug-tree-elem-hidden");
         }
 
         var updateSubtree = function() {
@@ -59,9 +62,7 @@ WebVis.ready(function() {
 
                 if(self.subelems[prop] !== undefined) {
                     self.subelems[prop].setValue(self.value[prop]);
-                    if(!self.subelems[prop].$elem.is(":visible")) {
-                        self.subelems[prop].$elem.show();
-                    }
+                    self.subelems[prop].$elem.removeClass("debug-tree-elem-hidden");
                 } else {
                     var newelem = new ElemController(prop, self.value[prop]);
                     self.$subtree.append(newelem.$elem);
@@ -91,6 +92,11 @@ WebVis.ready(function() {
             return self.name;
         }
 
+        this.setName = function(name) {
+            this.$name.text(name);
+            this.name = name;
+        }
+
         this.setValue = function(value) {
             var oldvalue = self.value;
             self.value = value;
@@ -106,22 +112,26 @@ WebVis.ready(function() {
                 if(textValue === null) {
                     textValue = "<object>";
                 }
-                if(self.$subtreeIcon.css("display") === "") {
-                    self.$subtreeIcon.show();
+                if(!self.$subtreeIcon.hasClass("debug-tree-subtree-visible")) {
+                    self.$subtreeIcon.addClass("debug-tree-subtree-visible");
                 }
                 if(self.visible) {
                     updateSubtree();
                 }
             } else {
+                if(self.$subtreeIcon.hasClass("debug-tree-subtree-visible")) {
+                    self.$subtreeIcon.removeClass("debug-tree-subtree-visible");
+                }
                 textValue = value;
             }
-            if(oldvalue !== self.value) {
+
+            if(($.isPlainObject(self.value) && $.isPlainObject(oldvalue)) || oldvalue !== self.value) {
                 self.$value.text(textValue);
             }
         };
 
         this.closeSubtree = function() {
-            self.$subtree.hide();
+            self.$subtree.removeClass("debug-tree-subtree-visible");
             self.visible = false;
             self.$subtreeIcon
             .removeClass("glyphicon-triangle-bottom")
@@ -129,7 +139,7 @@ WebVis.ready(function() {
         };
 
         this.openSubtree = function() {
-            self.$subtree.show();
+            self.$subtree.addClass("debug-tree-subtree-visible");
             self.visible = true;
             self.$subtreeIcon
             .removeClass("glyphicon-triangle-right")
@@ -152,12 +162,15 @@ WebVis.ready(function() {
         this.setValue(data);
     };
 
-    mainList = new ElemController("main", "");
+    mainList = new ElemController("", "");
 
     var setDebugData = function(data) {
         mainList.setValue(data);
-        $debug.append(mainList.$elem);
+        mainList.setName("main");
+        mainList.openSubtree();
     };
+    $debug.append(mainList.$elem);
+    $("#tab-bind-point").append($debug);
 
     WebVis.setDebugData = setDebugData;
 });

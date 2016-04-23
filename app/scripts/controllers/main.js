@@ -6,28 +6,53 @@ WebVis.ready(function() {
 
     var initPluginFromLog = function(file) {
         var gameObject = JSON.parse(file.data);
-        console.log("Loading plugin \""+gameObject.gameName+"\"");
-        WebVis.plugin.changePlugin(gameObject.gameName, function() {
-            //WebVis.util.buildStatesFromJson(gameObject);
-            var flattenWorker = new Worker("/scripts/engine/flatten.js");
-            flattenWorker.addEventListener("message", function(obj) {
-                obj = obj.data;
-                switch(obj.message) {
-                    case "update":
-                        console.log(obj.data);
-                        break;
-                    case "finish":
-                        if(obj.data.deltas !== undefined && obj.data.deltas[0] !== undefined) {
-                            WebVis.setDebugData(obj.data.deltas[0].game);
-                        }
-                        WebVis.plugin.loadGame(obj.data);
-                        WebVis.game.setMaxTurn(obj.data.deltas.length);
-                        break;
-                }
-            });
+        var $progress = $('#webvis-progress-bar').css('width', '0%');
+        $('#webvis-load-background').removeClass("hidden");
+        $('#webvis-progress-bar-background').removeClass("hidden");
+        var data;
 
+        var onLoadGame = function(message, percent) {
+            switch(message) {
+                case "update":
+                    var txt = 50 + parseInt(percent * 50) + "%";
+                    $progress.css('width', txt);
+                    $progress.text(txt);
+                    break;
+                case "finish":
+                    $progress.css('width', '100%');
+                    $progress.text('100%');
+                    $('#webvis-load-background').addClass("hidden");
+                    $('#webvis-progress-bar-background').addClass("hidden");
+                    WebVis.game.setMaxTurn(data.deltas.length);
+                    if(data.deltas !== undefined && data.deltas[0] !== undefined) {
+                        WebVis.setDebugData(data.deltas[0].game);
+                    }
+                    break;
+            }
+        };
+
+        var flattenHandler = function(obj) {
+            var obj = obj.data;
+            switch(obj.message) {
+                case "update":
+                    var txt = parseInt(obj.data * 50) + "%";
+                    $progress.css('width', txt);
+                    $progress.text(txt);
+                    break;
+                case "finish":
+                    data = obj.data;
+                    WebVis.plugin.loadGame(obj.data, onLoadGame);
+                    break;
+            }
+        };
+
+        var onChangePlugin = function() {
+            var flattenWorker = new Worker("/scripts/engine/flatten.js");
+            flattenWorker.addEventListener("message", flattenHandler);
             flattenWorker.postMessage(gameObject);
-        });
+        };
+
+        WebVis.plugin.changePlugin(gameObject.gameName, onChangePlugin);
     };
 
     //-------------------------------------------------
@@ -152,41 +177,58 @@ WebVis.ready(function() {
     //--------------------------------------------------
     // Attach the fullscreen button
     //--------------------------------------------------
+    var sizeChange = false;
+    var updateFullScreen = function() {
+        var elem = document.getElementById('playback');
+        if(sizeChange) {
+            $(elem).removeClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
+            $(elem).addClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+        } else {
+            $(elem).removeClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+            $(elem).addClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
+        }
+    }
+
     $('#fullscreen-toggle').click(function() {
         var elem = document.getElementById('playback');
-        if(document.fullscreenElement ||
-           document.webkitFullscreenElement ||
-           document.mozFullScreenElement ||
-           document.msFullscreenElement)
+        var fullscreenMode = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        if(!fullscreenMode)
         {
+            if(elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if(elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if(elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if(elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+            $(elem).removeClass('col-lg-9 col-md-9 col-sm-12 col-xs-12');
+            $(elem).addClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+            sizeChange = true;
+        } else {
             if(document.exitFullscreen) {
                 document.exitFullscreen();
-            } else if(document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
             } else if(document.mozCancelFullScreen) {
                 document.mozCancelFullScreen();
+            } else if(document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
             } else if(document.msExitFullscreen) {
                 document.msExitFullscreen();
             }
             $(elem).removeClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
-            $(elem).addClass('col-md-9 col-lg-9 col-xs-9 col-sm-9');
-        } else {
-            if(elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if(elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            } else if(elem.mozRequestFullscreen) {
-                elem.mozRequestFullscreen();
-            } else if(elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            }
-            $(elem).removeClass('col-md-9 col-lg-9 col-xs-9 col-sm-9');
-            $(elem).addClass('col-md-12 col-lg-12 col-xs-12 col-sm-12');
+            $(elem).addClass('col-lg-9 col-md-9 col-sm-12 col-xs-12 ');
+            sizeChange = false;
         }
         // TODO: Find a way to actually attach callback to the end of the fullscreen css
         // transition rather than just waiting an arbitrary time for it to finish.
         // This type of thing is just disgusting, (THANKS AGAIN W3 -_-)
-        setTimeout(resize, 200);
+        setTimeout(resize, 500);
+    });
+
+    $(document).on('mozfullscreenchange webkitfullscreenchange fullscreenchange', function() {
+        sizeChange = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        updateFullScreen();
     });
 
     //--------------------------------------------------
@@ -235,39 +277,6 @@ WebVis.ready(function() {
         }
     }, 1000/2);
 
-    //--------------------------------------------------------------
-    // Functions for handling fillWidth and fillHeight dom elements
-    //--------------------------------------------------------------
-    var fillHeight = function() {
-        $('.fill-height').each(function(index, elem){
-            var $elem = $(elem);
-            var offset = 0;
-            var children = $elem.parent().children().not($elem);
-            children.each(function(i, otherelem) {
-                var $otherelem = $(otherelem);
-                offset += $otherelem.outerHeight();
-            });
-
-            $elem.outerHeight($elem.parent().height() - offset);
-        });
-    };
-
-    var fillWidth = function() {
-        $('.fill-width').each(function(index, elem){
-            var $elem = $(elem);
-            var offset = 0;
-            var children = $elem.parent().children().not($elem);
-            children.each(function(i, otherelem) {
-                var $otherelem = $(otherelem);
-                if(!$otherelem.hasClass('ret')) {
-                    offset += $otherelem.outerWidth();
-                }
-            });
-
-            $elem.outerWidth($elem.parent().width() - offset);
-        });
-    };
-
     //---------------------------------------------------------
     //  Canvas setup and window resize bindingbinding
     //---------------------------------------------------------
@@ -275,13 +284,11 @@ WebVis.ready(function() {
         var $canvas = $('#canvas');
         $canvas.get(0).width = $canvas.parent().width();
         $canvas.get(0).height = $canvas.parent().height();
-    }
+    };
 
     var resize = function() {
-        fillWidth();
-        fillHeight();
         updateCanvasSize();
-    }
+    };
 
     $(window).resize(resize);
 
@@ -290,9 +297,6 @@ WebVis.ready(function() {
     //--------------------------------------------------------
     (function() {
         WebVis.renderer.init(canvas, 20, 20);
-
-        fillWidth();
-        fillHeight();
         updateCanvasSize();
 
         var uri = WebVis.util.getUrlParams();
@@ -302,6 +306,4 @@ WebVis.ready(function() {
         }
     })();
 
-    WebVis.fillWidth = fillWidth;
-    WebVis.fillHeight = fillHeight;
 });

@@ -1,10 +1,13 @@
 .webvis-main {
+    position: relative;
     height: 100%;
     padding: 10px;
     padding-bottom: 20px;
 }
 
 .webvis-container {
+    display: table;
+    table-layout: fixed;
     box-sizing: border-box;
     padding: 0px;
     padding-right: 10px;
@@ -15,7 +18,38 @@
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 1;
+}
+
+.webvis-load-screen {
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+    background-color: #AAAAAA;
+}
+
+.webvis-load-bar-outer {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 40%;
+    height: 30px;
+}
+
+.webvis-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    padding:0px;
+}
+
+.webvis-load-bar-inner {
+    top: 0;
+    left: 0;
 }
 
 .webvis-heading {
@@ -40,4 +74,29 @@
 .fill-height {}
 .ret {}
 
-/* slider styles */
+.webvis-alert {
+    position: absolute;
+    left: 20%;
+    width: 60%;
+    height: 40px;
+    top: 5%;
+    bottom: 0px;
+}
+
+@keyframes webvis-top-enter {
+    from {top: -10%;}
+    to {top: 5%;}
+}
+
+@keyframes webvis-top-leave {
+    from {top: 5%;}
+    to {top: -10%;}
+}
+
+.webvis-alert-enter {
+    animation: webvis-top-enter 1s ease 0s 1 normal;
+}
+
+.webvis-alert-leave {
+    animation: webvis-top-leave 1s ease 0s 1 normal;
+}

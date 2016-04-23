@@ -26,6 +26,7 @@ self.addEventListener("message", function(data) {
         if(data.deltas[i].type === "finished") {
             turns[turnNum++] = i;
         }
+        self.postMessage({message: "update", data: i/data.deltas.length});
     }
     data.turns = turns;
     self.postMessage({message: "finish", data: data});

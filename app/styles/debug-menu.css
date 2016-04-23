@@ -10,6 +10,10 @@
     width: 600px;
 }
 
+.debug-tree-elem-hidden {
+    display: none;
+}
+
 .debug-tree-elem-container {
     width: 100%;
     position: relative;
@@ -45,6 +49,10 @@
 .debug-tree-subtree {
     display: none;
     float: left;
+}
+
+.debug-tree-subtree-visible {
+    display: block;
 }
 
 /*

@@ -28,7 +28,6 @@ WebVis.ready(function() {
     });
 
     // Alert tab
-    $(pages["Alerts"]).css('padding-top', '10px');
     WebVis.addAlert = function(type, message) {
         var $alert = $(document.createElement("div"));
         $alert.addClass('alert');
@@ -58,7 +57,6 @@ WebVis.ready(function() {
     }
 
     tabmenu.empty();
-    tabmenu.append(pages["Alerts"]);
 
     WebVis.pages = pages;
 

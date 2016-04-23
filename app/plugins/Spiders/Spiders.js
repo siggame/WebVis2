@@ -243,7 +243,7 @@
         this.draw = function(context) {
             context.drawRect(this.rect);
         }
-    }
+    };
 
     var Gui = function() {
         this.__proto__ = new SpidersEntity(null, "gui");
@@ -257,8 +257,34 @@
         this.p2name.color = new WebVis.renderer.Color(0.3, 0.6, 0.1, 1.0);
         this.p2name.size = 36;
         this.p2name.alignment = "right";
+
+        // Health Bars
+        this.addChannel({
+            name: "healthbars",
+            start: function() {}
+        });
+        
+        this.p1HealthGreen = new WebVis.renderer.Rect();
+        this.p1HealthRed = new WebVis.renderer.Rect();
+        this.p2HealthGreen = new WebVis.renderer.Rect();
+        this.p2HealthRed = new WebVis.renderer.Rect();
+
+        this.p1HealthGreen.color.setColor(0.0, 1.0, 0.0, 1.0);
+        this.p1HealthRed.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p2HealthGreen.color.setColor(0.0, 1.0, 0.0, 1.0);
+        this.p2HealthRed.color.setColor(1.0, 0.0, 0.0, 1.0);
+        
+        this.p1HealthRed.width = 3000;
+        this.p2HealthRed.width = 3000;
+        this.p1HealthGreen.width = 3000; // needs to be set to the current health for player 1
+        this.p2HealthGreen.width = 3000; // needs to be set to the current health for player 2
+
         this.draw = function(context) {
             context.drawRect(this.bg);
+            context.drawRect(this.p1HealthGreen);
+            context.drawRect(this.p1HealthRed);
+            context.drawRect(this.p2HealthGreen);
+            context.drawRect(this.p2HealthRed);
             context.drawText(this.p1name);
             context.drawText(this.p2name);
         };
@@ -332,38 +358,27 @@
             context.pop();
         };
 
-        this.loadGame = function(data) {
+        this.loadGame = function(data, callback) {
+            var self = this;
             this.data = data;
             var i = 0;
-            for(var state of data.deltas) {
-                i++;
-                if(state.type === "start") {
-                    this.startFunc(state);
-                } else {
-                    this.otherFunc(i, state);
-                }
-            }
-        };
 
-        this.startFunc = function(state) {
             var leftBound = 99999999999999;
             var rightBound = 0;
             var topBound = 999999999999999;
             var bottomBound = 0;
-            var numNests = 0;
-            var numWebs = 0;
             var gui = new Gui();
-            
+
             // iterate once over the nest to determine the world bounds
-            for(var prop in state.game.gameObjects) {
-                if(!state.game.gameObjects.hasOwnProperty(prop)) continue;
-                var obj  = state.game.gameObjects[prop];
+            for(var prop in data.deltas[0].game.gameObjects) {
+                if(!data.deltas[0].game.gameObjects.hasOwnProperty(prop)) continue;
+                var obj  = data.deltas[0].game.gameObjects[prop];
                 if(obj.gameObjectName === "Player")
                 {
                     if(obj.id < obj.otherPlayer.id)
                     {
                         gui.p1name.value = obj.name;
-                        gui.p2name.value = state.game.gameObjects[obj.otherPlayer.id].name;
+                        gui.p2name.value = data.deltas[0].game.gameObjects[obj.otherPlayer.id].name;
                     }
                 }
                 if(obj.gameObjectName === "Nest") {
@@ -381,15 +396,16 @@
                     }
                 }
             }
-            var nestWidth = (rightBound - leftBound)/35;
-            this.worldLeft = leftBound - nestWidth;
-            this.worldRight = rightBound + nestWidth;
-            this.worldUp = topBound - nestWidth;
-            this.worldDown = bottomBound + nestWidth;
+
+            this.nestWidth = (rightBound - leftBound)/35;
+            this.worldLeft = leftBound - this.nestWidth;
+            this.worldRight = rightBound + this.nestWidth;
+            this.worldUp = topBound - this.nestWidth;
+            this.worldDown = bottomBound + this.nestWidth;
             this.worldWidth = this.worldRight - this.worldLeft;
             this.worldHeight = this.worldDown - this.worldUp;
-            
-            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldUp + this.worldHeight + nestWidth, 0);
+
+            gui.bg.pos = new WebVis.renderer.Point(this.worldLeft, this.worldUp + this.worldHeight + this.nestWidth, 0);
             gui.bg.width = this.worldWidth;
             gui.bg.height = this.worldHeight / 4;
             gui.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
@@ -400,72 +416,53 @@
             this.entities["Gooey"] = gui;
 
 
-            // iterate over the game objects again to instantiate their entities
-            for(var prop in state.game.gameObjects) {
-                if(!state.game.gameObjects.hasOwnProperty(prop)) continue;
-                var obj = state.game.gameObjects[prop];
+            var pacingFunction = function() {
+                var start = new Date().getTime();
+                do {
+                    self.handleDelta(i, data.deltas[i]);
+                    i++;
+                    callback("update", i/data.deltas.length);
+                } while(i < data.deltas.length - 1 && (new Date().getTime() - start < 50));
 
-                if(obj.gameObjectName === "Nest") {
-                    var nest = new Nest(obj.id, obj.x, obj.y, 0, nestWidth);
-                    this.entities[obj.id] = nest;
-                    numNests++;
-                }
-
-                if(obj.gameObjectName === "BroodMother") {
-                    var nest = state.game.gameObjects[obj.nest.id];
-                    var bm = new BroodMother(obj.id, nest.x, nest.y, nestWidth);
-                    this.entities[obj.id] = bm;
-                }
-
-                if(obj.gameObjectName === "Web") {
-                    var nesta = state.game.gameObjects[obj.nestA.id];
-                    var nestb = state.game.gameObjects[obj.nestB.id];
-                    var p1 = new WebVis.renderer.Point(nesta.x, nesta.y, 0);
-                    var p2 = new WebVis.renderer.Point(nestb.x, nestb.y, 0);
-                    var web = new Web(obj.id, p1, p2);
-                    this.entities[obj.id] = web;
-                    var webdied = false;
-                    for(var i = 0; i < this.data.deltas.length; i++) {
-                        var webstate = this.data.deltas[i].game.gameObjects[obj.id];
-                        if(webstate.strength <= 0) {
-                            web.addAnim({
-                                channel: "alive",
-                                anim: new WebVis.plugin.Animation(0, i, web.aliveAnim())
-                            });
-                            webdied = true;
-                            break;
-                        }
-                    }
-                    if(webdied === false) {
-                        web.addAnim({
-                            channel: "alive",
-                            anim: new WebVis.plugin.Animation(0, i, web.aliveAnim())
-                        });
-                    }
-                    numWebs++;
+                if(i < data.deltas.length - 1) {
+                    setTimeout(pacingFunction, 10);
+                } else {
+                    callback("finish", null);
                 }
             }
-
-            console.log("Nests: " + numNests);
-            console.log("Webs: " + numWebs);
-
+            pacingFunction();
             console.log("leftbound: " + this.worldLeft);
             console.log("rightbound: " + this.worldRight);
             console.log("topbound: " + this.worldUp);
             console.log("bottomBound: " + this.worldDown);
         };
 
-        this.otherFunc = function(turn, state) {
+        this.handleDelta = function(turn, state) {
+            if(state.game === undefined) return;
+
+            // iterate over the game objects again to instantiate their entities
             for(var prop in state.game.gameObjects) {
                 if(!state.game.gameObjects.hasOwnProperty(prop)) return;
                 var obj = state.game.gameObjects[prop];
 
                 if(obj.gameObjectName === "Nest") {
+                    if(this.entities[obj.id] === undefined) {
+                        var nest = new Nest(obj.id, obj.x, obj.y, 0, this.nestWidth);
+                        this.entities[obj.id] = nest;
+                    }
                     var animFunc = this.entities[obj.id].pieFunc(state.game.gameObjects, obj);
                     this.entities[obj.id].addAnim({
                         channel: "pies",
                         anim : new WebVis.plugin.Animation(turn, turn + 1, animFunc)
                     });
+                }
+
+                if(obj.gameObjectName === "BroodMother") {
+                    if(this.entities[obj.id] === undefined) {
+                        var nest = state.game.gameObjects[obj.nest.id];
+                        var bm = new BroodMother(obj.id, nest.x, nest.y, this.nestWidth);
+                        this.entities[obj.id] = bm;
+                    }
                 }
 
                 if(obj.gameObjectName === "Web" && this.entities[obj.id] === undefined) {
@@ -483,6 +480,11 @@
                             });
                             webdied = true;
                             break;
+                        } else if(i === this.data.deltas.length - 1) {
+                            web.addAnim({
+                                channel: "alive",
+                                anim: new WebVis.plugin.Animation(turn, this.data.deltas.length, web.aliveAnim())
+                            });
                         }
                     }
                     if(webdied === false) {
@@ -494,8 +496,8 @@
                     this.entities[obj.id] = web;
                 }
             }
-
         };
+
     };
 
     WebVis.plugin.addPlugin("Spiders", new Spiders);
