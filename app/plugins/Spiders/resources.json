@@ -6,6 +6,16 @@
             "spriteSheet": null
 	    },
         {
+            "id": "cutter0",
+            "image": "cutter0.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "cutter1",
+            "image": "cutter1.png",
+            "spriteSheet": null
+        },
+        {
             "id": "building",
             "image": "building.png",
             "spriteSheet": null
