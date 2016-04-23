@@ -86,15 +86,7 @@ WebVis.ready(function() {
 
         loadFromUrl: function(u, callback) {
             var urlsplit = u.split(".");
-
-            if(urlsplit[urlsplit.length - 1] === "gz") {
-                var u = "";
-                for(var i = 0; i < urlsplit.length - 3; i++) {
-                    u += urlsplit[i] + ".";
-                }
-                u += urlsplit[urlsplit.length - 2];
-            }
-
+            
             var checkExtension = function(url) {
                 var a = url.split('.');
                 if(a.length === 1 || a[1] === "") {
