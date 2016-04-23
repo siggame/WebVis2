@@ -325,7 +325,7 @@
 
         var guiSpriteSize = 4 * guiUnitW;
         this.p1spitter = new WebVis.renderer.Sprite();
-        this.p1spitter.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x, guiStartY + (13 * guiUnitH), 2);
+        this.p1spitter.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x, guiStartY + (13 * guiUnitH), 1);
         this.p1spitter.texture = "cutter0";
         this.p1spitter.width = guiSpriteSize;
         this.p1spitter.height = this.p1spitter.width;
@@ -577,6 +577,91 @@
 
     };
 
+    var EndScreen = function(left, top, width, height, winner, loser, lastTurn) {
+        var self = this;
+        this.__proto__ = new SpidersEntity(null, "gui");
+
+        this.background = new WebVis.renderer.Rect();
+        this.background.pos.x = left;
+        this.background.pos.y = top;
+        this.background.pos.z = 5;
+        this.background.width = width;
+        this.background.height = height;
+        this.background.color.setColor(1.0, 1.0, 1.0, 0.8);
+
+        var guiUnitH = height/100;
+        var guiUnitW = width/100;
+
+        this.winner = new WebVis.renderer.Text();
+        this.winner.pos.x = width/2;
+        this.winner.pos.y = height/2 - (guiUnitH * 20);
+        this.winner.size = 60;
+        this.winner.maxWidth = width - guiUnitW;
+        this.winner.alignment = "center"
+        this.winner.baseline = "middle";
+        this.winner.value = "Winner is player " + (winner.index + 1) + ": " + winner.name;
+        if(winner.index === 0) {
+            this.winner.color.setColor(1, 0.6, 0, 1.0);
+        } else {
+            this.winner.color.setColor(0.3, 0.6, 0.1, 1.0);
+        }
+
+        this.winreason = new WebVis.renderer.Text();
+        this.winreason.pos.x = width/2;
+        this.winreason.pos.y = height/2;
+        this.winreason.size = 40;
+        this.winreason.maxWidth = width - (3*guiUnitW);
+        this.winreason.alignment = "center"
+        this.winreason.baseline = "middle";
+        this.winreason.value = "Reason: " + winner.reason;
+        if(winner.index === 0) {
+            this.winreason.color.setColor(1, 0.6, 0, 1.0);
+        } else {
+            this.winreason.color.setColor(0.3, 0.6, 0.1, 1.0);
+        }
+
+        this.losereason = new WebVis.renderer.Text();
+        this.losereason.pos.x = width/2;
+        this.losereason.pos.y = height/2 + (guiUnitH * 24);
+        this.losereason.size = 32;
+        this.losereason.maxWidth = width - (3*guiUnitW);
+        this.losereason.alignment = "center"
+        this.losereason.baseline = "middle";
+        this.losereason.value = "Loss Reason: " + loser.reason;
+        if(loser.index === 0) {
+            this.losereason.color.setColor(1, 0.6, 0, 1.0);
+        } else {
+            this.losereason.color.setColor(0.3, 0.6, 0.1, 1.0);
+        }
+
+        this.addChannel({
+            name: 'visible',
+            start: function() {
+                self.winner.visible = false;
+                self.winreason.visible = false;
+                self.losereason.visible = false;
+                self.background.visible = false;
+            }
+        });
+
+        this.addAnim({
+            channel: 'visible',
+            anim : new WebVis.plugin.Animation(lastTurn, lastTurn, function() {
+                self.winner.visible = true;
+                self.winreason.visible = true;
+                self.losereason.visible = true;
+                self.background.visible = true;
+            })
+        });
+
+        this.draw = function(context) {
+            context.drawRect(this.background);
+            context.drawText(this.winner);
+            context.drawText(this.winreason);
+            context.drawText(this.losereason);
+        }
+    };
+
     // The plugin object for the engine
     var Spiders = function() {
         this.__proto__ = new WebVis.plugin.Base;
@@ -694,6 +779,9 @@
 
             var gui = new Gui(p1name, p2name, this.worldLeft, this.worldUp, this.worldRight, this.worldDown, this.worldWidth, this.worldHeight);
             this.entities["Gooey"] = gui;
+
+            var endScreen = new EndScreen(this.worldLeft, this.worldUp, this.worldWidth, this.worldHeight, this.data.winners[0], this.data.losers[0], this.data.deltas.length - 1);
+            this.entities["endscreen"] = endScreen;
 
             // set the maxhealth of a brood mother
             var p1 = data.deltas[0].game.gameObjects[data.deltas[0].game.players[0].id];

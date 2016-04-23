@@ -81,30 +81,31 @@ WebVis.ready(function() {
         var offset = $(this).offset();
         var pagex = e.pageX - offset.left;
         var pagey = e.pageY - offset.top;
-        console.log("YO");
-        console.log(WebVis.options.getOptionValue("arena-url"));
-        console.log(WebVis.options.getOptionValue("arena-mode"));
         WebVis.plugin.selectEntity(pagex, pagey);
-
-        peh.meh = 6;
     });
 
+    var getLogFromArena = function() {
+        var url = WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
+        $.ajax({
+            dataType: "text",
+            url: WebVis.options.getOptionValue("arena-url") + "/api/next_game/",
+            data: null,
+            success: function(data) {
+                console.log(data);
+                WebVis.fileLoader.loadFromUrl(data, function(file) {
+                    initPluginFromLog(file);
+                    WebVis.game.playing = true;
+                });
+            },
+            error: function() {
+                WebVis.alert("danger", "could not find " + url);
+            }
+        });
+    }
 
     WebVis.options.optionOnClick("arena-mode", function() {
         if(WebVis.options.getOptionValue("arena-mode")) {
-            var url = WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
-            $.ajax({
-                dataType: "text",
-                url: WebVis.options.getOptionValue("arena-url") + "/api/next_game/",
-                data: null,
-                success: function(data) {
-                    console.log(data);
-                    WebVis.fileLoader.loadFromUrl(data, initPluginFromLog);
-                },
-                error: function() {
-                    WebVis.alert("danger", "could not find " + url);
-                }
-            });
+            getLogFromArena();
         }
     });
 
@@ -287,6 +288,11 @@ WebVis.ready(function() {
     WebVis.game.onCurrentTurnChange(function() {
         $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
         turnInvalidated = true;
+        if(parseInt(WebVis.game.currentTurn) === WebVis.game.maxTurn) {
+            if(WebVis.options.getOptionValue("arena-mode")) {
+                setTimeout(getLogFromArena, 3000);
+            }
+        }
     });
 
     WebVis.game.onMaxTurnChange(function() {

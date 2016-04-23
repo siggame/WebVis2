@@ -788,29 +788,6 @@ WebVis.ready(function() {
                 self.gl.drawArrays(method, 0, bo.num* 5);
             };
 
-            // draw rectangles in buffer
-            for(var prop in self.rects) {
-                if(!self.rects.hasOwnProperty(prop)) continue;
-                var buffer = self.rects[prop];
-
-                if(buffer.num > 0) {
-                    self.gl.useProgram(self.colorProg);
-                    self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
-                    self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(buffer.buffer));
-                    self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
-                    self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
-                    self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
-                    self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
-                    self.gl.uniformMatrix4fv(self.colorProg.uPMatrix, false, self.projection.elements);
-                    self.gl.uniformMatrix4fv(self.colorProg.uVMatrix, false, self.currentCamera.transform.elements);
-                    self.gl.drawArrays(self.gl.TRIANGLE_STRIP, 0, buffer.num);
-                    self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
-                    self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
-                    buffer.num = 0;
-                    buffer.offset = 0;
-                }
-            }
-
             // draw lines in buffer
             for(var prop in self.lines) {
                 if(!self.lines.hasOwnProperty(prop)) continue;
@@ -889,6 +866,30 @@ WebVis.ready(function() {
                     }
                 }
             }
+
+            // draw rectangles in buffer
+            for(var prop in self.rects) {
+                if(!self.rects.hasOwnProperty(prop)) continue;
+                var buffer = self.rects[prop];
+
+                if(buffer.num > 0) {
+                    self.gl.useProgram(self.colorProg);
+                    self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
+                    self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(buffer.buffer));
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertPos);
+                    self.gl.enableVertexAttribArray(self.colorProg.aVertColor);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertPos, 3, self.gl.FLOAT, false, 28, 0);
+                    self.gl.vertexAttribPointer(self.colorProg.aVertColor, 4, self.gl.FLOAT, false, 28, 12);
+                    self.gl.uniformMatrix4fv(self.colorProg.uPMatrix, false, self.projection.elements);
+                    self.gl.uniformMatrix4fv(self.colorProg.uVMatrix, false, self.currentCamera.transform.elements);
+                    self.gl.drawArrays(self.gl.TRIANGLE_STRIP, 0, buffer.num);
+                    self.gl.disableVertexAttribArray(self.colorProg.aVertPos);
+                    self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
+                    buffer.num = 0;
+                    buffer.offset = 0;
+                }
+            }
+
         };
 
         constructor.prototype.drawRect = function(rect) {
@@ -1096,10 +1097,31 @@ WebVis.ready(function() {
             ux = parseInt(ux * this.textCanvas.width);
             uy = parseInt(uy * this.textCanvas.height);
             maxWidth = parseInt(maxWidth * this.textCanvas.width);
+
             this.textCanvasCtx.fillStyle = text.color.toCss();
             this.textCanvasCtx.textAlign = text.alignment;
             this.textCanvasCtx.textBaseline = text.baseline;
-            this.textCanvasCtx.fillText(text.value, ux, uy, maxWidth);
+            function wrapText(context, text, x, y, maxWidth, lineHeight) {
+                var words = text.split(' ');
+                var line = '';
+
+                for(var n = 0; n < words.length; n++) {
+                  var testLine = line + words[n] + ' ';
+                  var metrics = context.measureText(testLine);
+                  var testWidth = metrics.width;
+                  if (testWidth > maxWidth && n > 0) {
+                    context.fillText(line, x, y);
+                    line = words[n] + ' ';
+                    y += lineHeight;
+                  }
+                  else {
+                    line = testLine;
+                  }
+                }
+                context.fillText(line, x, y);
+            }
+
+            wrapText(this.textCanvasCtx, text.value, ux, uy, maxWidth, text.size);
         };
 
         constructor.prototype.drawCircle = function(circle) {
