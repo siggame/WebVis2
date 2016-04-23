@@ -98,9 +98,9 @@
 
             var last = Math.PI/2;
             if(total2 !== 0) {
-                percents[3] = ((0.5) * (p2s1 / total2));
+                percents[3] = ((0.5) * (p2s3 / total2));
                 percents[4] = ((0.5) * (p2s2 / total2));
-                percents[5] = ((0.5) * (p2s3 / total2));
+                percents[5] = ((0.5) * (p2s1 / total2));
                 rotations[3] = Math.PI/2;
                 rotations[4] = rotations[3] - (percents[3] * 2*Math.PI);
                 rotations[5] = rotations[4] - (percents[4] * 2*Math.PI);
@@ -139,9 +139,9 @@
                             self.circles[i].percentage = percents[i];
                             self.circles[i].rotation = rotations[i];
                         }
-                        self.counters[3].value = "" + p2s1;
+                        self.counters[3].value = "" + p2s3;
                         self.counters[4].value = "" + p2s2;
-                        self.counters[5].value = "" + p2s3;
+                        self.counters[5].value = "" + p2s1;
                     }
                 })
             });
