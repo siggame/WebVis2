@@ -25,6 +25,7 @@ WebVis.ready(function() {
             // handle turn change
             if(parseInt(prevCurrentTurn) < parseInt(WebVis.game.currentTurn) ||
                parseInt(prevCurrentTurn) > parseInt(WebVis.game.currentTurn)) {
+                console.log(WebVis.game.currentTurn);
                 onCurrentTurnChange();
             }
 

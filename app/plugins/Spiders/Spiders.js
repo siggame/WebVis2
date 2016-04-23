@@ -24,7 +24,13 @@
 
         this.circles = [];
         this.counters = []
-        this.background = new WebVis.renderer.Circle();
+        this.background = new WebVis.renderer.Sprite();
+        this.background.texture = "nest";
+        this.background.pos.x = initx - (radius);
+        this.background.pos.y = inity - (radius);
+        this.background.pos.z = initz - 2;
+        this.background.width = radius * 2;
+        this.background.height = radius * 2;
 
         for(var i = 0; i < 6; i++) {
             var piece = new WebVis.renderer.Circle();
@@ -55,19 +61,19 @@
         this.background.resolution = 16;
         this.background.color.setColor(0.5, 0.5, 0.5, 1.0);
 
-        this.circles[0].color.setColor(0.0, 0.0, 1.0, 1.0);
-        this.circles[1].color.setColor(0.0, 1.0, 0.0, 1.0);
-        this.circles[2].color.setColor(1.0, 0.0, 0.0, 1.0);
-        this.circles[3].color.setColor(1.0, 0.0, 1.0, 1.0);
-        this.circles[4].color.setColor(1.0, 1.0, 0.0, 1.0);
-        this.circles[5].color.setColor(0.0, 1.0, 1.0, 1.0);
+        this.circles[0].color.setColor(0.0, 0.0, 1.0, 0.6);
+        this.circles[1].color.setColor(0.0, 1.0, 0.0, 0.6);
+        this.circles[2].color.setColor(1.0, 0.0, 0.0, 0.6);
+        this.circles[3].color.setColor(1.0, 0.0, 1.0, 0.6);
+        this.circles[4].color.setColor(1.0, 1.0, 0.0, 0.6);
+        this.circles[5].color.setColor(0.0, 1.0, 1.0, 0.6);
 
-        this.counters[0].color.setColor(0.0, 0.0, 1.0, 1.0);
-        this.counters[1].color.setColor(0.0, 1.0, 0.0, 1.0);
-        this.counters[2].color.setColor(1.0, 0.0, 0.0, 1.0);
-        this.counters[3].color.setColor(1.0, 0.0, 1.0, 1.0);
-        this.counters[4].color.setColor(1.0, 1.0, 0.0, 1.0);
-        this.counters[5].color.setColor(0.0, 1.0, 1.0, 1.0);
+        this.counters[0].color.setColor(0.0, 0.0, 1.0, 0.6);
+        this.counters[1].color.setColor(0.0, 1.0, 0.0, 0.6);
+        this.counters[2].color.setColor(1.0, 0.0, 0.0, 0.6);
+        this.counters[3].color.setColor(1.0, 0.0, 1.0, 0.6);
+        this.counters[4].color.setColor(1.0, 1.0, 0.0, 0.6);
+        this.counters[5].color.setColor(0.0, 1.0, 1.0, 0.6);
 
         this.addChannel({
             name: "pies",
@@ -148,7 +154,7 @@
         };
 
         this.draw = function(context) {
-            context.drawCircle(this.background);
+            context.drawSprite(this.background);
             for(var circle of this.circles) {
                 context.drawCircle(circle);
             }
@@ -208,19 +214,23 @@
         }
     };
 
-    var BroodMother = function(id, initx, inity, radius) {
+    var BroodMother = function(id, ownerid, initx, inity, radius) {
         this.__proto__ = new SpidersEntity(id, "BroodMother");
 
-        this.rect = new WebVis.renderer.Rect();
-        this.rect.pos.x = initx - radius/4;
-        this.rect.pos.y = inity - radius/4;
-        this.rect.pos.z = 2;
-        this.rect.width = radius/2;
-        this.rect.height = radius/2;
-        this.rect.color.setColor(0.0, 0.0, 0.0, 1.0);
+        this.sprite = new WebVis.renderer.Sprite();
+        if(ownerid === "0") {
+            this.sprite.texture = "broodmother0";
+        } else {
+            this.sprite.texture = "broodmother1";
+        }
+        this.sprite.pos.x = initx - radius/2;
+        this.sprite.pos.y = inity - radius/2;
+        this.sprite.pos.z = 2;
+        this.sprite.width = radius;
+        this.sprite.height = radius;
 
         this.draw = function(context) {
-            context.drawRect(this.rect);
+            context.drawSprite(this.sprite);
         }
     };
 
@@ -281,15 +291,19 @@
 
         this.p1HealthGreen.pos.x = guiStartX + (2 * guiUnitW);
         this.p1HealthGreen.pos.y = guiStartY + (6 * guiUnitH);
+        this.p1HealthGreen.pos.z = 1;
 
         this.p1HealthRed.pos.x = guiStartX + (2 * guiUnitW);
         this.p1HealthRed.pos.y = guiStartY + (6 * guiUnitH);
+        this.p1HealthRed.pos.z = 0;
 
         this.p2HealthGreen.pos.x = guiStartX + (52 * guiUnitW);
         this.p2HealthGreen.pos.y = guiStartY + (6 * guiUnitH);
+        this.p2HealthGreen.pos.z = 1;
 
         this.p2HealthRed.pos.x = guiStartX + (52 * guiUnitW);
         this.p2HealthRed.pos.y = guiStartY + (6 * guiUnitH);
+        this.p2HealthRed.pos.z = 0;
 
         this.p1HealthAmount = new WebVis.renderer.Text();
         this.p1HealthAmount.color.setColor(0.0, 0.0, 0.0, 1.0);
@@ -490,6 +504,77 @@
             context.drawSprite(this.p2cutter);
             context.drawText(this.p2cutterAmount);
         };
+    };
+
+    var Spiderling = function(id, ownerid, type, width) {
+        var self = this;
+        this.__proto__ = new SpidersEntity(type, "gui");
+
+        this.sprite = new WebVis.renderer.Sprite();
+        this.sprite.width = width;
+        this.sprite.height = width;
+        if(type === "Spitter") {
+            if(ownerid === "0") {
+                this.sprite.texture = "cutter0";
+            } else {
+                this.sprite.texture = "cutter1";
+            }
+        } else if(type === "Weaver") {
+            if(ownerid === "0") {
+                this.sprite.texture = "cutter0";
+            } else {
+                this.sprite.texture = "cutter1";
+            }
+        } else if(type === "Cutter") {
+            if(ownerid === "0") {
+                this.sprite.texture = "cutter0";
+            } else {
+                this.sprite.texture = "cutter1";
+            }
+        }
+
+        if(this.texture === null)
+            console.log("damn");
+
+        this.addChannel({
+            name: "visible",
+            start: function() {
+                self.sprite.visible = false;
+            }
+        });
+
+        this.addChannel({
+            name: "movement",
+            start: function() {}
+        });
+
+        this.makeVisible = function(start, end) {
+            this.addAnim({
+                channel: "visible",
+                anim: new WebVis.plugin.Animation(start, end, function(completion) {
+                    if(completion !== 1.0) {
+                        self.sprite.visible = true;
+                    } else {
+                        self.sprite.visible = false;
+                    }
+                })
+            });
+        };
+
+        this.move = function(turn, tox, toy, fromx, fromy) {
+            this.addAnim({
+                channel: "movement",
+                anim: new WebVis.plugin.Animation(turn, turn+1, function(completion) {
+                    self.sprite.pos.x = fromx + ((tox - fromx) * completion) - (width/2);
+                    self.sprite.pos.y = fromy + ((toy - fromy) * completion) - (width/2);
+                })
+            })
+        };
+
+        this.draw = function(context) {
+            context.drawSprite(this.sprite);
+        };
+
     };
 
     // The plugin object for the engine
@@ -714,8 +799,17 @@
             return ret;
         };
 
+        this.isSpiderling = function(obj) {
+            return (
+                obj.gameObjectName === "Spitter" ||
+                obj.gameObjectName === "Weaver" ||
+                obj.gameObjectName === "Cutter"
+            );
+        }
+
         this.handleDelta = function(turn, state) {
             if(state.game === undefined) return;
+            var laststate = this.data.deltas[turn - 1];
 
             if(turn === 0) {
                 var spiderlings = this.spiderlingCalc(state.game);
@@ -752,7 +846,6 @@
                         this.entities[obj.id].pieChange(turn, calc);
                     } else {
                         var lastneststate = this.data.deltas[turn - 1].game.gameObjects[obj.id];
-                        var laststate = this.data.deltas[turn -1];
                         var calc = this.spiderlingCalcBrood(obj, state);
                         var calcLast = this.spiderlingCalcBrood(lastneststate, laststate);
 
@@ -773,7 +866,7 @@
                 if(obj.gameObjectName === "BroodMother") {
                     if(this.entities[obj.id] === undefined) {
                         var nest = state.game.gameObjects[obj.nest.id];
-                        var bm = new BroodMother(obj.id, nest.x, nest.y, this.nestWidth);
+                        var bm = new BroodMother(obj.id, obj.owner.id, nest.x, nest.y, this.nestWidth);
                         this.entities[obj.id] = bm;
                     }
 
@@ -819,6 +912,49 @@
                         });
                     }
                     this.entities[obj.id] = web;
+                }
+
+                if(this.isSpiderling(obj)) {
+                    if(this.entities[obj.id] === undefined) {
+                        var spiderling = new Spiderling(obj.id, obj.owner.id, obj.gameObjectName, this.nestWidth);
+                        this.entities[obj.id] = spiderling;
+                    }
+
+                    if(turn !== 0) {
+                        var spiderling = this.entities[obj.id];
+                        var prevstate = laststate.game.gameObjects[obj.id];
+
+                        if(obj.id === "109" && obj.busy === "Moving")
+                            console.log("me");
+
+                        if(obj.busy === "Moving" && (typeof prevstate === "undefined" || prevstate.busy !== "Moving")) {
+                            spiderling.totalWork = obj.workRemaining;
+                        }
+
+                        if(typeof prevstate !== "undefined" && prevstate.busy !== "" &&
+                            prevstate.workRemaining !== obj.workRemaining && (
+                            obj.busy === "Moving"
+                        ))
+                        {
+                            var web = state.game.gameObjects[obj.movingOnWeb.id];
+                            var nestDest = state.game.gameObjects[obj.movingToNest.id];
+                            var nestStart;
+                            if(web.nestA.id === nestDest.id)
+                                nestStart = state.game.gameObjects[web.nestB.id];
+                            else
+                                nestStart = state.game.gameObjects[web.nestA.id];
+
+                            var tox, toy, fromx, fromy;
+
+                            tox = nestStart.x + ((nestDest.x - nestStart.x) * (1 - obj.workRemaining/spiderling.totalWork));
+                            toy = nestStart.y + ((nestDest.y - nestStart.y) * (1 - obj.workRemaining/spiderling.totalWork));
+                            fromx = nestStart.x + ((nestDest.x - nestStart.x) * (1 - prevstate.workRemaining/spiderling.totalWork));
+                            fromy = nestStart.y + ((nestDest.y - nestStart.y) * (1 - prevstate.workRemaining/spiderling.totalWork));
+
+                            spiderling.makeVisible(turn, turn+1);
+                            spiderling.move(turn, tox, toy, fromx, fromy);
+                        }
+                    }
                 }
             }
         };

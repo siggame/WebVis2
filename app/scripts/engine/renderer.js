@@ -478,7 +478,11 @@ WebVis.ready(function() {
 
             // obtain the necessary webgl context
             this.canvas = canvas;
-            this.gl = this.canvas.getContext("webgl", {antialias: true, depth: true});
+            this.gl = this.canvas.getContext("webgl", {
+                depth: true,
+                premultipliedAlpha: false,
+                alpha: false
+            });
             if(this.context === undefined) {
                 this.gl = this.canvas.getContext("experimental-webgl");
                 if(this.gl === undefined) {
@@ -487,9 +491,10 @@ WebVis.ready(function() {
             }
 
             // specify webgl alpha blending and set clear color to white
-            this.gl.enable(this.gl.BLEND);
             this.gl.enable(this.gl.DEPTH_TEST);
+            this.gl.depthFunc(this.gl.LEQUAL);
             this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+            this.gl.enable(this.gl.BLEND);
             this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
             // create the canvas over the main canvas to contain text rendered with a 2d context
@@ -694,6 +699,7 @@ WebVis.ready(function() {
                         return function(image) {
                             data.texture = self.gl.createTexture();
                             self.gl.bindTexture(self.gl.TEXTURE_2D, data.texture);
+                            self.gl.pixelStorei(self.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
                             self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.gl.RGBA, self.gl.RGBA, self.gl.UNSIGNED_BYTE, image);
                             self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_MAG_FILTER, self.gl.NEAREST);
                             self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_MIN_FILTER, self.gl.NEAREST);
@@ -760,6 +766,8 @@ WebVis.ready(function() {
             this.textCanvas.width = this.canvas.width;
             this.textCanvas.height = this.canvas.height;
 
+            this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+            this.gl.colorMask(true, true, true, true);
             this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
             this.textCanvasCtx.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height);
             this.rects.num = 0;
@@ -800,38 +808,6 @@ WebVis.ready(function() {
                     self.gl.disableVertexAttribArray(self.colorProg.aVertColor);
                     buffer.num = 0;
                     buffer.offset = 0;
-                }
-            }
-
-            // draw sprites in their buffers
-            for(var prop in self.sprites) {
-                if(!self.sprites.hasOwnProperty(prop)) continue;
-                var spriteBuffers = self.sprites[prop];
-
-                if(!$.isEmptyObject(spriteBuffers)) {
-                    for(var prop2 in spriteBuffers) {
-                        if(!spriteBuffers.hasOwnProperty(prop2)) continue;
-                        var spriteBuffer = spriteBuffers[prop2];
-                        var texData = self.textures[prop2];
-
-                        self.gl.useProgram(self.textureProg);
-                        self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
-                        self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(spriteBuffer.buffer));
-                        self.gl.activeTexture(self.gl.TEXTURE0);
-                        self.gl.bindTexture(self.gl.TEXTURE_2D, texData.texture);
-                        self.gl.uniform1i(self.textureProg.uSampler, 0);
-                        self.gl.enableVertexAttribArray(self.textureProg.aVertPos);
-                        self.gl.enableVertexAttribArray(self.textureProg.aTexCoord);
-                        self.gl.vertexAttribPointer(self.textureProg.aVertPos, 3, self.gl.FLOAT, false, 20, 0);
-                        self.gl.vertexAttribPointer(self.textureProg.aTexCoord, 2, self.gl.FLOAT, false, 20, 12);
-                        self.gl.uniformMatrix4fv(self.textureProg.uPMatrix, false, self.projection.elements);
-                        self.gl.uniformMatrix4fv(self.textureProg.uVMatrix, false, self.currentCamera.transform.elements);
-                        self.gl.drawArrays(self.gl.TRIANGLE_STRIP, 0, spriteBuffer.num);
-                        self.gl.disableVertexAttribArray(self.textureProg.aVertPos);
-                        self.gl.disableVertexAttribArray(self.textureProg.aTexCoord);
-                        spriteBuffer.num = 0;
-                        spriteBuffer.offset = 0;
-                    }
                 }
             }
 
@@ -880,7 +856,38 @@ WebVis.ready(function() {
                     buffer.offset = 0;
                     buffer.indexBuffer = [];
                 }
+            }
 
+            // draw sprites in their buffers
+            for(var prop in self.sprites) {
+                if(!self.sprites.hasOwnProperty(prop)) continue;
+                var spriteBuffers = self.sprites[prop];
+
+                if(!$.isEmptyObject(spriteBuffers)) {
+                    for(var prop2 in spriteBuffers) {
+                        if(!spriteBuffers.hasOwnProperty(prop2)) continue;
+                        var spriteBuffer = spriteBuffers[prop2];
+                        var texData = self.textures[prop2];
+
+                        self.gl.useProgram(self.textureProg);
+                        self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
+                        self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(spriteBuffer.buffer));
+                        self.gl.activeTexture(self.gl.TEXTURE0);
+                        self.gl.bindTexture(self.gl.TEXTURE_2D, texData.texture);
+                        self.gl.uniform1i(self.textureProg.uSampler, 0);
+                        self.gl.enableVertexAttribArray(self.textureProg.aVertPos);
+                        self.gl.enableVertexAttribArray(self.textureProg.aTexCoord);
+                        self.gl.vertexAttribPointer(self.textureProg.aVertPos, 3, self.gl.FLOAT, false, 20, 0);
+                        self.gl.vertexAttribPointer(self.textureProg.aTexCoord, 2, self.gl.FLOAT, false, 20, 12);
+                        self.gl.uniformMatrix4fv(self.textureProg.uPMatrix, false, self.projection.elements);
+                        self.gl.uniformMatrix4fv(self.textureProg.uVMatrix, false, self.currentCamera.transform.elements);
+                        self.gl.drawArrays(self.gl.TRIANGLE_STRIP, 0, spriteBuffer.num);
+                        self.gl.disableVertexAttribArray(self.textureProg.aVertPos);
+                        self.gl.disableVertexAttribArray(self.textureProg.aTexCoord);
+                        spriteBuffer.num = 0;
+                        spriteBuffer.offset = 0;
+                    }
+                }
             }
         };
 

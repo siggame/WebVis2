@@ -1,6 +1,11 @@
 {
     "resources":[
         {
+            "id": "nest",
+            "image": "nest.png",
+            "spriteSheet": null
+        },
+        {
             "id": "myUnit",
             "image": "digdug.png",
             "spriteSheet": null
