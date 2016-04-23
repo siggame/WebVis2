@@ -21,6 +21,26 @@
             "spriteSheet": null
         },
         {
+            "id": "weaver0",
+            "image": "weaver0.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "weaver1",
+            "image": "weaver1.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "spitter0",
+            "image": "spitter0.png",
+            "spriteSheet": null
+        },
+        {
+            "id": "spitter1",
+            "image": "spitter1.png",
+            "spriteSheet": null
+        },
+        {
             "id": "broodmother0",
             "image": "broodmom0.png",
             "spriteSheet": null

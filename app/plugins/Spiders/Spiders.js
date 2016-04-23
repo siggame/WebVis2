@@ -258,7 +258,7 @@
         this.p1name.value = p1name;
         this.p1name.color = new WebVis.renderer.Color(1, 0.6, 0, 1.0);
         this.p1name.pos = new WebVis.renderer.Point(worldLeft + 2 * (worldWidth/100), this.bg.pos.y + (this.bg.height / 5), 0);
-        this.p1name.maxWidth = worldWidth / 5;
+        //this.p1name.maxWidth = worldWidth / 5;
 
         this.p2name = new WebVis.renderer.Text();
         this.p2name.color = new WebVis.renderer.Color(0.3, 0.6, 0.1, 1.0);
@@ -326,7 +326,7 @@
         var guiSpriteSize = 4 * guiUnitW;
         this.p1spitter = new WebVis.renderer.Sprite();
         this.p1spitter.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x, guiStartY + (13 * guiUnitH), 1);
-        this.p1spitter.texture = "cutter0";
+        this.p1spitter.texture = "spitter0";
         this.p1spitter.width = guiSpriteSize;
         this.p1spitter.height = this.p1spitter.width;
 
@@ -341,7 +341,7 @@
 
         this.p1weaver = new WebVis.renderer.Sprite();
         this.p1weaver.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x + (10 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
-        this.p1weaver.texture = "cutter0";
+        this.p1weaver.texture = "weaver0";
         this.p1weaver.width = guiSpriteSize;
         this.p1weaver.height = this.p1weaver.width;
 
@@ -371,7 +371,7 @@
 
         this.p2spitter = new WebVis.renderer.Sprite();
         this.p2spitter.pos = new WebVis.renderer.Point(this.p2HealthRed.pos.x, guiStartY + (13 * guiUnitH), 2);
-        this.p2spitter.texture = "cutter1";
+        this.p2spitter.texture = "spitter1";
         this.p2spitter.width = guiSpriteSize;
         this.p2spitter.height = this.p1spitter.width;
 
@@ -386,7 +386,7 @@
 
         this.p2weaver = new WebVis.renderer.Sprite();
         this.p2weaver.pos = new WebVis.renderer.Point(this.p2HealthRed.pos.x + (10 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
-        this.p2weaver.texture = "cutter1";
+        this.p2weaver.texture = "weaver1";
         this.p2weaver.width = guiSpriteSize;
         this.p2weaver.height = this.p1spitter.width;
 
@@ -515,15 +515,15 @@
         this.sprite.height = width;
         if(type === "Spitter") {
             if(ownerid === "0") {
-                this.sprite.texture = "cutter0";
+                this.sprite.texture = "spitter0";
             } else {
-                this.sprite.texture = "cutter1";
+                this.sprite.texture = "spitter1";
             }
         } else if(type === "Weaver") {
             if(ownerid === "0") {
-                this.sprite.texture = "cutter0";
+                this.sprite.texture = "weaver0";
             } else {
-                this.sprite.texture = "cutter1";
+                this.sprite.texture = "weaver1";
             }
         } else if(type === "Cutter") {
             if(ownerid === "0") {
@@ -1012,11 +1012,18 @@
                         var spiderling = this.entities[obj.id];
                         var prevstate = laststate.game.gameObjects[obj.id];
 
-                        if(obj.id === "109" && obj.busy === "Moving")
-                            console.log("me");
+                        //if(obj.id === "109" && obj.busy === "Moving")
+                            //console.log("me");
 
                         if(obj.busy === "Moving" && (typeof prevstate === "undefined" || prevstate.busy !== "Moving")) {
                             spiderling.totalWork = obj.workRemaining;
+                            var i = 0;
+                            var nextGameState;
+                            do {
+                                i+=1;
+                                nextGameState = this.data.deltas[turn+i];
+                            } while ( typeof (nextGameState) != "undefined" && nextGameState.game.gameObjects[obj.id].busy === "Moving" );
+                            spiderling.makeVisible(turn, turn+i);
                         }
 
                         if(typeof prevstate !== "undefined" && prevstate.busy !== "" &&
