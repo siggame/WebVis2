@@ -86,7 +86,7 @@ WebVis.ready(function() {
 
         loadFromUrl: function(u, callback) {
             var urlsplit = u.split(".");
-            
+
             var checkExtension = function(url) {
                 var a = url.split('.');
                 if(a.length === 1 || a[1] === "") {

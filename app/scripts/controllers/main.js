@@ -85,11 +85,12 @@ WebVis.ready(function() {
     });
 
     var getLogFromArena = function() {
-        var url = WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
+        var url = "http://" + WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
         $.ajax({
             dataType: "text",
             url: WebVis.options.getOptionValue("arena-url") + "/api/next_game/",
             data: null,
+            crossDomain: true,
             success: function(data) {
                 console.log(data);
                 WebVis.fileLoader.loadFromUrl(data, function(file) {
