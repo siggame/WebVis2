@@ -4,7 +4,10 @@ WebVis.ready(function() {
     // forward declarations
     var resize = null;
 
+    var loadInProgress = false;
     var initPluginFromLog = function(file) {
+        if(loadInProgress) return;
+        loadInProgress = true;
         var gameObject = JSON.parse(file.data);
         var $progress = $('#webvis-progress-bar').css('width', '0%');
         $('#webvis-load-background').removeClass("hidden");
@@ -25,6 +28,7 @@ WebVis.ready(function() {
                     $('#webvis-progress-bar-background').addClass("hidden");
                     WebVis.game.setMaxTurn(data.deltas.length - 1);
                     if(data.deltas !== undefined && data.deltas[0] !== undefined) {
+                        loadInProgress = false;
                         WebVis.setDebugData(data.deltas[0].game);
                     }
                     break;
