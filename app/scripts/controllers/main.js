@@ -5,28 +5,37 @@ WebVis.ready(function() {
     var resize = null;
 
     var evalPlaying;
+    var getLogFromArena;
 
     var initPluginFromLog = function(file) {
-        var gameObject = JSON.parse(file.data);
+        var gameObject;
+        try {
+            var gameObject = JSON.parse(file.data);
+        } catch(e) {
+            WebVis.alert("danger", e);
+            if(WebVis.options.getOptionValue("arena-mode")) {
+                getLogFromArena();
+            }
+            return;
+        }
         var $progress = $('#webvis-progress-bar').css('width', '0%');
         $('#webvis-load-background').removeClass("hidden");
         $('#webvis-progress-bar-background').removeClass("hidden");
-        var data;
+
+        WebVis.game.playing = false;
+        WebVis.game.currentTurn = 0;
+        WebVis.game.setMaxTurn(gameObject.deltas.length - 1);
+        evalPlaying();
 
         var finish = function() {
-            if(data.deltas !== undefined && data.deltas[0] !== undefined) {
-                WebVis.game.playing = false;
-                WebVis.game.currentTurn = 0;
-                WebVis.game.setMaxTurn(data.deltas.length - 1);
-                WebVis.setDebugData(data.deltas[0].game);
-                if(WebVis.options.getOptionValue("arena-mode")) {
-                    WebVis.game.playing = true;
-                    WebVis.game.speed = 5;
-                    evalPlaying();
-                    $("#turn-slider").slider('value', parseInt(WebVis.game.speed));
-                    $("#turn-slider-text").text("5x");
-                }
-            }
+              WebVis.setDebugData(data.deltas[0].game);
+              if(WebVis.options.getOptionValue("arena-mode")) {
+                  WebVis.game.playing = true;
+                  WebVis.game.speed = 5;
+                  evalPlaying();
+                  $("#turn-slider").slider('value', parseInt(WebVis.game.speed));
+                  $("#turn-slider-text").text("5x");
+              }
         }
 
         var onLoadGame = function(message, percent) {
@@ -103,7 +112,7 @@ WebVis.ready(function() {
         WebVis.plugin.selectEntity(pagex, pagey);
     });
 
-    var getLogFromArena = function() {
+    getLogFromArena = function() {
         var url = "http://" + WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
         $.ajax({
             dataType: "text",
