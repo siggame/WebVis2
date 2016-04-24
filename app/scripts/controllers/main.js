@@ -4,7 +4,10 @@ WebVis.ready(function() {
     // forward declarations
     var resize = null;
 
+    var loadInProgress = false;
     var initPluginFromLog = function(file) {
+        if(loadInProgress) return;
+        loadInProgress = true;
         var gameObject = JSON.parse(file.data);
         var $progress = $('#webvis-progress-bar').css('width', '0%');
         $('#webvis-load-background').removeClass("hidden");
@@ -25,6 +28,7 @@ WebVis.ready(function() {
                     $('#webvis-progress-bar-background').addClass("hidden");
                     WebVis.game.setMaxTurn(data.deltas.length - 1);
                     if(data.deltas !== undefined && data.deltas[0] !== undefined) {
+                        loadInProgress = false;
                         WebVis.setDebugData(data.deltas[0].game);
                     }
                     break;
@@ -85,13 +89,17 @@ WebVis.ready(function() {
     });
 
     var getLogFromArena = function() {
-        var url = WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
+        var url = "http://" + WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
         $.ajax({
             dataType: "text",
-            url: WebVis.options.getOptionValue("arena-url") + "/api/next_game/",
+            url: url,
             data: null,
+            crossDomain: true,
             success: function(data) {
                 console.log(data);
+                WebVis.game.playing = false;
+                WebVis.game.currentTurn = 0;
+                WebVis.game.speed = 5;
                 WebVis.fileLoader.loadFromUrl(data, function(file) {
                     initPluginFromLog(file);
                     WebVis.game.playing = true;
