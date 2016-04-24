@@ -521,7 +521,7 @@
         this.nextVisCheck = -1;
         if(type === "Spitter") {
             if(ownerid === "0") {
-                this.sprite.color = new WebVis.renderer.Color(0, 0.0, 1.0, 1.0);
+                this.sprite.color = new WebVis.renderer.Color(0, 1.0, 0, 1.0);
             } else {
                 this.sprite.color = new WebVis.renderer.Color(0, 1.0, 1.0, 1.0);
             }
@@ -887,7 +887,7 @@
                 if(state.gameObjects[1].spiders[prop] === "&RM") continue;
                 var id = state.gameObjects[1].spiders[prop].id
                 var spiderling = state.gameObjects[id];
-
+                
                 if(spiderling.gameObjectName === "Spitter") {
                     ret.p2s1++;
                 } else if(spiderling.gameObjectName === "Weaver") {

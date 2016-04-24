@@ -3,37 +3,29 @@ WebVis.ready(function() {
 
     // forward declarations
     var resize = null;
-    var getLogFromArena;
+
     var evalPlaying;
 
     var initPluginFromLog = function(file) {
-        var gameObject;
-        try {
-            gameObject = JSON.parse(file.data);
-        } catch(e) {
-            WebVis.alert("danger", "The incoming json data is not well formed.");
-            if(WebVis.options.getOptionValue('arena-mode')) {
-                getLogFromArena();
-            }
-            return;
-        }
-
-        WebVis.game.playing = false;
-        WebVis.game.currentTurn = 0;
-        WebVis.game.setMaxTurn(gameObject.deltas.length - 1);
-        evalPlaying();
-
+        var gameObject = JSON.parse(file.data);
         var $progress = $('#webvis-progress-bar').css('width', '0%');
         $('#webvis-load-background').removeClass("hidden");
         $('#webvis-progress-bar-background').removeClass("hidden");
         var data;
 
         var finish = function() {
-            if(WebVis.options.getOptionValue("arena-mode")) {
-                WebVis.game.playing = true;
-                WebVis.game.speed = 5;
-                evalPlaying();
-                $("#speed-slider").slider('value', parseInt(WebVis.game.speed));
+            if(data.deltas !== undefined && data.deltas[0] !== undefined) {
+                WebVis.game.playing = false;
+                WebVis.game.currentTurn = 0;
+                WebVis.game.setMaxTurn(data.deltas.length - 1);
+                WebVis.setDebugData(data.deltas[0].game);
+                if(WebVis.options.getOptionValue("arena-mode")) {
+                    WebVis.game.playing = true;
+                    WebVis.game.speed = 5;
+                    evalPlaying();
+                    $("#turn-slider").slider('value', parseInt(WebVis.game.speed));
+                    $("#turn-slider-text").text("5x");
+                }
             }
         }
 
@@ -125,7 +117,7 @@ WebVis.ready(function() {
                 WebVis.alert("danger", "could not find " + url);
             }
         });
-    };
+    }
 
     WebVis.options.optionOnClick("arena-mode", function() {
         console.log("arena mode click");
@@ -178,7 +170,6 @@ WebVis.ready(function() {
     //-------------------------------------------------
     evalPlaying = function() {
         var $elem = $("#play-button");
-        console.log("blah");
         if(!WebVis.game.playing) {
             $elem.children("span")
             .addClass("glyphicon-play")
