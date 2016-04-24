@@ -511,27 +511,27 @@
         var self = this;
         this.__proto__ = new SpidersEntity(type, "gui");
 
-        this.sprite = new WebVis.renderer.Sprite();
-        this.sprite.width = width;
-        this.sprite.height = width;
+        this.sprite = new WebVis.renderer.Rect();
+        this.sprite.width = 2;
+        this.sprite.height = 2;
         this.nextVisCheck = -1;
         if(type === "Spitter") {
             if(ownerid === "0") {
-                this.sprite.texture = "spitter0";
+                this.sprite.color = new WebVis.renderer.Color(0, 1.0, 0, 1.0);
             } else {
-                this.sprite.texture = "spitter1";
+                this.sprite.color = new WebVis.renderer.Color(0, 1.0, 1.0, 1.0);
             }
         } else if(type === "Weaver") {
             if(ownerid === "0") {
-                this.sprite.texture = "weaver0";
+                this.sprite.color = new WebVis.renderer.Color(0, 1.0, 0, 1.0);
             } else {
-                this.sprite.texture = "weaver1";
+                this.sprite.color = new WebVis.renderer.Color(1.0, 1.0, 0, 1.0);
             }
         } else if(type === "Cutter") {
             if(ownerid === "0") {
-                this.sprite.texture = "cutter0";
+                this.sprite.color = new WebVis.renderer.Color(1.0, 0, 0, 1.0);
             } else {
-                this.sprite.texture = "cutter1";
+                this.sprite.color = new WebVis.renderer.Color(1.0, 0, 1.0, 1.0);
             }
         }
 
@@ -567,14 +567,14 @@
             this.addAnim({
                 channel: "movement",
                 anim: new WebVis.plugin.Animation(turn, turn+1, function(completion) {
-                    self.sprite.pos.x = fromx + ((tox - fromx) * completion) - (width/2);
-                    self.sprite.pos.y = fromy + ((toy - fromy) * completion) - (width/2);
+                    self.sprite.pos.x = fromx + ((tox - fromx) * completion) - (1);
+                    self.sprite.pos.y = fromy + ((toy - fromy) * completion) - (1);
                 })
             })
         };
 
         this.draw = function(context) {
-            context.drawSprite(this.sprite);
+            context.drawRect(this.sprite);
         };
 
     };
