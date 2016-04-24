@@ -93,6 +93,9 @@ WebVis.ready(function() {
             crossDomain: true,
             success: function(data) {
                 console.log(data);
+                WebVis.game.playing = false;
+                WebVis.game.currentTurn = 0;
+                WebVis.game.speed = 5;
                 WebVis.fileLoader.loadFromUrl(data, function(file) {
                     initPluginFromLog(file);
                     WebVis.game.playing = true;
