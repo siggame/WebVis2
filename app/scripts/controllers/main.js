@@ -88,7 +88,7 @@ WebVis.ready(function() {
         var url = "http://" + WebVis.options.getOptionValue("arena-url") + "/api/next_game/";
         $.ajax({
             dataType: "text",
-            url: WebVis.options.getOptionValue("arena-url") + "/api/next_game/",
+            url: url,
             data: null,
             crossDomain: true,
             success: function(data) {
