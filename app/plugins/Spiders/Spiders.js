@@ -883,11 +883,7 @@
                 if(state.gameObjects[1].spiders[prop] === "&RM") continue;
                 var id = state.gameObjects[1].spiders[prop].id
                 var spiderling = state.gameObjects[id];
-
-                if(state.currentTurn === 299) {
-                    console.log("could you not!");
-                }
-
+                
                 if(spiderling.gameObjectName === "Spitter") {
                     ret.p2s1++;
                 } else if(spiderling.gameObjectName === "Weaver") {
