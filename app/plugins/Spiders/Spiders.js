@@ -251,7 +251,7 @@
         this.bg.pos = new WebVis.renderer.Point(worldLeft, worldUp + worldHeight, 0);
         this.bg.width = worldWidth;
         this.bg.height = worldHeight / 4;
-        this.bg.color = new WebVis.renderer.Color(1.0, 1.0, 1.0, 1.0);
+        this.bg.color = new WebVis.renderer.Color(0.3, 0.3, 0.3, 1.0);
 
         this.p1name = new WebVis.renderer.Text();
         this.p1name.size = 36;
@@ -262,7 +262,7 @@
         //this.p1name.maxWidth = worldWidth / 5;
 
         this.p2name = new WebVis.renderer.Text();
-        this.p2name.color = new WebVis.renderer.Color(0.3, 0.6, 0.1, 1.0);
+        this.p2name.color = new WebVis.renderer.Color(0.3, 0.7, 0.2, 1.0);
         this.p2name.size = 36;
         this.p2name.maxWidth = 1500;
         this.p2name.value = p2name;
@@ -271,22 +271,22 @@
 
         // Health Bars
         this.p1HealthGreen = new WebVis.renderer.Rect();
-        this.p1HealthRed = new WebVis.renderer.Rect();
+        this.p1HealthBack = new WebVis.renderer.Rect();
         this.p2HealthGreen = new WebVis.renderer.Rect();
-        this.p2HealthRed = new WebVis.renderer.Rect();
+        this.p2HealthBack = new WebVis.renderer.Rect();
 
         this.p1HealthGreen.color.setColor(0.0, 1.0, 0.0, 1.0);
-        this.p1HealthRed.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p1HealthBack.color.setColor(0.0, 0.0, 0.0, 1.0);
         this.p2HealthGreen.color.setColor(0.0, 1.0, 0.0, 1.0);
-        this.p2HealthRed.color.setColor(1.0, 0.0, 0.0, 1.0);
+        this.p2HealthBack.color.setColor(0.0, 0.0, 0.0, 1.0);
 
-        this.p1HealthRed.width = healthBarMaxWidth;
-        this.p2HealthRed.width = healthBarMaxWidth;
+        this.p1HealthBack.width = healthBarMaxWidth;
+        this.p2HealthBack.width = healthBarMaxWidth;
         this.p1HealthGreen.width = healthBarMaxWidth; // needs to be set to the current health for player 1
         this.p2HealthGreen.width = healthBarMaxWidth; // needs to be set to the current health for player 2
 
-        this.p1HealthRed.height = healthBarHeight;
-        this.p2HealthRed.height = healthBarHeight;
+        this.p1HealthBack.height = healthBarHeight;
+        this.p2HealthBack.height = healthBarHeight;
         this.p1HealthGreen.height = healthBarHeight;
         this.p2HealthGreen.height = healthBarHeight;
 
@@ -294,24 +294,24 @@
         this.p1HealthGreen.pos.y = guiStartY + (6 * guiUnitH);
         this.p1HealthGreen.pos.z = 1;
 
-        this.p1HealthRed.pos.x = guiStartX + (2 * guiUnitW);
-        this.p1HealthRed.pos.y = guiStartY + (6 * guiUnitH);
-        this.p1HealthRed.pos.z = 0;
+        this.p1HealthBack.pos.x = guiStartX + (2 * guiUnitW);
+        this.p1HealthBack.pos.y = guiStartY + (6 * guiUnitH);
+        this.p1HealthBack.pos.z = 0;
 
         this.p2HealthGreen.pos.x = guiStartX + (52 * guiUnitW);
         this.p2HealthGreen.pos.y = guiStartY + (6 * guiUnitH);
         this.p2HealthGreen.pos.z = 1;
 
-        this.p2HealthRed.pos.x = guiStartX + (52 * guiUnitW);
-        this.p2HealthRed.pos.y = guiStartY + (6 * guiUnitH);
-        this.p2HealthRed.pos.z = 0;
+        this.p2HealthBack.pos.x = guiStartX + (52 * guiUnitW);
+        this.p2HealthBack.pos.y = guiStartY + (6 * guiUnitH);
+        this.p2HealthBack.pos.z = 0;
 
         this.p1HealthAmount = new WebVis.renderer.Text();
         this.p1HealthAmount.color.setColor(0.0, 0.0, 0.0, 1.0);
         this.p1HealthAmount.size = 14;
         this.p1HealthAmount.maxWidth = 100;
-        this.p1HealthAmount.pos.x = this.p1HealthRed.pos.x + healthBarMaxWidth/2;
-        this.p1HealthAmount.pos.y = this.p1HealthRed.pos.y + healthBarHeight/2;
+        this.p1HealthAmount.pos.x = this.p1HealthBack.pos.x + healthBarMaxWidth/2;
+        this.p1HealthAmount.pos.y = this.p1HealthBack.pos.y + healthBarHeight/2;
         this.p1HealthAmount.alignment = "center"
         this.p1HealthAmount.baseline = "middle";
 
@@ -319,14 +319,14 @@
         this.p2HealthAmount.color.setColor(0.0, 0.0, 0.0, 1.0);
         this.p2HealthAmount.size = 14;
         this.p2HealthAmount.maxWidth = 100;
-        this.p2HealthAmount.pos.x = this.p2HealthRed.pos.x + healthBarMaxWidth/2;
-        this.p2HealthAmount.pos.y = this.p2HealthRed.pos.y + healthBarHeight/2;
+        this.p2HealthAmount.pos.x = this.p2HealthBack.pos.x + healthBarMaxWidth/2;
+        this.p2HealthAmount.pos.y = this.p2HealthBack.pos.y + healthBarHeight/2;
         this.p2HealthAmount.alignment = "center"
         this.p2HealthAmount.baseline = "middle";
 
         var guiSpriteSize = 4 * guiUnitW;
         this.p1spitter = new WebVis.renderer.Sprite();
-        this.p1spitter.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x, guiStartY + (13 * guiUnitH), 1);
+        this.p1spitter.pos = new WebVis.renderer.Point(this.p1HealthBack.pos.x, guiStartY + (13 * guiUnitH), 1);
         this.p1spitter.texture = "spitter0";
         this.p1spitter.width = guiSpriteSize;
         this.p1spitter.height = this.p1spitter.width;
@@ -341,7 +341,7 @@
         this.p1spitterAmount.baseline = "middle";
 
         this.p1weaver = new WebVis.renderer.Sprite();
-        this.p1weaver.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x + (10 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
+        this.p1weaver.pos = new WebVis.renderer.Point(this.p1HealthBack.pos.x + (10 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
         this.p1weaver.texture = "weaver0";
         this.p1weaver.width = guiSpriteSize;
         this.p1weaver.height = this.p1weaver.width;
@@ -356,7 +356,7 @@
         this.p1weaverAmount.baseline = "middle";
 
         this.p1cutter = new WebVis.renderer.Sprite();
-        this.p1cutter.pos = new WebVis.renderer.Point(this.p1HealthRed.pos.x + (20 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
+        this.p1cutter.pos = new WebVis.renderer.Point(this.p1HealthBack.pos.x + (20 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
         this.p1cutter.texture = "cutter0";
         this.p1cutter.width = guiSpriteSize;
         this.p1cutter.height = this.p1weaver.width;
@@ -371,7 +371,7 @@
         this.p1cutterAmount.baseline = "middle";
 
         this.p2spitter = new WebVis.renderer.Sprite();
-        this.p2spitter.pos = new WebVis.renderer.Point(this.p2HealthRed.pos.x, guiStartY + (13 * guiUnitH), 2);
+        this.p2spitter.pos = new WebVis.renderer.Point(this.p2HealthBack.pos.x, guiStartY + (13 * guiUnitH), 2);
         this.p2spitter.texture = "spitter1";
         this.p2spitter.width = guiSpriteSize;
         this.p2spitter.height = this.p1spitter.width;
@@ -386,7 +386,7 @@
         this.p2spitterAmount.baseline = "middle";
 
         this.p2weaver = new WebVis.renderer.Sprite();
-        this.p2weaver.pos = new WebVis.renderer.Point(this.p2HealthRed.pos.x + (10 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
+        this.p2weaver.pos = new WebVis.renderer.Point(this.p2HealthBack.pos.x + (10 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
         this.p2weaver.texture = "weaver1";
         this.p2weaver.width = guiSpriteSize;
         this.p2weaver.height = this.p1spitter.width;
@@ -401,7 +401,7 @@
         this.p2weaverAmount.baseline = "middle";
 
         this.p2cutter = new WebVis.renderer.Sprite();
-        this.p2cutter.pos = new WebVis.renderer.Point(this.p2HealthRed.pos.x + (20 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
+        this.p2cutter.pos = new WebVis.renderer.Point(this.p2HealthBack.pos.x + (20 * guiUnitW), guiStartY + (13 * guiUnitH), 2);
         this.p2cutter.texture = "cutter1";
         this.p2cutter.width = guiSpriteSize;
         this.p2cutter.height = this.p1spitter.width;
@@ -421,6 +421,7 @@
             start: function() {
                 self.p1HealthGreen.width = healthBarMaxWidth;
                 self.p1HealthAmount.value = "" + maxBroodHealth + "/" + maxBroodHealth;
+                self.p1HealthGreen.color = new WebVis.renderer.Color(0, 1.0, 0, 1.0);
             }
         });
 
@@ -429,6 +430,7 @@
             start: function() {
                 self.p2HealthGreen.width = healthBarMaxWidth;
                 self.p2HealthAmount.value = "" + maxBroodHealth + "/" + maxBroodHealth;
+                self.p2HealthGreen.color = new WebVis.renderer.Color(0, 1.0, 0, 1.0);
             }
         });
 
@@ -454,6 +456,7 @@
                 anim: new WebVis.plugin.Animation(turn, turn, function(completion) {
                     self.p1HealthGreen.width = healthBarMaxWidth * (p1brood.health / maxBroodHealth);
                     self.p1HealthAmount.value = "" + p1brood.health + "/" + maxBroodHealth;
+                    self.p1HealthGreen.color = new WebVis.renderer.Color(1.0 - (p1brood.health / maxBroodHealth), (p1brood.health / maxBroodHealth), 0, 1.0 );
                 })
             });
         };
@@ -464,6 +467,7 @@
                 anim: new WebVis.plugin.Animation(turn, turn, function(completion) {
                     self.p2HealthGreen.width = healthBarMaxWidth * (p2brood.health / maxBroodHealth);
                     self.p2HealthAmount.value = "" + p2brood.health + "/" + maxBroodHealth;
+                    self.p2HealthGreen.color = new WebVis.renderer.Color(1.0 - (p2brood.health / maxBroodHealth), (p2brood.health / maxBroodHealth), 0, 1.0 );
                 })
             });
         };
@@ -485,9 +489,9 @@
         this.draw = function(context) {
             context.drawRect(this.bg);
             context.drawRect(this.p1HealthGreen);
-            context.drawRect(this.p1HealthRed);
+            context.drawRect(this.p1HealthBack);
             context.drawRect(this.p2HealthGreen);
-            context.drawRect(this.p2HealthRed);
+            context.drawRect(this.p2HealthBack);
             context.drawText(this.p1name);
             context.drawText(this.p2name);
             context.drawText(this.p1HealthAmount);
@@ -605,7 +609,7 @@
         if(winner.index === 0) {
             this.winner.color.setColor(1, 0.6, 0, 1.0);
         } else {
-            this.winner.color.setColor(0.3, 0.6, 0.1, 1.0);
+            this.winner.color.setColor(0.3, 0.7, 0.2, 1.0);
         }
 
         this.winreason = new WebVis.renderer.Text();
@@ -619,7 +623,7 @@
         if(winner.index === 0) {
             this.winreason.color.setColor(1, 0.6, 0, 1.0);
         } else {
-            this.winreason.color.setColor(0.3, 0.6, 0.1, 1.0);
+            this.winreason.color.setColor(0.3, 0.7, 0.2, 1.0);
         }
 
         this.losereason = new WebVis.renderer.Text();
@@ -633,7 +637,7 @@
         if(loser.index === 0) {
             this.losereason.color.setColor(1, 0.6, 0, 1.0);
         } else {
-            this.losereason.color.setColor(0.3, 0.6, 0.1, 1.0);
+            this.losereason.color.setColor(0.3, 0.7, 0.2, 1.0);
         }
 
         this.addChannel({
