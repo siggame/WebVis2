@@ -4,15 +4,24 @@ WebVis.ready(function() {
     // forward declarations
     var resize = null;
 
-    var loadInProgress = false;
     var initPluginFromLog = function(file) {
-        if(loadInProgress) return;
-        loadInProgress = true;
         var gameObject = JSON.parse(file.data);
         var $progress = $('#webvis-progress-bar').css('width', '0%');
         $('#webvis-load-background').removeClass("hidden");
         $('#webvis-progress-bar-background').removeClass("hidden");
         var data;
+
+        var finish = function() {
+            if(data.deltas !== undefined && data.deltas[0] !== undefined) {
+                WebVis.game.playing = false;
+                WebVis.game.currentTurn = 0;
+                WebVis.game.setMaxTurn(data.deltas.length - 1);
+                if(WebVis.options.getOptionValue("arena-mode")) {
+                    WebVis.game.playing = true;
+                    WebVis.game.speed = 5;
+                }
+            }
+        }
 
         var onLoadGame = function(message, percent) {
             switch(message) {
@@ -26,11 +35,7 @@ WebVis.ready(function() {
                     $progress.text('100%');
                     $('#webvis-load-background').addClass("hidden");
                     $('#webvis-progress-bar-background').addClass("hidden");
-                    WebVis.game.setMaxTurn(data.deltas.length - 1);
-                    if(data.deltas !== undefined && data.deltas[0] !== undefined) {
-                        loadInProgress = false;
-                        WebVis.setDebugData(data.deltas[0].game);
-                    }
+                    finish();
                     break;
             }
         };
@@ -44,7 +49,10 @@ WebVis.ready(function() {
                     $progress.text(txt);
                     break;
                 case "finish":
-                    data = obj.data;
+                    var txt = "50%"
+                    $progress.css('width', txt);
+                    $progress.text(txt);
+                    data = obj.data
                     WebVis.plugin.loadGame(obj.data, onLoadGame);
                     break;
             }
@@ -73,6 +81,7 @@ WebVis.ready(function() {
         event.stopPropagation();
     });
     inputTag.change(function(event) {
+        console.log("dropped?");
         WebVis.fileLoader.loadFile(event.target.files, initPluginFromLog);
         inputTag.val(null);
     });
@@ -96,14 +105,7 @@ WebVis.ready(function() {
             data: null,
             crossDomain: true,
             success: function(data) {
-                console.log(data);
-                WebVis.game.playing = false;
-                WebVis.game.currentTurn = 0;
-                WebVis.game.speed = 5;
-                WebVis.fileLoader.loadFromUrl(data, function(file) {
-                    initPluginFromLog(file);
-                    WebVis.game.playing = true;
-                });
+                WebVis.fileLoader.loadFromUrl(data, initPluginFromLog);
             },
             error: function() {
                 WebVis.alert("danger", "could not find " + url);
@@ -112,6 +114,7 @@ WebVis.ready(function() {
     }
 
     WebVis.options.optionOnClick("arena-mode", function() {
+        console.log("arena mode click");
         if(WebVis.options.getOptionValue("arena-mode")) {
             getLogFromArena();
         }
@@ -277,6 +280,7 @@ WebVis.ready(function() {
         event.preventDefault();
         var files = event.originalEvent.dataTransfer.files;
 
+        console.log("files have been dropped.");
         WebVis.fileLoader.loadFile(files, initPluginFromLog);
     });
 
@@ -297,6 +301,7 @@ WebVis.ready(function() {
         $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
         turnInvalidated = true;
         if(parseInt(WebVis.game.currentTurn) === WebVis.game.maxTurn) {
+            console.log(WebVis.game.currentTurn + " " + WebVis.game.maxTurn);
             if(WebVis.options.getOptionValue("arena-mode")) {
                 setTimeout(getLogFromArena, 3000);
             }
@@ -344,6 +349,7 @@ WebVis.ready(function() {
 
         var uri = WebVis.util.getUrlParams();
         if(uri.logUrl !== undefined) {
+            console.log("have uri, getting gamelog");
             WebVis.fileLoader.loadFromUrl(decodeURI(uri.logUrl), initPluginFromLog);
         }
     })();
