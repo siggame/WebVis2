@@ -3,23 +3,37 @@ WebVis.ready(function() {
 
     // forward declarations
     var resize = null;
+    var getLogFromArena;
+    var evalPlaying;
 
     var initPluginFromLog = function(file) {
-        var gameObject = JSON.parse(file.data);
+        var gameObject;
+        try {
+            gameObject = JSON.parse(file.data);
+        } catch(e) {
+            WebVis.alert("danger", "The incoming json data is not well formed.");
+            if(WebVis.options.getOptionValue('arena-mode')) {
+                getLogFromArena();
+            }
+            return;
+        }
+
+        WebVis.game.playing = false;
+        WebVis.game.currentTurn = 0;
+        WebVis.game.setMaxTurn(gameObject.deltas.length - 1);
+        evalPlaying();
+
         var $progress = $('#webvis-progress-bar').css('width', '0%');
         $('#webvis-load-background').removeClass("hidden");
         $('#webvis-progress-bar-background').removeClass("hidden");
         var data;
 
         var finish = function() {
-            if(data.deltas !== undefined && data.deltas[0] !== undefined) {
-                WebVis.game.playing = false;
-                WebVis.game.currentTurn = 0;
-                WebVis.game.setMaxTurn(data.deltas.length - 1);
-                if(WebVis.options.getOptionValue("arena-mode")) {
-                    WebVis.game.playing = true;
-                    WebVis.game.speed = 5;
-                }
+            if(WebVis.options.getOptionValue("arena-mode")) {
+                WebVis.game.playing = true;
+                WebVis.game.speed = 5;
+                evalPlaying();
+                $("#speed-slider").slider('value', parseInt(WebVis.game.speed));
             }
         }
 
@@ -111,7 +125,7 @@ WebVis.ready(function() {
                 WebVis.alert("danger", "could not find " + url);
             }
         });
-    }
+    };
 
     WebVis.options.optionOnClick("arena-mode", function() {
         console.log("arena mode click");
@@ -162,7 +176,7 @@ WebVis.ready(function() {
     //-------------------------------------------------
     // attach the play/pause button
     //-------------------------------------------------
-    var evalPlaying = function() {
+    evalPlaying = function() {
         var $elem = $("#play-button");
         console.log("blah");
         if(!WebVis.game.playing) {

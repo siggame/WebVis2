@@ -98,7 +98,7 @@ WebVis.ready(function() {
             };
 
             var error = function(jqxhr, textStatus, errorThrown) {
-                console.error("File could not be loaded from " + u);
+                WebVis.alert("Danger", "File could not be loaded from " + u);
             }
 
             var success = function(data) {
