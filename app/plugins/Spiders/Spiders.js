@@ -307,7 +307,7 @@
         this.p2HealthBack.pos.z = 0;
 
         this.p1HealthAmount = new WebVis.renderer.Text();
-        this.p1HealthAmount.color.setColor(0.0, 0.0, 0.0, 1.0);
+        this.p1HealthAmount.color.setColor(1.0, 1.0, 1.0, 1.0);
         this.p1HealthAmount.size = 14;
         this.p1HealthAmount.maxWidth = 100;
         this.p1HealthAmount.pos.x = this.p1HealthBack.pos.x + healthBarMaxWidth/2;
@@ -316,7 +316,7 @@
         this.p1HealthAmount.baseline = "middle";
 
         this.p2HealthAmount = new WebVis.renderer.Text();
-        this.p2HealthAmount.color.setColor(0.0, 0.0, 0.0, 1.0);
+        this.p2HealthAmount.color.setColor(1.0, 1.0, 1.0, 1.0);
         this.p2HealthAmount.size = 14;
         this.p2HealthAmount.maxWidth = 100;
         this.p2HealthAmount.pos.x = this.p2HealthBack.pos.x + healthBarMaxWidth/2;
