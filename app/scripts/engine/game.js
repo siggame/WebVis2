@@ -1,3 +1,7 @@
+// This file is repsponsible for timekeeping and iterating over entities
+// provided by the plugin to invoke any drawing functions that need to
+// take place.
+
 WebVis.ready(function() {
 
     var lastAnimTime = new Date();
@@ -6,6 +10,8 @@ WebVis.ready(function() {
     var onCurrentTurnChange = function() {};
     var onMaxTurnChange = function() {};
 
+    // this is called every time the anim function is invoked, which is usually
+    // around 60 times per second, but not guarenteed to be so.
     var updateTime = function() {
         var currentDate = new Date();
         var currentTime = currentDate.getTime();
@@ -34,6 +40,11 @@ WebVis.ready(function() {
         return dtSeconds
     };
 
+    // this function is passed as the callback to window.requestAnimationFrame.
+    // the requestAnimationFrame api exists in all modern browsers and is used
+    // to invoke a function up to 60 times a second, while allowing the rest of
+    // the async processes to execute such as gui interactions. All the rendering
+    // is done within this loop.
     var anim = function() {
         window.requestAnimationFrame(anim);
         var dt = updateTime();
@@ -56,6 +67,7 @@ WebVis.ready(function() {
             WebVis.plugin.postdraw(context);
         }
     };
+    window.requestAnimationFrame(anim);
 
     WebVis.game = {
         // publics
@@ -108,7 +120,5 @@ WebVis.ready(function() {
             onMaxTurnChange = callback;
         }
     };
-
-    window.requestAnimationFrame(anim);
 
 });

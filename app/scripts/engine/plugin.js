@@ -1,9 +1,17 @@
+// This file contains all the facilities to manage plugins. Plugins are the
+// objects that are created which will handle the loading of a game log and
+// the creation of entities to be draw and animated on the screen. This contains
+// every needed to make the plugin, entities, and animations used in a scene,
+// and also exposes a number of functions to be used by the rest of the
+// WebVis
+
 WebVis.ready(function(){
 
     var plugins = {};
     var currentPlugin = null;
     var util = WebVis.util;
 
+    // a base plugin class that all plugins should inherit from and implement
     var Base = (function() {
         var constructor = function() {
             this.entities = {};
@@ -36,6 +44,8 @@ WebVis.ready(function(){
         return constructor;
     })();
 
+    // an animation is just a start and an end, (in deltas) and the function
+    // to call should the current delta be between those two
     var Animation = (function() {
         var constructor = function(start, end, func) {
             if(!util.defined("start", start)) return;
