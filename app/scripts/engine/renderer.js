@@ -1,7 +1,14 @@
 WebVis.ready(function() {
 
-    var Point = (function() {
-        var constructor = function(x, y, z) {
+    // imports
+    var Class = WebVis.util.Class;
+
+    var Renderable = Class({
+        init: function() {}
+    });
+
+    var Point = Class({
+        init: function(x, y, z) {
             if(x !== undefined) {
                 this.x = x;
             } else {
@@ -19,30 +26,28 @@ WebVis.ready(function() {
             }
 
             this.w = 1;
-        };
+        },
 
-        constructor.prototype.cross = function(pOther) {
+        cross: function(pOther) {
             var result = new Point();
             result.x = (this.y * pOther.z) - (this.z * pOther.y);
             result.y = (this.z * pOther.x) - (this.x * pOther.z);
             result.z = (this.x * pOther.y) - (this.y * pOther.x);
 
             return result;
-        };
+        },
 
-        constructor.prototype.normalize = function() {
+        normalize: function() {
             var mag = Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
             if(mag === 0) return;
             this.x /= mag;
             this.y /= mag;
             this.z /= mag;
-        };
+        }
+    });
 
-        return constructor;
-    })();
-
-    var Matrix4x4 = (function() {
-        var constructor = function(param) {
+    var Matrix4x4 = Class({
+        init: function(param) {
             this.elements = new Float32Array(16);
             if(param === undefined) {
                 // identity by default
@@ -52,31 +57,31 @@ WebVis.ready(function() {
                     this.elements[i] = param.elements[i];
                 }
             }
-        };
+        },
 
-        constructor.prototype.get = function(row, col) {
+        get: function(row, col) {
             if(row < 0 || row > 3 || col < 0 || col > 3) {
                 console.error("Matrix out of bounds.");
                 return;
             }
             return this.elements[row + col*4];
-        };
+        },
 
-        constructor.prototype.set = function(row, col, val) {
+        set: function(row, col, val) {
             if(row < 0 || row > 3 || col < 0 || col > 3) {
                 console.error("Matrix out of bounds.");
                 return;
             }
             this.elements[row + col*4] = val;
-        };
+        },
 
-        constructor.prototype.copy = function(mat) {
+        copy: function(mat) {
             for(var i = 0; i < 16; i++) {
                 this.elements[i] = mat.elements[i];
             }
-        };
+        },
 
-        constructor.prototype.scale = function(sx, sy, sz) {
+        scale: function(sx, sy, sz) {
             var newmat = new Matrix4x4(this);
 
             // no need to do the bottom row on homogeneous matrices
@@ -91,9 +96,9 @@ WebVis.ready(function() {
             }
 
             this.elements = newmat.elements;
-        };
+        },
 
-        constructor.prototype.rotate = function(rad) {
+        rotate: function(rad) {
             var newmat = new Matrix4x4(this);
             var cos = Math.cos(rad);
             var sin = Math.sin(rad);
@@ -108,9 +113,9 @@ WebVis.ready(function() {
             }
 
             this.elements = newmat.elements;
-        };
+        },
 
-        constructor.prototype.translate = function(tx, ty, tz) {
+        translate: function(tx, ty, tz) {
             var newmat = new Matrix4x4(this);
             if(typeof tx === "undefined") tx = 0;
             if(typeof ty === "undefined") ty = 0;
@@ -120,9 +125,9 @@ WebVis.ready(function() {
             newmat.set(2, 3, this.get(2,3) + tz);
 
             this.elements = newmat.elements;
-        };
+        },
 
-        constructor.prototype.mul = function(point, param2, param3) {
+        mul: function(point, param2, param3) {
             var xt, yt, zt;
             if(typeof param2 === "undefined") {
                 xt = point.x;
@@ -154,9 +159,9 @@ WebVis.ready(function() {
               y: y,
               z: z
             };
-        };
+        },
 
-        constructor.prototype.mulmat = function(mat) {
+        mulmat: function(mat) {
             var newmat = new Matrix4x4();
             for(var row = 0; row < 4; row++) {
                 for(var col = 0; col < 4; col++) {
@@ -168,9 +173,9 @@ WebVis.ready(function() {
                 }
             }
             return newmat;
-        }
+        },
 
-        constructor.prototype.identity = function() {
+        identity: function() {
             for(var i = 0; i < 4; i++) {
                 for(var j = 0; j < 4; j++) {
                     this.set(i, j, 0);
@@ -180,29 +185,38 @@ WebVis.ready(function() {
             for(var i = 0; i < 4; i++) {
                 this.set(i, i, 1);
             }
-        };
+        },
 
-        constructor.prototype.ortho = function(l, r, t, b, n, f) {
+        ortho: function(l, r, t, b, n, f) {
             this.set(0, 0, 2/(r - l));
             this.set(1, 1, 2/(t - b));
             this.set(2, 2, -2/(f - n));
             this.set(0, 3, -(r + l)/(r - l));
             this.set(1, 3, -(t + b)/(t - b));
             this.set(2, 3, -(f + n)/(f - n));
-        };
+        }
+    });
 
-        return constructor;
-    })();
-
+    /*
     var Line = function(x1, y1, z1, x2, y2, z2) {
         this.visible = true;
         this.color = new Color();
         this.p1 = new Point(x1, y1, z1);
         this.p2 = new Point(x2, y2, z2);
     };
+    */
 
-    var Color = (function() {
-        var constructor = function(r, g, b, a) {
+    var Line = Class(Renderable, {
+        init: function(x1, y1, z1, x2, y2, z2) {
+            this.visible = true;
+            this.color = new Color();
+            this.p1 = new Point(x1, y2, z1);
+            this.p2 = new Point(x2, y2, z2);
+        }
+    });
+
+    var Color = Class({
+        init: function(r, g, b, a) {
             this.visible = true;
             if(r !== undefined) {
                 this.r = r;
@@ -227,16 +241,16 @@ WebVis.ready(function() {
             } else {
                 this.a = 1.0;
             }
-        };
+        },
 
-        constructor.prototype.setColor = function(r, g, b, a) {
+        setColor: function(r, g, b, a) {
             this.r = r;
             this.g = g;
             this.b = b;
             this.a = a;
-        };
+        },
 
-        constructor.prototype.toCss = function() {
+        toCss: function() {
             var r = parseInt(this.r * 255);
             r = r.toString(16);
             if(r.length === 1) {
@@ -261,92 +275,96 @@ WebVis.ready(function() {
                 a = "0" + a;
             }
             return "#" + r + g + b;
-        };
+        }
+    });
 
-        return constructor;
-    })();
+    var Sprite = Class(Renderable, {
+        init: function() {
+            this.visible = true;
+            this.texture = null;
+            this.frame = 0;
+            this.pos = new Point(0, 0, 0.0);
+            this.width = 1.0;
+            this.height = 1.0;
+            this.rotation = 0.0;
+            this.centerx = 0.5;
+            this.centery = 0.5;
+            this.u1 = 0.0;
+            this.v1 = 0.0;
+            this.u2 = 1.0;
+            this.v2 = 1.0;
+            this.tileWidth = 1.0;
+            this.tileHeight = 1.0;
+            this.tileOffsetX = 0.0;
+            this.tileOffsetY = 0.0;
+            this.color = new Color(1.0, 1.0, 1.0, 1.0);
+        }
+    });
 
-    var Sprite = function() {
-        this.visible = true;
-        this.texture = null;
-        this.frame = 0;
-        this.pos = new Point(0, 0, 0.0);
-        this.width = 1.0;
-        this.height = 1.0;
-        this.rotation = 0.0;
-        this.centerx = 0.5;
-        this.centery = 0.5;
-        this.u1 = 0.0;
-        this.v1 = 0.0;
-        this.u2 = 1.0;
-        this.v2 = 1.0;
-        this.tileWidth = 1.0;
-        this.tileHeight = 1.0;
-        this.tileOffsetX = 0.0;
-        this.tileOffsetY = 0.0;
-        this.color = new Color(1.0, 1.0, 1.0, 1.0);
-    };
+    var Rect = Class(Renderable, {
+        init: function() {
+            this.visible = true;
+            this.pos = new Point(0, 0, 1.0);
+            this.width = 1.0;
+            this.height = 1.0;
+            this.rotation = 0.0;
+            this.centerx = 0.5;
+            this.centery = 0.5;
+            this.color = new Color(0, 0, 0, 1.0);
+        }
+    });
 
-    var Rect = function() {
-        this.visible = true;
-        this.pos = new Point(0, 0, 1.0);
-        this.width = 1.0;
-        this.height = 1.0;
-        this.rotation = 0.0;
-        this.centerx = 0.5;
-        this.centery = 0.5;
-        this.color = new Color(0, 0, 0, 1.0);
-    };
-
-    var Path = (function() {
-        var constructor = function() {
+    var Path = Class(Renderable, {
+        init: function() {
             this.visible = true;
             this.curPos = new Point(0, 0, 0);
             this.points = [];
             this.strokeColor = new Color(0, 0, 0, 0);
-        };
+        },
 
-        constructor.prototype.moveTo = function(x, y) {
+        moveTo: function(x, y) {
             this.curPos.x = x;
             this.curPos.y = y;
-        };
+        },
 
-        constructor.prototype.lineTo = function(x, y) {
+        lineTo: function(x, y) {
             this.points.push(new Line(this.curPos,
                 new Point(x,y)));
-        };
-
-        return constructor;
-    })();
-
-    var Text = function() {
-        this.visible = true;
-        this.font = "sans-serif";
-        this.value = "";
-        this.alignment = "left";
-        this.baseline = "alphabetic"
-        this.pos = new Point(0, 0, 0);
-        this.maxWidth = 0.0;
-        this.size = 12;
-        this.color = new Color(0, 0, 0, 1.0);
-    };
-
-    var Circle = function() {
-        this.visible = true;
-        this.center = new Point(0, 0, 0);
-        this.rotation = 0;
-        this.radius = 1;
-        this.color = new Color(0, 0, 0, 1.0);
-        this.resolution = 16;
-        this.percentage = 1.0;
-    }
-
-    var Camera = (function() {
-        var constructor = function() {
-            this.transform = new Matrix4x4();
         }
+    });
 
-        constructor.prototype.lookat = function(pos, target) {
+    var Text = Class(Renderable, {
+        init: function() {
+            this.visible = true;
+            this.font = "sans-serif";
+            this.value = "";
+            this.alignment = "left";
+            this.baseline = "alphabetic"
+            this.pos = new Point(0, 0, 0);
+            this.maxWidth = 0.0;
+            this.size = 12;
+            this.color = new Color(0, 0, 0, 1.0);
+        }
+    });
+
+    var Circle = Class(Renderable, {
+        init: function() {
+            this.visible = true;
+            this.center = new Point(0, 0, 0);
+            this.rotation = 0;
+            this.radius = 1;
+            this.color = new Color(0, 0, 0, 1.0);
+            this.resolution = 16;
+            this.percentage = 1.0;
+        }
+    });
+
+    var Camera = Class({
+        init: function() {
+            this.transform = new Matrix4x4();
+        },
+
+        lookat : function(pos, target) {
             var up = new Point(0, 1, 0)
 
             var forward = new Point(target.x - pos.x, target.y - pos.y, target.z - pos.z);
@@ -374,79 +392,75 @@ WebVis.ready(function() {
             this.transform.set(0, 3, pos.x);
             this.transform.set(1, 3, pos.y);
             this.transform.set(2, 3, pos.z);
-        };
+        }
+    });
 
-        return constructor;
-    })();
+    var BaseContext = Class({
+        init: function(){},
 
-    var BaseContext = (function() {
-        var constructor = function(){};
+        push: function(mat) {
+            throw "Function not implemented.";
+        },
 
-        constructor.prototype.push = function(mat) {
+        pop: function() {
+            throw "Function not implemented.";
+        },
+
+        setCamera: function(camera) {
+            throw "Function not implemented.";
+        },
+
+        resetCamera: function() {
+            throw "Function not implemented.";
+        },
+
+        getScreenSize: function() {
+            throw "Function not implemented.";
+        },
+
+        loadTextures: function(callback) {
+            throw "Function not implemented.";
+        },
+
+        texturesLoaded: function() {
+            throw "Function not implemented.";
+        },
+
+        setClearColor: function(color) {
+            throw "Function not implemented.";
+        },
+
+        begin: function(color) {
+            throw "Function not implemented.";
+        },
+
+        end: function() {
+            throw "Function not implemented.";
+        },
+
+        drawRect: function(rect) {
+            throw "Function not implemented.";
+        },
+
+        drawSprite: function(tex) {
+            throw "Function not implemented.";
+        },
+
+        drawLine: function(line) {
+            throw "Function not implemented.";
+        },
+
+        drawText: function(text) {
+            throw "Function not implemented.";
+        },
+
+        drawCircle: function(circle) {
             throw "Function not implemented.";
         }
+    });
 
-        constructor.prototype.pop = function() {
-            throw "Function not implemented.";
-        }
-
-        constructor.prototype.setCamera = function(camera) {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.resetCamera = function() {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.getScreenSize = function() {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.loadTextures = function(callback) {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.texturesLoaded = function() {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.setClearColor = function(color) {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.begin = function(color) {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.end = function() {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.drawRect = function(rect) {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.drawSprite = function(tex) {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.drawLine = function(line) {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.drawText = function(text) {
-            throw "Function not implemented.";
-        };
-
-        constructor.prototype.drawCircle = function(circle) {
-            throw "Function not implemented.";
-        };
-
-        return constructor;
-    })();
-
-    var WebGLContext = (function() {
-        var constructor = function(canvas, worldWidth, worldHeight, readyAction) {
+    var WebGLContext = Class(BaseContext, {
+        init: function(canvas, worldWidth, worldHeight, readyAction) {
             var self = this;
 
             // create members
@@ -612,38 +626,35 @@ WebVis.ready(function() {
             ).then(function() {
                 readyAction();
             });
-        };
+        },
 
-        // attach the prototype basecontext prototype
-        constructor.prototype = BaseContext;
-
-        constructor.prototype.push = function(mat) {
+        push: function(mat) {
             var newMat = mat.mulmat(this.projection);
             this.projections.push(newMat);
             this.projection = newMat;
-        };
+        },
 
-        constructor.prototype.pop = function() {
+        pop: function() {
             this.projections.pop();
             this.projection = this.projections[this.projections.length - 1];
-        };
+        },
 
-        constructor.prototype.setCamera = function(camera) {
+        setCamera: function(camera) {
             this.currentCamera = camera;
-        };
+        },
 
-        constructor.prototype.resetCamera = function() {
+        resetCamera: function() {
             this.currentCamera = null;
-        };
+        },
 
-        constructor.prototype.getScreenSize = function() {
+        getScreenSize: function() {
             return {
                 width: this.canvas.clientWidth,
                 height: this.canvas.clientHeight
             };
-        };
+        },
 
-        constructor.prototype.loadTextures = function(pluginName, callback) {
+        loadTextures: function(pluginName, callback) {
             var self = this;
             this.texturesLoaded = false;
             this.textures = {};
@@ -751,17 +762,17 @@ WebVis.ready(function() {
                 data : null,
                 success: getTextures
             });
-        };
+        },
 
-        constructor.prototype.isTexturesLoaded = function() {
+        isTexturesLoaded: function() {
             return this.texturesLoaded;
-        };
+        },
 
-        constructor.prototype.setClearColor = function(color) {
+        setClearColor: function(color) {
             this.gl.clearColor(color.r, color.g, color.b, color.a);
-        };
+        },
 
-        constructor.prototype.begin = function() {
+        begin: function() {
             this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
             this.textCanvas.width = this.canvas.width;
             this.textCanvas.height = this.canvas.height;
@@ -771,22 +782,10 @@ WebVis.ready(function() {
             this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
             this.textCanvasCtx.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height);
             this.rects.num = 0;
-        };
+        },
 
-        constructor.prototype.end = function() {
+        end: function() {
             var self = this;
-            var draw = function(prog, bo, method, setAttribs) {
-                self.gl.useProgram(prog);
-                self.gl.bindBuffer(self.gl.ARRAY_BUFFER, self.drawBuffer);
-                self.gl.bufferSubData(self.gl.ARRAY_BUFFER, 0, new Float32Array(bo.buffer));
-                var meh = new Matrix4x4();
-                self.gl.uniformMatrix4fv(prog.uPMatrix, false, self.projection.elements);
-                self.gl.uniformMatrix4fv(prog.uVMatrix, false, self.currentCamera.transform.elements);
-                //self.gl.uniformMatrix4fv(prog.uVMatrix, false, meh.elements);
-
-                setAttribs();
-                self.gl.drawArrays(method, 0, bo.num* 5);
-            };
 
             // draw lines in buffer
             for(var prop in self.lines) {
@@ -890,9 +889,9 @@ WebVis.ready(function() {
                 }
             }
 
-        };
+        },
 
-        constructor.prototype.drawRect = function(rect) {
+        drawRect: function(rect) {
             if(rect.visible === false) return;
             if(this.rects[this.projection.elements] === undefined) {
                 this.rects[this.projection.elements] = new this.Buffer(7);
@@ -952,9 +951,9 @@ WebVis.ready(function() {
 
             this.rects[this.projection.elements].offset = offset;
             this.rects[this.projection.elements].num += 6;
-        };
+        },
 
-        constructor.prototype.drawSprite = function(sprite) {
+        drawSprite: function(sprite) {
             if(sprite.visible === false) return;
             if(this.textures[sprite.texture] === undefined) {
                 console.warn("specified texture does not exist.");
@@ -1046,9 +1045,9 @@ WebVis.ready(function() {
 
             bufferObject.offset = offset;
             bufferObject.num += 6;
-        };
+        },
 
-        constructor.prototype.drawLine = function(line) {
+        drawLine: function(line) {
             if(line.visible === false) return;
             if(this.lines[this.projection.elements] === undefined) {
                 this.lines[this.projection.elements] = new this.Buffer(7);
@@ -1084,9 +1083,9 @@ WebVis.ready(function() {
 
             this.lines[this.projection.elements].offset = offset;
             this.lines[this.projection.elements].num += 2;
-        };
+        },
 
-        constructor.prototype.drawText = function(text) {
+        drawText: function(text) {
             if(text.visible === false) return;
             this.textCanvasCtx.font = text.size + "px " + text.font;
             var pt = this.projection.mul(text.pos.x, text.pos.y, 0);
@@ -1122,9 +1121,9 @@ WebVis.ready(function() {
             }
 
             wrapText(this.textCanvasCtx, text.value, ux, uy, maxWidth, text.size);
-        };
+        },
 
-        constructor.prototype.drawCircle = function(circle) {
+        drawCircle: function(circle) {
             if(circle.visible === false) return;
             if(this.circles[this.projection.elements] === undefined) {
                 this.circles[this.projection.elements] = new this.Buffer(7);
@@ -1183,10 +1182,8 @@ WebVis.ready(function() {
             }
 
             vbo.offset = offset;
-        };
-
-        return constructor;
-    })();
+        }
+    });
 
     var init = function(canvas, worldWidth, worldHeight) {
         var context = new WebGLContext(canvas, worldWidth, worldHeight, function() {
@@ -1196,7 +1193,6 @@ WebVis.ready(function() {
 
     WebVis.renderer = {
         context: null,
-        batchSize: 1000,
         Point : Point,
         Matrix4x4 : Matrix4x4,
         Line: Line,

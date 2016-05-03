@@ -1,4 +1,7 @@
 WebVis.ready(function() {
+    // imports
+    var Class = WebVis.util.Class;
+
     var mainList;
     var $debug = $(WebVis.pages["Debug"])
     .css({
@@ -6,56 +9,65 @@ WebVis.ready(function() {
         "height": "100%"
     });
 
-    var ElemController = function(name, data) {
-        var self = this;
-        this.visible = false;
-        this.$elem = $(WebVis.delegates["tree-elem"]).clone();
-        this.name = name;
-        this.value = null;
-        this.$elem.data('controller', this);
-        this.subelems = {};
-        this.$subtreeIcon = self.$elem.children().not(".debug-tree").find(".debug-tree-subtree");
-        this.$name = self.$elem.children().not(".debug-tree").find('.debug-tree-elem-name');
-        this.$value = self.$elem.children().not(".debug-tree").find(".debug-tree-elem-value");
-        this.$subtree = self.$elem.children(".debug-tree:first");
+    var ElemController = Class({
+        init: function(name, data) {
+            var self = this;
+            this.visible = false;
+            this.$elem = $(WebVis.delegates["tree-elem"]).clone();
+            this.name = name;
+            this.value = null;
+            this.$elem.data('controller', this);
+            this.subelems = {};
+            this.$subtreeIcon = self.$elem.children().not(".debug-tree").find(".debug-tree-subtree");
+            this.$name = self.$elem.children().not(".debug-tree").find('.debug-tree-elem-name');
+            this.$value = self.$elem.children().not(".debug-tree").find(".debug-tree-elem-value");
+            this.$subtree = self.$elem.children(".debug-tree:first");
 
-        this.$name.text(name);
+            this.$name.text(name);
 
-        if(name === "id") {
-            this.$value.parent().addClass('debug-tree-clickable');
-            this.$value.parent().click(function() {
-                var $gameObjects;
-                mainList.getSubtree().each(function(i, elem) {
-                    var controller = $(elem).data('controller');
-                    var name = controller.getName();
-                    if(name === "gameObject") {
-                        $gameObjects = controller;
-                        $gameObjects.openSubtree();
-                        return false;
-                    }
+            if(name === "id") {
+                this.$value.parent().addClass('debug-tree-clickable');
+                this.$value.parent().click(function() {
+                    var $gameObjects;
+                    mainList.getSubtree().each(function(i, elem) {
+                        var controller = $(elem).data('controller');
+                        var name = controller.getName();
+                        if(name === "gameObject") {
+                            $gameObjects = controller;
+                            $gameObjects.openSubtree();
+                            return false;
+                        }
+                    });
+
+                    $gameObjects.getSubtree().each(function(i, elem) {
+                        var controller = $(elem).data('controller');
+                        var n = controller.getName();
+                        if(n === value) {
+                            controller.openSubtree();
+                            console.log($(elem).offset);
+                            return false;
+                        }
+                    });
                 });
+            }
 
-                $gameObjects.getSubtree().each(function(i, elem) {
-                    var controller = $(elem).data('controller');
-                    var n = controller.getName();
-                    if(n === value) {
-                        controller.openSubtree();
-                        console.log($(elem).offset);
-                        return false;
-                    }
-                });
+            this.$subtreeIcon.click(function() {
+                self.toggleSubTree();
             });
-        }
 
-        this.getSubtree = function() {
-            return self.$subtree;
-        };
+            this.setValue(data);
+        },
 
-        this.detach = function() {
+        getSubtree: function() {
+            return this.$subtree;
+        },
+
+        detach: function() {
             this.$elem.addClass("debug-tree-elem-hidden");
-        }
+        },
 
-        var updateSubtree = function() {
+        updateSubtree: function() {
+            var self = this;
             for(var prop in self.value) {
                 if(!self.value.hasOwnProperty(prop)) continue;
                 if(prop === "&LEN") continue;
@@ -85,19 +97,19 @@ WebVis.ready(function() {
                     self.subelems[prop].detach();
                 }
             }
+        },
 
-        }
+        getName: function(name) {
+            return this.name;
+        },
 
-        this.getName = function(name) {
-            return self.name;
-        }
-
-        this.setName = function(name) {
+        setName: function(name) {
             this.$name.text(name);
             this.name = name;
-        }
+        },
 
-        this.setValue = function(value) {
+        setValue: function(value) {
+            var self = this;
             var oldvalue = self.value;
             self.value = value;
             var textValue = null;
@@ -128,39 +140,35 @@ WebVis.ready(function() {
             if(($.isPlainObject(self.value) && $.isPlainObject(oldvalue)) || oldvalue !== self.value) {
                 self.$value.text(textValue);
             }
-        };
+        },
 
-        this.closeSubtree = function() {
+        closeSubtree: function() {
+            var self = this;
             self.$subtree.removeClass("debug-tree-subtree-visible");
             self.visible = false;
             self.$subtreeIcon
             .removeClass("glyphicon-triangle-bottom")
             .addClass("glyphicon-triangle-right");
-        };
+        },
 
-        this.openSubtree = function() {
+        openSubtree: function() {
+            var self = this;
             self.$subtree.addClass("debug-tree-subtree-visible");
             self.visible = true;
             self.$subtreeIcon
             .removeClass("glyphicon-triangle-right")
             .addClass("glyphicon-triangle-bottom");
-            updateSubtree();
-        }
+            this.updateSubtree();
+        },
 
-        this.toggleSubTree = function() {
-            if(self.visible) {
+        toggleSubTree: function() {
+            if(this.visible) {
                 this.closeSubtree();
             } else {
                 this.openSubtree();
             }
-        };
-
-        this.$subtreeIcon.click(function() {
-            self.toggleSubTree();
-        });
-
-        this.setValue(data);
-    };
+        }
+    });
 
     mainList = new ElemController("", "");
 
