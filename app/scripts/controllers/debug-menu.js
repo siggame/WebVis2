@@ -1,3 +1,6 @@
+// The contents of this file are responsible for creating and managing the
+// contents of the debug table in the webvis.
+
 WebVis.ready(function() {
     // imports
     var Class = WebVis.util.Class;

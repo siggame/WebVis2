@@ -1,3 +1,6 @@
+// The contents of this file are responsible for creating and managing the
+// Options tab of the webvis.
+
 WebVis.ready(function() {
     // imports
     var foreach = WebVis.util.foreach;

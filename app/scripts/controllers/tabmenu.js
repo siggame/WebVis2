@@ -1,3 +1,8 @@
+// The contents of this file are responsible for creating and managing the
+// tabs on the left-hand side of the screen for the webvis. To create new tabs
+// you will need to edit the menu.html file to add a new tab and this file
+// will automatically create a bind point.
+
 WebVis.ready(function() {
 
     var tabmenu = $("#tab-bind-point");

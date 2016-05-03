@@ -1,3 +1,8 @@
+// The contents of this file are responsible for creating and managing the
+// bindings and control creation for any dom manipulation and interaction.
+// That means attaching event handlers and also handling things like starting
+// the log load process and handling uri parameters.
+
 WebVis.ready(function() {
     // Stuck after the WebVis name.
     var version = "2.0.0";
