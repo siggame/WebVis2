@@ -1,13 +1,18 @@
 WebVis.ready(function() {
+    // Stuck after the WebVis name.
     var version = "2.0.0";
 
     // forward declarations
     var resize = null;
+    var evalPlaying = null;
+    var getLogFromArena = null;
+    var initPluginFromLog = null;
+    var updateCanvasSize = null;
 
-    var evalPlaying;
-    var getLogFromArena;
-
-    var initPluginFromLog = function(file) {
+    // ---------------------------------------------------------
+    // This function takes a complete gamelog and loads the plugin
+    //----------------------------------------------------------
+    initPluginFromLog = function(file) {
         var gameObject;
         try {
             var gameObject = JSON.parse(file.data);
@@ -89,6 +94,7 @@ WebVis.ready(function() {
     $('#webvis-version-text').text(version);
     var formTag = $('#manual-open-btn').find('form');
     var inputTag = formTag.find("input[type='file']");
+    // Callback function for when the open button is clicked
     $('#manual-open-btn').bind('click', function(event) {
         inputTag.click();
     });
@@ -137,6 +143,7 @@ WebVis.ready(function() {
 
     //-------------------------------------------------
     // attach the time slider to it's element
+    // this uses JQuery-UI
     //-------------------------------------------------
     $('#turn-slider').slider({
         animate: false,
@@ -149,6 +156,7 @@ WebVis.ready(function() {
 
     //-------------------------------------------------
     // attach the speed slider to it's element
+    // this uses JQuery-UI
     //-------------------------------------------------
     $('#speed-slider').slider({
         animate: true,
@@ -314,6 +322,8 @@ WebVis.ready(function() {
     WebVis.game.onCurrentTurnChange(function() {
         $("#turn-slider").slider('value', parseInt(WebVis.game.currentTurn));
         turnInvalidated = true;
+        // on the last turn, if you are in arena mode, get a new log from
+        // the arena
         if(parseInt(WebVis.game.currentTurn) === WebVis.game.maxTurn) {
             console.log(WebVis.game.currentTurn + " " + WebVis.game.maxTurn);
             if(WebVis.options.getOptionValue("arena-mode")) {
@@ -326,6 +336,9 @@ WebVis.ready(function() {
         $("#turn-slider").slider('option', {'max': parseInt(WebVis.game.maxTurn)});
     });
 
+    // this is a hacky solution to deal with the massive cost of redrawing
+    // the debug table right now. It ensures that the table is only redrawn
+    // once every half second even if you change the turn a lot.
     setInterval(function() {
         if(turnInvalidated) {
             console.log("redrawn");
@@ -337,18 +350,21 @@ WebVis.ready(function() {
     //---------------------------------------------------------
     //  Canvas setup and window resize bindingbinding
     //---------------------------------------------------------
-    var updateCanvasSize = function() {
+    updateCanvasSize = function() {
         var $canvas = $('#canvas');
         $canvas.get(0).width = $canvas.parent().width();
         $canvas.get(0).height = $canvas.parent().height();
     };
 
-    var resize = function() {
+    resize = function() {
         updateCanvasSize();
     };
 
     $(window).resize(resize);
 
+    //---------------------------------------------------------
+    // Global error handler for all unhandled exceptions.
+    //---------------------------------------------------------
     window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
         WebVis.alert("danger", errorMsg)
         return false;

@@ -137,10 +137,18 @@ WebVis.ready(function() {
         return false;
     };
 
+    var foreach = function(obj, callback) {
+        for(var prop in obj) {
+            if(!obj.hasOwnProperty(prop)) continue;
+            callback(prop, obj[prop]);
+        }
+    };
+
     WebVis.util = {
         defined: defined,
         assert: assert,
         getUrlParams: getUrlParams,
+        foreach: foreach,
         Class : Class
     };
 
